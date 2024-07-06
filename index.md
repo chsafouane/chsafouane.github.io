@@ -1,7 +1,11 @@
-Hello and welcome to this blog. Edit the `index.md` file to change this content. All pages on the blog, including this one, use [Markdown](https://guides.github.com/features/mastering-markdown/). You can include images:
+# Welcome to Notes from the Past
 
-![Image of fast.ai logo](images/logo.png)
+> _Capturing data-driven discoveries, one weekend at a time._
 
-## This is a title
+---
 
-And you can include links, like this [link to fast.ai](https://www.fast.ai). Posts will appear after this file. 
+This is a personal sanctuary where I document my data-related adventures, experiments, and epiphanies that unfold during my weekend explorations.
+
+This is not a blog. As the name suggests, "Notes from the Past" serves as my personal archive, allowing me to revisit my notes instead of letting them die on my iPad forever...
+
+---
