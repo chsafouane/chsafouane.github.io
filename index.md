@@ -13,5 +13,4 @@ This is not a blog. As the name suggests, "Notes from the Past" serves as my per
 ### Join me on this journey
 
 [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/safouane-chergui/)
-
 [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/chsafouane)
