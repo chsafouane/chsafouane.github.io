@@ -119,7 +119,7 @@ This table shows four ranges, the 1st range is encoded using 1 byte only, the se
 
 
 <p align="center">
-    <img src="../images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png" alt="image.png">
+    <img src="https://github.com/chsafouane/chsafouane.github.io/blob/master/images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png?raw=true" alt="image.png">
 </p>
 
 
