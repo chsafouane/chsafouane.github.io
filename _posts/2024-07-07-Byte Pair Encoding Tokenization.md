@@ -13,7 +13,7 @@
     - [Encoding](#toc1_3_3_1_)    
     - [Decoding tokenized text](#toc1_3_3_2_)    
     - [One last problem to solve](#toc1_3_3_3_)    
-    - [One final example](#toc1_3_3_4_)    
+  - [One final example](#toc1_3_4_)    
 
 <!-- vscode-jupyter-toc-config
 	numbering=false
@@ -967,7 +967,7 @@ example_byte.decode("UTF-8", errors="replace")
 
 
 
-#### <a id='toc1_3_3_4_'></a>[One final example](#toc0_)
+#### <a id='toc1_3_4_'></a>[One final example](#toc0_)
 
 As an example of our training corpus, we'll take the description in english, french and arabic of `1337`, one of the leading IT schools in the world that is located in Morocco. This description will constitute our corpus that we'll use to train our tokenizer.
 
