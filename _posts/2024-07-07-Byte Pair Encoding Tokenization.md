@@ -30,16 +30,6 @@ We're not going to go into the gory details of it. If you'd like a great source 
 
 This post is just a way for me to organize ideas in my head before moving on to the next topic.
 
-
-```python
-%load_ext autoreload
-%autoreload 2
-```
-
-    The autoreload extension is already loaded. To reload it, use:
-      %reload_ext autoreload
-
-
 ## <a id='toc1_1_'></a>[Hexadecimal representation](#toc0_)
 
 Let go for a quick tour of hexadecimal representation. We, as humans, usually represent numbers in base 10. Computers make use of base 2 representation.
@@ -542,7 +532,9 @@ print(f"The merged ids: {[three_merges_vocab[255 + x] for x in range(1, 4)]}")
     The merged ids: [(72, 101), (256, 108), (257, 108)]
 
 
-Now, the `merge_iteratively` function if it's out of pairs that occur more than once, it will start merging pairs that occur only once. This can be handled easily by returning the count of the number of occurences as well in `get_most_common_pair` and checking that it's greater than 1 to proceed to merging.
+Now, the `merge_iteratively` function if it's out of pairs that occur more than once, it will start merging pairs that occur only once. This is not a desired behavior.
+
+This can be handled easily by returning the count of the number of occurences as well in `get_most_common_pair` and checking that it's greater than 1 to proceed to merging.
 
 
 ```python
