@@ -1,5 +1,3 @@
-<h1 style="text-align:center;">BPE Tokenization</h1>
-
 **Table of contents**<a id='toc0_'></a>    
 - [Hexadecimal representation](#toc1_1_)    
 - [UTF-8 encoding](#toc1_2_)    
