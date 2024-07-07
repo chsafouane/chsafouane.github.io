@@ -230,7 +230,7 @@ It's just a displaying matter !
 
 In order to feed data to a model, we have to first convert it to numerical data. The process for NLP models looks as follow:
 
-<p align=center>Text -----> Tokenizer -----> Numerical ids that represent tokens -----> NLP model -----> Prediction for the input text</p>
+<p align=center>Text ---> Tokenizer ---> Numerical ids that represent tokens ---> NLP model ---> Prediction</p>
 
 Now, if you look at the definition of `str` in Python, it's defined as follows:
 
