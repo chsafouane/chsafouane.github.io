@@ -444,10 +444,14 @@ print(f"The most common pair is {most_common_pair}. {most_common_pair[0]} corres
     The most common pair is (72, 101). 72 corresponds to H and 101 corresponds to e
 
 
+Let us write a function that takes the encoded corpus, the vocabulary, the pair of ids to merge and:
+- Updates the vocabulary by adding the new id that replaces the occurence of the pair of the ids to merge
+- Updates the corpus by replacing the occurence of the pair of ids with the new id
+
 
 ```python
 def merge_and_update_corpus_and_vocab(encoded_corpus, vocab, pair_to_merge):
-    """Updates the vocab with the new pair of bytes to merge
+    """Updates the vocab with the new pair of ids to merge
     & updates the corpus to use the new id instead of the pair of bytes
     """
     updated_corpus = []
