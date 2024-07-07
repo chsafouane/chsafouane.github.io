@@ -121,7 +121,7 @@ This table shows four ranges, the 1st range is encoded using 1 byte only, the se
 
 
 <p align="center">
-    <img src="../images/2024-07-07-BPE/image.png" alt="image.png">
+    <img src="../images/2024-07-07-Byte Pair Encoding Tokenization/image.png" alt="image.png">
 </p>
 
 
