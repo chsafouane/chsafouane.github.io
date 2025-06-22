@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Safouane Chergui">
+<meta name="dcterms.date" content="2024-07-07">
 
-<title>byte-pair-encoding-tokenization – chsafouane.github.io</title>
+<title>Byte Pair Encoding Tokenization – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -115,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
-    <span class="navbar-title">chsafouane.github.io</span>
+    <span class="navbar-title">Safouane Chergui</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -146,12 +148,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block"></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Byte Pair Encoding Tokenization</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Python</div>
+                <div class="quarto-category">NLP</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Safouane Chergui </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 7, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
+
 
 
 
@@ -186,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Let go for a quick tour of hexadecimal representation. We, as humans, usually represent numbers in base 10. Computers make use of base 2 representation.</p>
 <p>Hexadecimal representation means representing a number in base 16. Numbers are represented using 0 to 9 and A-F, with A being equivalent to 10, B to 11, …, F to 15.</p>
 <p>The number 125 can be written in hexadecimal as 7D.</p>
-<div id="cell-4" class="cell" data-execution_count="2">
+<div id="cell-5" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># d * (16**0) + 7 * (16**1) = 13 + 7 * 16</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">hex</span>(<span class="dv">125</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
@@ -194,14 +229,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Now, a byte is represented with 8 bits, with a range going from 00000000 to 11111111 &lt;-&gt; 0 to 255 in decimal &lt;-&gt; 00 to FF in hexadecimal</p>
-<div id="cell-6" class="cell" data-execution_count="3">
+<div id="cell-7" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">hex</span>(<span class="dv">255</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0xff</code></pre>
 </div>
 </div>
 <p><em>Note:</em> The prefix <code>0x</code> is used in intergers to tell Python to interpret the number as a hexadecimal. For example:</p>
-<div id="cell-8" class="cell" data-execution_count="4">
+<div id="cell-9" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python understands that this number is represented in hexadecimal</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>hex_number <span class="op">=</span> <span class="bn">0xff</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -217,7 +252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="some-unicode-vocab" class="level3">
 <h3 class="anchored" data-anchor-id="some-unicode-vocab"><a id="toc1_2_1_"></a><a href="#toc0_">Some Unicode vocab</a></h3>
 <p>You should know at least these two words when dealing with Unicode: <strong>character</strong> and <strong>code point</strong>: - A character is a textual unit in Unicode. It can be anything ranging from a letter, a digit, an emoji, a mathematical symbol, etc.</p>
-<div id="cell-10" class="cell" data-execution_count="15">
+<div id="cell-11" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>character <span class="op">=</span> <span class="st">"A"</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Character: </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -234,7 +269,7 @@ Arabic character: ص</code></pre>
 <ul>
 <li>A code point is a unique number assigned to each character in Unicode. You can obtain it in Python using the <code>ord</code> function.</li>
 </ul>
-<div id="cell-12" class="cell" data-execution_count="58">
+<div id="cell-13" class="cell" data-execution_count="58">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>A_code_point <span class="op">=</span> <span class="bu">ord</span>(character)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The character </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss"> has as a code point </span><span class="sc">{</span>A_code_point<span class="sc">}</span><span class="ss"> in decimal, which corresponds to </span><span class="sc">{</span><span class="bu">hex</span>(A_code_point)<span class="sc">}</span><span class="ss"> in hexadecimal"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -263,7 +298,7 @@ The character ص has as a code point 1589 in decimal, which corresponds to 0x635
 <p>Using 2 bytes, it yields the following <code>00000110 00110101</code>. Now, UTF-8 doesn’t use conversion to bytes to encode code points. It has its own rules to do the encoding.</p>
 <p>Now, if you look at the table, you see that <code>U+0635</code> falls between the range of <code>U+0080</code> and <code>U+07FF</code>. So, we have to use the rule in the second row to encode it using UTF-8.</p>
 <p>The way to do this is to fill the <code>x</code> with the numbers in the binary representation starting from the right (copy-paste digit from the binary representation starting from the right): - Before filling: [110]xxxxx [10]xxxxxx - After filling: [110]11000 [10]110101. In hexadecimal, this yields <code>d8 b5</code>.</p>
-<div id="cell-20" class="cell" data-execution_count="70">
+<div id="cell-21" class="cell" data-execution_count="70">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The byte 11011000 yields in hexadecimal: </span><span class="sc">{</span><span class="bu">hex</span>(<span class="bn">0b11011000</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The byte 10110101 yields in hexadecimal: </span><span class="sc">{</span><span class="bu">hex</span>(<span class="bn">0b10110101</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -272,7 +307,7 @@ The byte 10110101 yields in hexadecimal: 0xb5</code></pre>
 </div>
 </div>
 <p>Now, this should match the result of the UTF-8 encoding of the character <code>ص</code> using Python</p>
-<div id="cell-22" class="cell" data-execution_count="71">
+<div id="cell-23" class="cell" data-execution_count="71">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">"ص"</span>.encode(<span class="st">"utf-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="71">
 <pre><code>b'\xd8\xb5'</code></pre>
@@ -287,7 +322,7 @@ The byte 10110101 yields in hexadecimal: 0xb5</code></pre>
 <section id="a-sentence-example" class="level3">
 <h3 class="anchored" data-anchor-id="a-sentence-example"><a id="toc1_2_3_"></a><a href="#toc0_">A sentence example</a></h3>
 <p>Let us now encode a whole sentence and see the result: <code>Hello there صفوان</code></p>
-<div id="cell-27" class="cell" data-execution_count="73">
+<div id="cell-28" class="cell" data-execution_count="73">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ex_sentence <span class="op">=</span> <span class="st">"Hello there صفوان"</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The UTF-8 encoding of the sentence '</span><span class="sc">{</span>ex_sentence<span class="sc">}</span><span class="ss">' is: </span><span class="sc">{</span>ex_sentence<span class="sc">.</span>encode(<span class="st">'UTF-8'</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -312,7 +347,7 @@ Text —&gt; Tokenizer —&gt; Numerical ids (tokens) —&gt; NLP model —&gt; 
 <p>From this definition, you can decide to just map every unicode character to its code point. For e.g, <code>ص</code> will be mapped to <code>1589</code>. Using this technique will yield a vocabulary of almost 150 000 tokens.</p>
 <p>The problem with this is: - Your vocabulary will be big. This means that your model will have embedding layers of 150 000 * size_of_your_embeddding - With that many characters, it’s very likely that your model training dataset won’t contain many of them that often, if not at all. If your model gets to see <code>ص</code> very few times, its embedding will be very ill trained. At the end of training, its embedding will be very close to its random initialization state and would be of no use at all. - As your input sentence will be divided in unique characters, a simple sentence will consume lots of tokens in your input context. This means that: - At inference, you’ll have to make predictions for every character - Your sentence will take so much memory because even a simple sentence will be long, many embeddings used and calculations will have to be made over all those embeddings - Simple text will consume so much of the model context size</p>
 <p>Let look at this famous sentence <code>The quick brown fox jumps over the lazy dog</code>. If every character is considered a token, it will consist of 28 different tokens</p>
-<div id="cell-31" class="cell" data-execution_count="4">
+<div id="cell-32" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>example_sentence<span class="op">=</span> <span class="st">"The quick brown fox jumps over the lazy dog"</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of tokens in </span><span class="sc">{</span>example_sentence<span class="sc">}</span><span class="ss"> is: </span><span class="sc">{</span><span class="bu">len</span>(<span class="bu">set</span>([e <span class="cf">for</span> e <span class="kw">in</span> example_sentence]))<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -320,7 +355,7 @@ Text —&gt; Tokenizer —&gt; Numerical ids (tokens) —&gt; NLP model —&gt; 
 </div>
 </div>
 <p>If we use GPT-4o tokenizer that is a BPE tokenizer itself, let us see how many tokenizer we get:</p>
-<div id="cell-33" class="cell" data-execution_count="6">
+<div id="cell-34" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> tiktoken.get_encoding(<span class="st">"o200k_base"</span>)</span>
@@ -331,7 +366,7 @@ Text —&gt; Tokenizer —&gt; Numerical ids (tokens) —&gt; NLP model —&gt; 
 </div>
 </div>
 <p>When we look at the tokens resulting from GPT-4o tokenizer, we get to see that every word is a token in this case.</p>
-<div id="cell-35" class="cell" data-execution_count="8">
+<div id="cell-36" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> encoded_input:</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"The token with id </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss"> represents </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode_single_token_bytes(token)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -350,12 +385,12 @@ The token with id 6446 represents b' dog'</code></pre>
 <section id="bpe-in-action" class="level3">
 <h3 class="anchored" data-anchor-id="bpe-in-action"><a id="toc1_3_1_"></a><a href="#toc0_">BPE in action</a></h3>
 <p>For this, you’ll need to install <code>tiktoken</code> package using <code>pip install tiktoken</code>.</p>
-<div id="cell-38" class="cell" data-execution_count="2">
+<div id="cell-39" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> tiktoken.get_encoding(<span class="st">"o200k_base"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-39" class="cell" data-execution_count="11">
+<div id="cell-40" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>input_str <span class="op">=</span> <span class="st">"My name is صفوان"</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>encoded_input <span class="op">=</span> tokenizer.encode(input_str)</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The result of tokenization consists of </span><span class="sc">{</span><span class="bu">len</span>(encoded_input)<span class="sc">}</span><span class="ss"> tokens: </span><span class="sc">{</span>encoded_input<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -364,7 +399,7 @@ The token with id 6446 represents b' dog'</code></pre>
 </div>
 </div>
 <p>Let us decode each one of these tokens and see what they consist of:</p>
-<div id="cell-41" class="cell" data-execution_count="12">
+<div id="cell-42" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> encoded_input:</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"The token with id </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss"> represents </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode_single_token_bytes(token)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -376,14 +411,14 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 </div>
 </div>
 <p>I hope you recognize, in the 4th print statement, the hexadecimal representation of the character <code>ص</code> We can see that the fourth</p>
-<div id="cell-43" class="cell" data-execution_count="13">
+<div id="cell-44" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>[tokenizer.decode_single_token_bytes(x) <span class="cf">for</span> x <span class="kw">in</span> encoded_input]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>[b'My', b' name', b' is', b' \xd8\xb5\xd9\x81', b'\xd9\x88\xd8\xa7\xd9\x86']</code></pre>
 </div>
 </div>
 <p>Let us decode that fourth element and see what it consists of:</p>
-<div id="cell-45" class="cell" data-execution_count="14">
+<div id="cell-46" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>tokenizer.decode_single_token_bytes(encoded_input[<span class="dv">3</span>]).decode(<span class="st">"utf-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>' صف'</code></pre>
@@ -414,19 +449,19 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 <h4 class="anchored" data-anchor-id="encoding"><a id="toc1_3_3_1_"></a><a href="#toc0_">Encoding</a></h4>
 <p>So, we basically need to do three things to build our tokenizer: - Define our basic vocab that we’ll grow as we merge the most common pair of bytes - Convert our corpus to a stream of bytes (just encoding it using UTF-8) - Do the following <code>number_of_merges</code> times: - Get the most common pair of bytes - Merge the two pairs in a new id. Everytime the tokenizer will see the two pairs together, it will map them to the new ID.</p>
 <p>So, our starting vocab is just the 1 byte interval (0 to 255), and as we merge the most common, we’ll append new ids corresponding to the merged bytes.</p>
-<div id="cell-51" class="cell" data-execution_count="45">
+<div id="cell-52" class="cell" data-execution_count="45">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> {i:i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>)}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>As stated before, the first step is to convert our corpus to a stream of bytes by encoding using UTF-8.</p>
 <p>Let us start with a very basic training corpus, it will make testing our functions very easy. Later, we’ll use a corpus consisting of many languages.</p>
-<div id="cell-54" class="cell" data-execution_count="131">
+<div id="cell-55" class="cell" data-execution_count="131">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> <span class="st">"Hello Hello Hello my name is Safouane and I am the author of this post"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-55" class="cell" data-execution_count="132">
+<div id="cell-56" class="cell" data-execution_count="132">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>encoded_corpus <span class="op">=</span> corpus.encode(<span class="st">"UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>As we want to use bytes using the decimal representation (0-255) instead of hexadecimal (0x00 - 0xFF) (the default after encoding with UTF-8) for readability purposes, we’ll do the conversion right away</p>
-<div id="cell-57" class="cell" data-execution_count="133">
+<div id="cell-58" class="cell" data-execution_count="133">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>encoded_corpus <span class="op">=</span> [<span class="bu">int</span>(x) <span class="cf">for</span> x <span class="kw">in</span> encoded_corpus]</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded_corpus[:<span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -434,7 +469,7 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 </div>
 </div>
 <p>Let build a function that returns the most common pair of bytes in the whole corpus</p>
-<div id="cell-59" class="cell" data-execution_count="134">
+<div id="cell-60" class="cell" data-execution_count="134">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_most_common_pair(encoded_corpus: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">tuple</span>:</span>
@@ -445,7 +480,7 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 <span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> most_common_pair</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us see what’s the most common pair of bytes in this corpus</p>
-<div id="cell-61" class="cell" data-execution_count="135">
+<div id="cell-62" class="cell" data-execution_count="135">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>most_common_pair <span class="op">=</span> get_most_common_pair(encoded_corpus)</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The most common pair is </span><span class="sc">{</span>most_common_pair<span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>most_common_pair[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> corresponds to </span><span class="sc">{</span><span class="bu">chr</span>(most_common_pair[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>most_common_pair[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> corresponds to </span><span class="sc">{</span><span class="bu">chr</span>(most_common_pair[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -454,7 +489,7 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 </div>
 </div>
 <p>Let us write a function that takes the encoded corpus, the vocabulary, the pair of ids to merge and: - Updates the vocabulary by adding the new id that replaces the occurence of the pair of the ids to merge - Updates the corpus by replacing the occurence of the pair of ids with the new id</p>
-<div id="cell-63" class="cell" data-execution_count="136">
+<div id="cell-64" class="cell" data-execution_count="136">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_and_update_corpus_and_vocab(encoded_corpus, vocab, pair_to_merge):</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Updates the vocab with the new pair of ids to merge</span></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co">    &amp; updates the corpus to use the new id instead of the pair of bytes</span></span>
@@ -480,7 +515,7 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 <span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> updated_corpus, updated_vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us merge now the most common pair of bytes and create one id out of it. The successive 101,32 will be turned into 256.</p>
-<div id="cell-65" class="cell" data-execution_count="137">
+<div id="cell-66" class="cell" data-execution_count="137">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>updated_corpus_ex, updated_vocab_example <span class="op">=</span> merge_and_update_corpus_and_vocab(</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    encoded_corpus, </span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    vocab,</span>
@@ -488,21 +523,21 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 <span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can see the presence of a new token id in the corpus: <code>256</code></p>
-<div id="cell-67" class="cell" data-execution_count="139">
+<div id="cell-68" class="cell" data-execution_count="139">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(updated_corpus_ex[:<span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[256, 108, 108, 111, 32, 256, 108, 108, 111, 32]</code></pre>
 </div>
 </div>
 <p>When we check the vocab to see to what it corresponds, we see that it’s a merge of two ids: <code>72</code> and <code>101</code>.</p>
-<div id="cell-69" class="cell" data-execution_count="140">
+<div id="cell-70" class="cell" data-execution_count="140">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(updated_vocab_example[<span class="dv">256</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(72, 101)</code></pre>
 </div>
 </div>
 <p>We’ve seen how merging works. Now, we have to apply this merging a <code>number_of_merges</code> times. What you should keep in mind is the following: - You vocab will grow with the number of merges you apply. Say you apply 10 merges, your vocab will go from 256 ids to 266 ids. - The bigger your vocab gets, the bigger your embedding table (whose size corresponds to number of tokens in the vocab * size of embedding) will grow. - Merging indefinitly is not a good idea. The different ids in your vocab will not come up often as tokens in the training corpus of your model. Consequently, some tokens will have random embeddings - Having merged tokens allows you to make good use of your context size as your tokens will can even represent complete words at times</p>
-<div id="cell-71" class="cell" data-execution_count="141">
+<div id="cell-72" class="cell" data-execution_count="141">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu">int</span>):</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(number_of_merges):</span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>        most_common_pair <span class="op">=</span> get_most_common_pair(corpus)</span>
@@ -510,7 +545,7 @@ The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
 <span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corpus, vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-72" class="cell" data-execution_count="142">
+<div id="cell-73" class="cell" data-execution_count="142">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>three_merges_corpus, three_merges_vocab <span class="op">=</span> merge_iteratively(encoded_corpus, vocab, <span class="dv">3</span>)</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"A glimpse at the start of new corpus: </span><span class="sc">{</span>three_merges_corpus[:<span class="dv">10</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
@@ -523,7 +558,7 @@ The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
 </div>
 <p>Now, the <code>merge_iteratively</code> function if it’s out of pairs that occur more than once, it will start merging pairs that occur only once. This is not a desired behavior.</p>
 <p>This can be handled easily by returning the count of the number of occurences as well in <code>get_most_common_pair</code> and checking that it’s greater than 1 to proceed to merging.</p>
-<div id="cell-74" class="cell" data-execution_count="143">
+<div id="cell-75" class="cell" data-execution_count="143">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_most_common_pair(encoded_corpus: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">tuple</span>:</span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns a tuple:</span></span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co">    - A tuple of the most common pair of ids in a corpus</span></span>
@@ -532,7 +567,7 @@ The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    most_common_pair_and_count <span class="op">=</span> Counter(<span class="bu">zip</span>(encoded_corpus[:<span class="op">-</span><span class="dv">2</span>], encoded_corpus[<span class="dv">1</span>:])).most_common(<span class="dv">1</span>)[<span class="dv">0</span>]</span>
 <span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> most_common_pair_and_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-75" class="cell" data-execution_count="144">
+<div id="cell-76" class="cell" data-execution_count="144">
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu">int</span>):</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(number_of_merges):</span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>        most_common_pair, count <span class="op">=</span> get_most_common_pair(corpus)</span>
@@ -544,7 +579,7 @@ The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
 <span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corpus, vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let put all these functions in one function that should do the encoding of a string</p>
-<div id="cell-77" class="cell" data-execution_count="219">
+<div id="cell-78" class="cell" data-execution_count="219">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode(corpus: <span class="bu">str</span>, num_merges: <span class="bu">int</span>):</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    encoded_corpus <span class="op">=</span> corpus.encode(<span class="st">"UTF-8"</span>)</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    base_vocab <span class="op">=</span> {i:i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>)}</span>
@@ -556,11 +591,11 @@ The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
 <section id="decoding" class="level4">
 <h4 class="anchored" data-anchor-id="decoding"><a id="toc1_3_3_2_"></a><a href="#toc0_">Decoding</a></h4>
 <p>Now, to detokenize tokenized text, it’s not that hard - First, you have to reverse the mapping. You have to unpair the ids. If for example, the id 257=(100,256) and 256=(255, 20), we have to unpair those. But in order for the unpairing to work, we have to unpair the ids starting from the highest id, 257 in this case. 257 will be replaced with (100 and 256) and then 256 can be replaced with (255 and 20). If you don’t do it in the right order, you’ll have some composed ids left and you won’t be able to decode them. - Once the mapping is reversed, you can decode the stream of bytes using UTF-8</p>
-<div id="cell-81" class="cell">
+<div id="cell-82" class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>three_merges_corpus, three_merges_vocab <span class="op">=</span> encode(corpus, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us first build a function that will help us get the pair of ids that were replaced with a new id</p>
-<div id="cell-83" class="cell" data-execution_count="187">
+<div id="cell-84" class="cell" data-execution_count="187">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unpair_ids(corpus, vocab):</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Reverses new ids in the vocab to their</span></span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="co">    orignal pair of ids.</span></span>
@@ -579,7 +614,7 @@ The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
 <span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unpaired_corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-84" class="cell" data-execution_count="191">
+<div id="cell-85" class="cell" data-execution_count="191">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The first ten tokens of the tokenized corpus looks like: </span><span class="sc">{</span>three_merges_corpus[:<span class="dv">10</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The first ten tokens of the unpaired corpus looks as follows: </span><span class="sc">{</span>unpair_ids(three_merges_corpus[:<span class="dv">10</span>], three_merges_vocab)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -588,14 +623,14 @@ The first ten tokens of the unpaired corpus looks like: [72, 101, 108, 108, 111,
 </div>
 </div>
 <p>Now that we recovered the corpus with the bytes ids, we can do the UTF-8 decoding:</p>
-<div id="cell-86" class="cell" data-execution_count="201">
+<div id="cell-87" class="cell" data-execution_count="201">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode(tokenized_corpus_with_merges, vocab_with_merges):</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    unpaired_tokenized_corpus <span class="op">=</span> unpair_ids(tokenized_corpus_with_merges, vocab_with_merges)</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The UTF-8 decoding expects byte objects and not int, we have to convert them to byte first</span></span>
 <span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    decoded_corpus <span class="op">=</span> <span class="st">b""</span>.join([x.to_bytes() <span class="cf">for</span> x <span class="kw">in</span> unpaired_tokenized_corpus]).decode(<span class="st">"UTF-8"</span>)</span>
 <span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> decoded_corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-87" class="cell" data-execution_count="206">
+<div id="cell-88" class="cell" data-execution_count="206">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">=</span> decode(three_merges_corpus, three_merges_vocab)</span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The decoding of the corpus yields: </span><span class="sc">{</span>decoded_corpus<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Check of equality with the original corpus: </span><span class="sc">{</span>decoded_corpus <span class="op">==</span> corpus<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -613,7 +648,7 @@ Check of equality with the original corpus: True</code></pre>
 </p>
 <p>What this table entails is that not all bytes are valid UTF-8 encodings. For example, any 1-byte number starting with 1 its binary representation is not a valid UTF-8 encoding. The number <code>10000000</code> (which corresponds to 128 in the decimal representation) is not a valid UTF-8 encoding.</p>
 <p>Let us check what Python will say if we try to decode it using UTF-8</p>
-<div id="cell-91" class="cell" data-execution_count="215">
+<div id="cell-92" class="cell" data-execution_count="215">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the int to a bytes object</span></span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>example_byte <span class="op">=</span> <span class="bn">0b10000000</span>.to_bytes()</span>
 <span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -634,7 +669,7 @@ Cell <span class="ansi-green-fg">In[215], line 5</span>
 </div>
 <p>The error says <code>invalid start byte</code>, can’t be any clearer !</p>
 <p>Now, what should we do if we encounter such integers in our encoded corpus ? The way this is circumvented in GPT-4 tokenizer for example is by decoding that integer into a specific character <code>�</code>. This is the default value that any invalid integer is decoded into with <code>decode</code> method using UTF-8 encoding in Python.</p>
-<div id="cell-94" class="cell" data-execution_count="217">
+<div id="cell-95" class="cell" data-execution_count="217">
 <div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>example_byte.decode(<span class="st">"UTF-8"</span>, errors<span class="op">=</span><span class="st">"replace"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="217">
 <pre><code>'�'</code></pre>
@@ -644,7 +679,7 @@ Cell <span class="ansi-green-fg">In[215], line 5</span>
 <section id="one-final-example" class="level4">
 <h4 class="anchored" data-anchor-id="one-final-example"><a id="toc1_3_3_4_"></a><a href="#toc0_">One final example</a></h4>
 <p>As an example of our training corpus, we’ll take the description in english, french and arabic of <code>1337</code>, one of the leading IT schools in the world that is located in Morocco. This description will constitute our corpus that we’ll use to train our tokenizer.</p>
-<div id="cell-97" class="cell" data-execution_count="236">
+<div id="cell-98" class="cell" data-execution_count="236">
 <div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>input_string <span class="op">=</span> <span class="st">"""1337 is the first to provide IT training in Morocco, completely free of charge, open and accessible to anyone between the ages of 18 and 30. No need for an IT degree, or of having undergone extensive IT training. The only criteria for admission in Treize, Trente-Sept is CREATIVITY.</span></span>
 <span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="st">The Treize, Trente-Sept educational approach is based on peer-learning. A participatory operating style allowing students to unleash their creativity through project-based learning. To train the future coders of tomorrow, we had to rethink learning. We had to make IT something fun, exciting and at odds with the restrictive vision that the general public may have about it.</span></span>
@@ -668,21 +703,21 @@ Cell <span class="ansi-green-fg">In[215], line 5</span>
 <span id="cb63-21"><a href="#cb63-21" aria-hidden="true" tabindex="-1"></a><span class="st">1337 مدرسة الحاضر المتطلعة للمستقبل.</span></span>
 <span id="cb63-22"><a href="#cb63-22" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-98" class="cell" data-execution_count="237">
+<div id="cell-99" class="cell" data-execution_count="237">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>encoded_merged_input, updated_vocab <span class="op">=</span> encode(input_string, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The added ids to the corpus are the following:</p>
-<div id="cell-100" class="cell" data-execution_count="238">
+<div id="cell-101" class="cell" data-execution_count="238">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({x:updated_vocab.get(x) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>, <span class="bu">max</span>(updated_vocab.keys()) <span class="op">+</span> <span class="dv">1</span>)})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{256: (101, 32), 257: (217, 132), 258: (216, 167), 259: (217, 133), 260: (217, 138), 261: (217, 136), 262: (32, 216), 263: (258, 257), 264: (114, 101), 265: (115, 32), 266: (105, 110), 267: (116, 32), 268: (32, 263), 269: (216, 170), 270: (44, 32), 271: (217, 134), 272: (216, 185), 273: (116, 105), 274: (217, 131), 275: (101, 114)}</code></pre>
 </div>
 </div>
-<div id="cell-101" class="cell" data-execution_count="239">
+<div id="cell-102" class="cell" data-execution_count="239">
 <div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">=</span> decode(encoded_merged_input, updated_vocab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let us check the decoded corpus against the original corpus:</p>
-<div id="cell-103" class="cell" data-execution_count="240">
+<div id="cell-104" class="cell" data-execution_count="240">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">==</span> corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="240">
 <pre><code>True</code></pre>

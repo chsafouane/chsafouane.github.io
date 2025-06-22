@@ -1,5 +1,5 @@
 ---
-title: "chsafouane.github.io"
+title: "Weekends Eureka"
 listing:
   contents: posts
   sort: "date desc"

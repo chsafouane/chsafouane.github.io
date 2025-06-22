@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "chsafouane.github.io"
+  title: "Safouane Chergui"
   navbar:
     right:
       - about.qmd
