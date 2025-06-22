@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>byte-pair-encoding-tokenization – chsafouane.github.io</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-dfb324f25d9b1687192fa8be62ac8f9c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">chsafouane.github.io</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/chsafouane"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/safouane-chergui/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p><strong>Table of contents</strong><a id="toc0_"></a><br>
+- <a href="#toc1_1_">Hexadecimal representation</a><br>
+- <a href="#toc1_2_">UTF-8 encoding</a><br>
+- <a href="#toc1_2_1_">Some Unicode vocab</a><br>
+- <a href="#toc1_2_2_">WTF is UTF-8 ?</a><br>
+- <a href="#toc1_2_3_">A sentence example</a><br>
+- <a href="#toc1_3_">BPE Tokenization</a><br>
+- <a href="#toc1_3_1_">BPE in action</a><br>
+- <a href="#toc1_3_2_">How does it work</a><br>
+- <a href="#toc1_3_3_">Let us build a BPE tokenizer</a><br>
+- <a href="#toc1_3_3_1_">Encoding</a><br>
+- <a href="#toc1_3_3_2_">Decoding</a><br>
+- <a href="#toc1_3_3_3_">One last problem to solve</a><br>
+- <a href="#toc1_3_4_">One final example</a></p>
+<!-- vscode-jupyter-toc-config
+    numbering=false
+    anchor=true
+    flat=false
+    minLevel=1
+    maxLevel=6
+    /vscode-jupyter-toc-config -->
+<!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
+<p>The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.</p>
+<p>We’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long <a href="https://www.youtube.com/watch?v=zduSFxRajkE">video by the amazing Andrej Karpathy</a>. Everything in this post comes from Andrej’s video or the resources he shared in his video.</p>
+<p>This post is just a way for me to organize ideas in my head before moving on to the next topic.</p>
+<section id="hexadecimal-representation" class="level2">
+<h2 class="anchored" data-anchor-id="hexadecimal-representation"><a id="toc1_1_"></a><a href="#toc0_">Hexadecimal representation</a></h2>
+<p>Let go for a quick tour of hexadecimal representation. We, as humans, usually represent numbers in base 10. Computers make use of base 2 representation.</p>
+<p>Hexadecimal representation means representing a number in base 16. Numbers are represented using 0 to 9 and A-F, with A being equivalent to 10, B to 11, …, F to 15.</p>
+<p>The number 125 can be written in hexadecimal as 7D.</p>
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># d * (16**0) + 7 * (16**1) = 13 + 7 * 16</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">hex</span>(<span class="dv">125</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>'0x7d'</code></pre>
+</div>
+</div>
+<p>Now, a byte is represented with 8 bits, with a range going from 00000000 to 11111111 &lt;-&gt; 0 to 255 in decimal &lt;-&gt; 00 to FF in hexadecimal</p>
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">hex</span>(<span class="dv">255</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0xff</code></pre>
+</div>
+</div>
+<p><em>Note:</em> The prefix <code>0x</code> is used in intergers to tell Python to interpret the number as a hexadecimal. For example:</p>
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python understands that this number is represented in hexadecimal</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>hex_number <span class="op">=</span> <span class="bn">0xff</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hex_number)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>255</code></pre>
+</div>
+</div>
+</section>
+<section id="utf-8-encoding" class="level2">
+<h2 class="anchored" data-anchor-id="utf-8-encoding"><a id="toc1_2_"></a><a href="#toc0_">UTF-8 encoding</a></h2>
+<p>Little background about UTF-8 encoding. So, UTF-8 is an encoding that represents Unicode characters using 1 to 4 bytes. So, every string is converted to a series of bytes once encoded using a Unicode encoding (such as UTF-8).</p>
+<section id="some-unicode-vocab" class="level3">
+<h3 class="anchored" data-anchor-id="some-unicode-vocab"><a id="toc1_2_1_"></a><a href="#toc0_">Some Unicode vocab</a></h3>
+<p>You should know at least these two words when dealing with Unicode: <strong>character</strong> and <strong>code point</strong>: - A character is a textual unit in Unicode. It can be anything ranging from a letter, a digit, an emoji, a mathematical symbol, etc.</p>
+<div id="cell-10" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>character <span class="op">=</span> <span class="st">"A"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Character: </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># First letter of my name in Arabic</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># You might think of it as S</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Arabic speakers, don't insult me for this analogy </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>arabic_s_character <span class="op">=</span> <span class="st">"ص"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arabic character: </span><span class="sc">{</span>arabic_s_character<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Character: A
+Arabic character: ص</code></pre>
+</div>
+</div>
+<ul>
+<li>A code point is a unique number assigned to each character in Unicode. You can obtain it in Python using the <code>ord</code> function.</li>
+</ul>
+<div id="cell-12" class="cell" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>A_code_point <span class="op">=</span> <span class="bu">ord</span>(character)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The character </span><span class="sc">{</span>character<span class="sc">}</span><span class="ss"> has as a code point </span><span class="sc">{</span>A_code_point<span class="sc">}</span><span class="ss"> in decimal, which corresponds to </span><span class="sc">{</span><span class="bu">hex</span>(A_code_point)<span class="sc">}</span><span class="ss"> in hexadecimal"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>arabic_s_code_point <span class="op">=</span> <span class="bu">ord</span>(arabic_s_character)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The character </span><span class="sc">{</span>arabic_s_character<span class="sc">}</span><span class="ss"> has as a code point </span><span class="sc">{</span>arabic_s_code_point<span class="sc">}</span><span class="ss"> in decimal, which corresponds to </span><span class="sc">{</span><span class="bu">hex</span>(arabic_s_code_point)<span class="sc">}</span><span class="ss"> in hexadecimal"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The character A has as a code point 65 in decimal, which corresponds to 0x41 in hexadecimal
+The character ص has as a code point 1589 in decimal, which corresponds to 0x635 in hexadecimal</code></pre>
+</div>
+</div>
+<p><em>Nice to know:</em> - Use <code>ord</code> to go from a character -&gt; a code point - Use <code>chr</code> to go from a code point -&gt; a character</p>
+<p>At this step, I highly advise you to take a look at the start of the <a href="https://symbl.cc/en/unicode-table/">Unicode Character Table</a>.</p>
+<p>If you look at this table, you’ll see that the character <code>ص</code> doesn’t have <code>1589</code> as a code point, it rather has <code>U+0635</code>. These are the same number, it’s just that Unicode uses the hexadecimal notation for code points instead of the decimal one.</p>
+</section>
+<section id="wtf-is-utf-8" class="level3">
+<h3 class="anchored" data-anchor-id="wtf-is-utf-8"><a id="toc1_2_2_"></a><a href="#toc0_">WTF is UTF-8 ?</a></h3>
+<p>So, UTF-8 is a Unicode encoding method. It encodes code points in 1 to 4 bytes (it is a variable-length encoding, not all code points are encoded as 4 bytes as this will consume so much memory!).</p>
+<p>Other encoding methods such as UTF-16 and UTF-32 exist but they do things differently than UTF-8. UTF-8 is the most used encoding method in the wild for reasons that I won’t go into in this post.</p>
+<p>Now, the thing is that UTF-8 encoding doesn’t just convert the Unicode code point to its binary presentation. It does it in a specific way. The following table from wikipedia explains very well the conversion from code points to UTF8-encoding.</p>
+<p>This table shows four ranges, the 1st range is encoded using 1 byte only, the second one 2 bytes, etc. Each range has its own norm for encoding code points using UTF-8.</p>
+<p align="center">
+<img src="https://github.com/chsafouane/chsafouane.github.io/blob/master/images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png?raw=true" alt="image.png">
+</p>
+<p><strong>Character ص example</strong>:</p>
+<p>The character <code>ص</code> code point is <code>U+0635</code> (1589 in decimal). If you try to represent this using binary presentation, it doesn’t fit into 1 byte, you’ll need to use 2 bytes.</p>
+<p>Using 2 bytes, it yields the following <code>00000110 00110101</code>. Now, UTF-8 doesn’t use conversion to bytes to encode code points. It has its own rules to do the encoding.</p>
+<p>Now, if you look at the table, you see that <code>U+0635</code> falls between the range of <code>U+0080</code> and <code>U+07FF</code>. So, we have to use the rule in the second row to encode it using UTF-8.</p>
+<p>The way to do this is to fill the <code>x</code> with the numbers in the binary representation starting from the right (copy-paste digit from the binary representation starting from the right): - Before filling: [110]xxxxx [10]xxxxxx - After filling: [110]11000 [10]110101. In hexadecimal, this yields <code>d8 b5</code>.</p>
+<div id="cell-20" class="cell" data-execution_count="70">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The byte 11011000 yields in hexadecimal: </span><span class="sc">{</span><span class="bu">hex</span>(<span class="bn">0b11011000</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The byte 10110101 yields in hexadecimal: </span><span class="sc">{</span><span class="bu">hex</span>(<span class="bn">0b10110101</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The byte 11011000 yields in hexadecimal: 0xd8
+The byte 10110101 yields in hexadecimal: 0xb5</code></pre>
+</div>
+</div>
+<p>Now, this should match the result of the UTF-8 encoding of the character <code>ص</code> using Python</p>
+<div id="cell-22" class="cell" data-execution_count="71">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">"ص"</span>.encode(<span class="st">"utf-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="71">
+<pre><code>b'\xd8\xb5'</code></pre>
+</div>
+</div>
+<p>The same rule can be applied to all the 4 ranges in order to go from a code point to its UTF-8 encoding.</p>
+<p>At this step, I suggest you pick some characters from the unicode table page I’ve given you above and do the encoding manually.</p>
+<p><strong>Note</strong>: There is something that you should note at this step: - Unicode allows us to go from a character to a code point - The UTF-8 encoding (which is one of Unicode available encodings) allows us to go from a code point to a 1 to 4 bytes representation, depending on the character.</p>
+<p>This yields the following trajectory: <code>Unicode character</code> &lt;-&gt; <code>Code point</code> -&gt; <code>1 to 4 bytes representation</code>.</p>
+<p>Now, if you take any 1 to 4 bytes number, it doesn’t always map to a code point as it might not respect the rules specified in the wikipedia table above. For example, <code>11111111</code> (255 in decimal) corresponds to 1 byte but it’s not a valid unicode encoding. This is because the rule specifies that all 1-byte encoded characters should start with a <code>0</code> and not a <code>1</code>.</p>
+</section>
+<section id="a-sentence-example" class="level3">
+<h3 class="anchored" data-anchor-id="a-sentence-example"><a id="toc1_2_3_"></a><a href="#toc0_">A sentence example</a></h3>
+<p>Let us now encode a whole sentence and see the result: <code>Hello there صفوان</code></p>
+<div id="cell-27" class="cell" data-execution_count="73">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ex_sentence <span class="op">=</span> <span class="st">"Hello there صفوان"</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The UTF-8 encoding of the sentence '</span><span class="sc">{</span>ex_sentence<span class="sc">}</span><span class="ss">' is: </span><span class="sc">{</span>ex_sentence<span class="sc">.</span>encode(<span class="st">'UTF-8'</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The UTF-8 encoding of the sentence 'Hello there صفوان' is: b'Hello there \xd8\xb5\xd9\x81\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
+</div>
+</div>
+<p>I hope you at least recognize the UTF-8 encoding of the character <code>ص</code>: <code>\xd8\xb5</code></p>
+<p>A question that might come to your mind upong seeing the result is why the hell we have characters like <code>H</code> in a bytes representation. This is something that has to do with the display of bytes in Python.</p>
+<p>Python uses a mixed representation of bytes for readability: - ASCII characters, even when encoded as bytes, are displayed in their readable form - Non-ASCII characters, when encoded as bytes, are displayed in hexadecimal format</p>
+<p>It’s just a displaying matter !</p>
+</section>
+</section>
+<section id="bpe-tokenization" class="level2">
+<h2 class="anchored" data-anchor-id="bpe-tokenization"><a id="toc1_3_"></a><a href="#toc0_">BPE Tokenization</a></h2>
+<p>In order to feed data to a model, we have to first convert it to numerical data. The process for NLP models looks as follow:</p>
+<p align="center">
+Text —&gt; Tokenizer —&gt; Numerical ids (tokens) —&gt; NLP model —&gt; Prediction
+</p>
+<p>Now, if you look at the definition of <code>str</code> in Python, it’s defined as follows:</p>
+<pre><code>Textual data in Python is handled with str objects, or strings. Strings are immutable sequences of Unicode code points</code></pre>
+<p>From this definition, you can decide to just map every unicode character to its code point. For e.g, <code>ص</code> will be mapped to <code>1589</code>. Using this technique will yield a vocabulary of almost 150 000 tokens.</p>
+<p>The problem with this is: - Your vocabulary will be big. This means that your model will have embedding layers of 150 000 * size_of_your_embeddding - With that many characters, it’s very likely that your model training dataset won’t contain many of them that often, if not at all. If your model gets to see <code>ص</code> very few times, its embedding will be very ill trained. At the end of training, its embedding will be very close to its random initialization state and would be of no use at all. - As your input sentence will be divided in unique characters, a simple sentence will consume lots of tokens in your input context. This means that: - At inference, you’ll have to make predictions for every character - Your sentence will take so much memory because even a simple sentence will be long, many embeddings used and calculations will have to be made over all those embeddings - Simple text will consume so much of the model context size</p>
+<p>Let look at this famous sentence <code>The quick brown fox jumps over the lazy dog</code>. If every character is considered a token, it will consist of 28 different tokens</p>
+<div id="cell-31" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>example_sentence<span class="op">=</span> <span class="st">"The quick brown fox jumps over the lazy dog"</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of tokens in </span><span class="sc">{</span>example_sentence<span class="sc">}</span><span class="ss"> is: </span><span class="sc">{</span><span class="bu">len</span>(<span class="bu">set</span>([e <span class="cf">for</span> e <span class="kw">in</span> example_sentence]))<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of tokens in The quick brown fox jumps over the lazy dog is: 28</code></pre>
+</div>
+</div>
+<p>If we use GPT-4o tokenizer that is a BPE tokenizer itself, let us see how many tokenizer we get:</p>
+<div id="cell-33" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> tiktoken.get_encoding(<span class="st">"o200k_base"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>encoded_input <span class="op">=</span> tokenizer.encode(example_sentence)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of tokens in </span><span class="sc">{</span>example_sentence<span class="sc">}</span><span class="ss"> with GPT-4o tokenizer is: </span><span class="sc">{</span><span class="bu">len</span>(encoded_input)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of tokens in The quick brown fox jumps over the lazy dog with GPT-4o tokenizer is: 9</code></pre>
+</div>
+</div>
+<p>When we look at the tokens resulting from GPT-4o tokenizer, we get to see that every word is a token in this case.</p>
+<div id="cell-35" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> encoded_input:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"The token with id </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss"> represents </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode_single_token_bytes(token)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The token with id 976 represents b'The'
+The token with id 4853 represents b' quick'
+The token with id 19705 represents b' brown'
+The token with id 68347 represents b' fox'
+The token with id 65613 represents b' jumps'
+The token with id 1072 represents b' over'
+The token with id 290 represents b' the'
+The token with id 29082 represents b' lazy'
+The token with id 6446 represents b' dog'</code></pre>
+</div>
+</div>
+<p>If you’d like to play with different tokenizers, visit this page: https://tiktokenizer.vercel.app/, select the tokenizer and get going!</p>
+<section id="bpe-in-action" class="level3">
+<h3 class="anchored" data-anchor-id="bpe-in-action"><a id="toc1_3_1_"></a><a href="#toc0_">BPE in action</a></h3>
+<p>For this, you’ll need to install <code>tiktoken</code> package using <code>pip install tiktoken</code>.</p>
+<div id="cell-38" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> tiktoken.get_encoding(<span class="st">"o200k_base"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-39" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>input_str <span class="op">=</span> <span class="st">"My name is صفوان"</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>encoded_input <span class="op">=</span> tokenizer.encode(input_str)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The result of tokenization consists of </span><span class="sc">{</span><span class="bu">len</span>(encoded_input)<span class="sc">}</span><span class="ss"> tokens: </span><span class="sc">{</span>encoded_input<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The result of tokenization consists of 5 tokens: [5444, 1308, 382, 37315, 10878]</code></pre>
+</div>
+</div>
+<p>Let us decode each one of these tokens and see what they consist of:</p>
+<div id="cell-41" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> encoded_input:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"The token with id </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss"> represents </span><span class="sc">{</span>tokenizer<span class="sc">.</span>decode_single_token_bytes(token)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The token with id 5444 represents b'My'
+The token with id 1308 represents b' name'
+The token with id 382 represents b' is'
+The token with id 37315 represents b' \xd8\xb5\xd9\x81'
+The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
+</div>
+</div>
+<p>I hope you recognize, in the 4th print statement, the hexadecimal representation of the character <code>ص</code> We can see that the fourth</p>
+<div id="cell-43" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>[tokenizer.decode_single_token_bytes(x) <span class="cf">for</span> x <span class="kw">in</span> encoded_input]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>[b'My', b' name', b' is', b' \xd8\xb5\xd9\x81', b'\xd9\x88\xd8\xa7\xd9\x86']</code></pre>
+</div>
+</div>
+<p>Let us decode that fourth element and see what it consists of:</p>
+<div id="cell-45" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>tokenizer.decode_single_token_bytes(encoded_input[<span class="dv">3</span>]).decode(<span class="st">"utf-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>' صف'</code></pre>
+</div>
+</div>
+<p>We can see that this token consists of 3 unicode characters: - The space character - <code>ص</code>, the character with the code point <code>U+0635</code>, whose UTF-8 encoding is <code>d8 b5</code> - <code>ف</code>, the character with the code point <code>U</code>, whose UTF-8 encoding is <code>d9 81</code></p>
+</section>
+<section id="how-does-it-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-it-work"><a id="toc1_3_2_"></a><a href="#toc0_">How does it work</a></h3>
+<p>As you might have guessed from its name, the Byte Pair Encoding mechanism does mainly two things to tokenize your data: - It represents strings as streams of bytes. Now, if you represent your data using only bytes, as a character usually consists of many bytes, that will be worse than using unicode code points as tokenized strings will be very very long. A byte can go only from 0 to 255.</p>
+<ul>
+<li>When some pair of bytes are so common in the corpus, it’s going to merge them going forward and assign a new id to them. So, in the example of the token ’ صف’, GPT-4 tokenizer has decided to merge the bytes that these two arabic characters consist of, meaning these four bytes:
+<ul>
+<li>space character (20 in hex, 32 in decimal)</li>
+<li>d8 (216 in decimal)</li>
+<li>b5 (181 in decimal)</li>
+<li>d9 (217 in decimal)</li>
+<li>81 (129 in decimal)</li>
+</ul></li>
+</ul>
+<p>and assigned to the whole token <code>'  صف'</code> the id <code>37315</code>.</p>
+<p>Of course, the vocabulary identified by tokenizers can’t just grow indefinitly. otherwise, your model embedding table will also be huge and the model will be practically unusable. That’s why BPE tokenizers have a hyperparameter that specifies the number of merges that can be done when training.</p>
+<p><strong>A quick recap:</strong> When training a tokenizer, convert string to bytes. The result will consist of numbers going from 0 to 255. Merge bytes that come-up together so often and assign an id to them.</p>
+</section>
+<section id="let-us-build-a-bpe-tokenizer" class="level3">
+<h3 class="anchored" data-anchor-id="let-us-build-a-bpe-tokenizer"><a id="toc1_3_3_"></a><a href="#toc0_">Let us build a BPE tokenizer</a></h3>
+<section id="encoding" class="level4">
+<h4 class="anchored" data-anchor-id="encoding"><a id="toc1_3_3_1_"></a><a href="#toc0_">Encoding</a></h4>
+<p>So, we basically need to do three things to build our tokenizer: - Define our basic vocab that we’ll grow as we merge the most common pair of bytes - Convert our corpus to a stream of bytes (just encoding it using UTF-8) - Do the following <code>number_of_merges</code> times: - Get the most common pair of bytes - Merge the two pairs in a new id. Everytime the tokenizer will see the two pairs together, it will map them to the new ID.</p>
+<p>So, our starting vocab is just the 1 byte interval (0 to 255), and as we merge the most common, we’ll append new ids corresponding to the merged bytes.</p>
+<div id="cell-51" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> {i:i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>)}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As stated before, the first step is to convert our corpus to a stream of bytes by encoding using UTF-8.</p>
+<p>Let us start with a very basic training corpus, it will make testing our functions very easy. Later, we’ll use a corpus consisting of many languages.</p>
+<div id="cell-54" class="cell" data-execution_count="131">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> <span class="st">"Hello Hello Hello my name is Safouane and I am the author of this post"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-55" class="cell" data-execution_count="132">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>encoded_corpus <span class="op">=</span> corpus.encode(<span class="st">"UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As we want to use bytes using the decimal representation (0-255) instead of hexadecimal (0x00 - 0xFF) (the default after encoding with UTF-8) for readability purposes, we’ll do the conversion right away</p>
+<div id="cell-57" class="cell" data-execution_count="133">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>encoded_corpus <span class="op">=</span> [<span class="bu">int</span>(x) <span class="cf">for</span> x <span class="kw">in</span> encoded_corpus]</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded_corpus[:<span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[72, 101, 108, 108, 111, 32, 72, 101, 108, 108]</code></pre>
+</div>
+</div>
+<p>Let build a function that returns the most common pair of bytes in the whole corpus</p>
+<div id="cell-59" class="cell" data-execution_count="134">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_most_common_pair(encoded_corpus: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">tuple</span>:</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns a tuple of the most common pair of bytes in a corpus.</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    most_common_pair_and_count <span class="op">=</span> Counter(<span class="bu">zip</span>(encoded_corpus[:<span class="op">-</span><span class="dv">2</span>], encoded_corpus[<span class="dv">1</span>:])).most_common(<span class="dv">1</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    most_common_pair <span class="op">=</span> most_common_pair_and_count[<span class="dv">0</span>][<span class="dv">0</span>]</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> most_common_pair</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us see what’s the most common pair of bytes in this corpus</p>
+<div id="cell-61" class="cell" data-execution_count="135">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>most_common_pair <span class="op">=</span> get_most_common_pair(encoded_corpus)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The most common pair is </span><span class="sc">{</span>most_common_pair<span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>most_common_pair[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> corresponds to </span><span class="sc">{</span><span class="bu">chr</span>(most_common_pair[<span class="dv">0</span>])<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>most_common_pair[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> corresponds to </span><span class="sc">{</span><span class="bu">chr</span>(most_common_pair[<span class="dv">1</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The most common pair is (72, 101). 72 corresponds to H and 101 corresponds to e</code></pre>
+</div>
+</div>
+<p>Let us write a function that takes the encoded corpus, the vocabulary, the pair of ids to merge and: - Updates the vocabulary by adding the new id that replaces the occurence of the pair of the ids to merge - Updates the corpus by replacing the occurence of the pair of ids with the new id</p>
+<div id="cell-63" class="cell" data-execution_count="136">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_and_update_corpus_and_vocab(encoded_corpus, vocab, pair_to_merge):</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Updates the vocab with the new pair of ids to merge</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co">    &amp; updates the corpus to use the new id instead of the pair of bytes</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    updated_corpus <span class="op">=</span> []</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    updated_vocab <span class="op">=</span> vocab.copy()</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add id for merged pair in vocab</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    pair_new_id <span class="op">=</span> <span class="bu">max</span>(vocab.keys()) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    updated_vocab[pair_new_id] <span class="op">=</span> pair_to_merge</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Update corpus to use the new id instead of the couple the pair of ids</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> i <span class="op">&lt;</span> <span class="bu">len</span>(encoded_corpus):</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i <span class="op">&lt;</span> <span class="bu">len</span>(encoded_corpus) <span class="op">-</span> <span class="dv">1</span>) <span class="kw">and</span> encoded_corpus[i] <span class="op">==</span> pair_to_merge[<span class="dv">0</span>] <span class="kw">and</span> encoded_corpus[i <span class="op">+</span> <span class="dv">1</span>] <span class="op">==</span> pair_to_merge[<span class="dv">1</span>]:</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>            updated_corpus.append(pair_new_id)</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>            i <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>            updated_corpus.append(encoded_corpus[i])</span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>            i <span class="op">+=</span><span class="dv">1</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> updated_corpus, updated_vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us merge now the most common pair of bytes and create one id out of it. The successive 101,32 will be turned into 256.</p>
+<div id="cell-65" class="cell" data-execution_count="137">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>updated_corpus_ex, updated_vocab_example <span class="op">=</span> merge_and_update_corpus_and_vocab(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    encoded_corpus, </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    vocab,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    get_most_common_pair(encoded_corpus)    </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can see the presence of a new token id in the corpus: <code>256</code></p>
+<div id="cell-67" class="cell" data-execution_count="139">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(updated_corpus_ex[:<span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[256, 108, 108, 111, 32, 256, 108, 108, 111, 32]</code></pre>
+</div>
+</div>
+<p>When we check the vocab to see to what it corresponds, we see that it’s a merge of two ids: <code>72</code> and <code>101</code>.</p>
+<div id="cell-69" class="cell" data-execution_count="140">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(updated_vocab_example[<span class="dv">256</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(72, 101)</code></pre>
+</div>
+</div>
+<p>We’ve seen how merging works. Now, we have to apply this merging a <code>number_of_merges</code> times. What you should keep in mind is the following: - You vocab will grow with the number of merges you apply. Say you apply 10 merges, your vocab will go from 256 ids to 266 ids. - The bigger your vocab gets, the bigger your embedding table (whose size corresponds to number of tokens in the vocab * size of embedding) will grow. - Merging indefinitly is not a good idea. The different ids in your vocab will not come up often as tokens in the training corpus of your model. Consequently, some tokens will have random embeddings - Having merged tokens allows you to make good use of your context size as your tokens will can even represent complete words at times</p>
+<div id="cell-71" class="cell" data-execution_count="141">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu">int</span>):</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(number_of_merges):</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>        most_common_pair <span class="op">=</span> get_most_common_pair(corpus)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>        corpus, vocab <span class="op">=</span> merge_and_update_corpus_and_vocab(corpus, vocab, most_common_pair)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corpus, vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-72" class="cell" data-execution_count="142">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>three_merges_corpus, three_merges_vocab <span class="op">=</span> merge_iteratively(encoded_corpus, vocab, <span class="dv">3</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"A glimpse at the start of new corpus: </span><span class="sc">{</span>three_merges_corpus[:<span class="dv">10</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The merged ids: </span><span class="sc">{</span>[three_merges_vocab[<span class="dv">255</span> <span class="op">+</span> x] <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4</span>)]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A glimpse at the start of new corpus: [258, 111, 32, 258, 111, 32, 258, 111, 32, 109]
+The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
+</div>
+</div>
+<p>Now, the <code>merge_iteratively</code> function if it’s out of pairs that occur more than once, it will start merging pairs that occur only once. This is not a desired behavior.</p>
+<p>This can be handled easily by returning the count of the number of occurences as well in <code>get_most_common_pair</code> and checking that it’s greater than 1 to proceed to merging.</p>
+<div id="cell-74" class="cell" data-execution_count="143">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_most_common_pair(encoded_corpus: <span class="bu">list</span>[<span class="bu">int</span>]) <span class="op">-&gt;</span> <span class="bu">tuple</span>:</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns a tuple:</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co">    - A tuple of the most common pair of ids in a corpus</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co">    - The number of occurences of the pair of ids</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    most_common_pair_and_count <span class="op">=</span> Counter(<span class="bu">zip</span>(encoded_corpus[:<span class="op">-</span><span class="dv">2</span>], encoded_corpus[<span class="dv">1</span>:])).most_common(<span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> most_common_pair_and_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-75" class="cell" data-execution_count="144">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu">int</span>):</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(number_of_merges):</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>        most_common_pair, count <span class="op">=</span> get_most_common_pair(corpus)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> count <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>            corpus, vocab <span class="op">=</span> merge_and_update_corpus_and_vocab(corpus, vocab, most_common_pair)</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corpus, vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let put all these functions in one function that should do the encoding of a string</p>
+<div id="cell-77" class="cell" data-execution_count="219">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode(corpus: <span class="bu">str</span>, num_merges: <span class="bu">int</span>):</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    encoded_corpus <span class="op">=</span> corpus.encode(<span class="st">"UTF-8"</span>)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    base_vocab <span class="op">=</span> {i:i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>)}</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>    updated_corpus, updated_vocab <span class="op">=</span> merge_iteratively(encoded_corpus, base_vocab, num_merges)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> updated_corpus, updated_vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we can train a tokenizer and encode a string, all that’s left is decoding.</p>
+</section>
+<section id="decoding" class="level4">
+<h4 class="anchored" data-anchor-id="decoding"><a id="toc1_3_3_2_"></a><a href="#toc0_">Decoding</a></h4>
+<p>Now, to detokenize tokenized text, it’s not that hard - First, you have to reverse the mapping. You have to unpair the ids. If for example, the id 257=(100,256) and 256=(255, 20), we have to unpair those. But in order for the unpairing to work, we have to unpair the ids starting from the highest id, 257 in this case. 257 will be replaced with (100 and 256) and then 256 can be replaced with (255 and 20). If you don’t do it in the right order, you’ll have some composed ids left and you won’t be able to decode them. - Once the mapping is reversed, you can decode the stream of bytes using UTF-8</p>
+<div id="cell-81" class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>three_merges_corpus, three_merges_vocab <span class="op">=</span> encode(corpus, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us first build a function that will help us get the pair of ids that were replaced with a new id</p>
+<div id="cell-83" class="cell" data-execution_count="187">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> unpair_ids(corpus, vocab):</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Reverses new ids in the vocab to their</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="co">    orignal pair of ids.</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token <span class="kw">in</span> <span class="bu">sorted</span>(vocab.keys(), reverse<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> token <span class="op">&gt;</span> <span class="dv">255</span>:</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>            unpaired_corpus <span class="op">=</span> []</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(corpus)):</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> corpus[i] <span class="op">==</span> token:</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>                    unpaired_corpus.append(vocab[token][<span class="dv">0</span>])</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>                    unpaired_corpus.append(vocab[token][<span class="dv">1</span>])</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>                    unpaired_corpus.append(corpus[i])</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>            corpus <span class="op">=</span> <span class="bu">list</span>(unpaired_corpus)</span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unpaired_corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-84" class="cell" data-execution_count="191">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The first ten tokens of the tokenized corpus looks like: </span><span class="sc">{</span>three_merges_corpus[:<span class="dv">10</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The first ten tokens of the unpaired corpus looks as follows: </span><span class="sc">{</span>unpair_ids(three_merges_corpus[:<span class="dv">10</span>], three_merges_vocab)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The first ten tokens of the tokenized corpus looks like: [258, 111, 32, 258, 111, 32, 258, 111, 32, 109]
+The first ten tokens of the unpaired corpus looks like: [72, 101, 108, 108, 111, 32, 72, 101, 108, 108, 111, 32, 72, 101, 108, 108, 111, 32, 109]</code></pre>
+</div>
+</div>
+<p>Now that we recovered the corpus with the bytes ids, we can do the UTF-8 decoding:</p>
+<div id="cell-86" class="cell" data-execution_count="201">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decode(tokenized_corpus_with_merges, vocab_with_merges):</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    unpaired_tokenized_corpus <span class="op">=</span> unpair_ids(tokenized_corpus_with_merges, vocab_with_merges)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The UTF-8 decoding expects byte objects and not int, we have to convert them to byte first</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    decoded_corpus <span class="op">=</span> <span class="st">b""</span>.join([x.to_bytes() <span class="cf">for</span> x <span class="kw">in</span> unpaired_tokenized_corpus]).decode(<span class="st">"UTF-8"</span>)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> decoded_corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-87" class="cell" data-execution_count="206">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">=</span> decode(three_merges_corpus, three_merges_vocab)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"The decoding of the corpus yields: </span><span class="sc">{</span>decoded_corpus<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Check of equality with the original corpus: </span><span class="sc">{</span>decoded_corpus <span class="op">==</span> corpus<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The decoding of the corpus yields: Hello Hello Hello my name is Safouane and I am the author of this post
+Check of equality with the original corpus: True</code></pre>
+</div>
+</div>
+</section>
+<section id="one-last-problem-to-solve" class="level4">
+<h4 class="anchored" data-anchor-id="one-last-problem-to-solve"><a id="toc1_3_3_3_"></a><a href="#toc0_">One last problem to solve</a></h4>
+<p>When encoding, we get to add new ids as tokens and we just incremented with 1 each time. Now, remember this table from wikipedia:</p>
+<p align="center">
+<img src="https://github.com/chsafouane/chsafouane.github.io/blob/master/images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png?raw=true" alt="image.png">
+</p>
+<p>What this table entails is that not all bytes are valid UTF-8 encodings. For example, any 1-byte number starting with 1 its binary representation is not a valid UTF-8 encoding. The number <code>10000000</code> (which corresponds to 128 in the decimal representation) is not a valid UTF-8 encoding.</p>
+<p>Let us check what Python will say if we try to decode it using UTF-8</p>
+<div id="cell-91" class="cell" data-execution_count="215">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the int to a bytes object</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>example_byte <span class="op">=</span> <span class="bn">0b10000000</span>.to_bytes()</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Decode it using UTF-8</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>example_byte.decode(<span class="st">"UTF-8"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">UnicodeDecodeError</span>                        Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[215], line 5</span>
+<span class="ansi-green-fg ansi-bold">      2</span> example_byte <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(98,98,98)">0b10000000</span><span style="color:rgb(98,98,98)">.</span>to_bytes()
+<span class="ansi-green-fg ansi-bold">      4</span> <span style="font-style:italic;color:rgb(95,135,135)"># Decode it using UTF-8</span>
+<span class="ansi-green-fg">----&gt; 5</span> example_byte<span style="color:rgb(98,98,98)">.</span>decode(<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">UTF-8</span><span style="color:rgb(175,0,0)">"</span>)
+
+<span class="ansi-red-fg">UnicodeDecodeError</span>: 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte</pre>
+</div>
+</div>
+</div>
+<p>The error says <code>invalid start byte</code>, can’t be any clearer !</p>
+<p>Now, what should we do if we encounter such integers in our encoded corpus ? The way this is circumvented in GPT-4 tokenizer for example is by decoding that integer into a specific character <code>�</code>. This is the default value that any invalid integer is decoded into with <code>decode</code> method using UTF-8 encoding in Python.</p>
+<div id="cell-94" class="cell" data-execution_count="217">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>example_byte.decode(<span class="st">"UTF-8"</span>, errors<span class="op">=</span><span class="st">"replace"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="217">
+<pre><code>'�'</code></pre>
+</div>
+</div>
+</section>
+<section id="one-final-example" class="level4">
+<h4 class="anchored" data-anchor-id="one-final-example"><a id="toc1_3_3_4_"></a><a href="#toc0_">One final example</a></h4>
+<p>As an example of our training corpus, we’ll take the description in english, french and arabic of <code>1337</code>, one of the leading IT schools in the world that is located in Morocco. This description will constitute our corpus that we’ll use to train our tokenizer.</p>
+<div id="cell-97" class="cell" data-execution_count="236">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>input_string <span class="op">=</span> <span class="st">"""1337 is the first to provide IT training in Morocco, completely free of charge, open and accessible to anyone between the ages of 18 and 30. No need for an IT degree, or of having undergone extensive IT training. The only criteria for admission in Treize, Trente-Sept is CREATIVITY.</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="st">The Treize, Trente-Sept educational approach is based on peer-learning. A participatory operating style allowing students to unleash their creativity through project-based learning. To train the future coders of tomorrow, we had to rethink learning. We had to make IT something fun, exciting and at odds with the restrictive vision that the general public may have about it.</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="st">1337 is the coding school par excellence, completely free of charge and accessible to all with no prerequisite of a degree. It offers a full immersion in a universe where the future is already present. Where IT and the lines of code are way more than a vague and off-putting concept…</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="st">Treize, Trente-Sept, a forward-looking school from the present.</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a><span class="st">1337, c’est la première formation en informatique par excellence au Maroc, entièrement gratuite, ouverte 24h/24 7j/7 et accessible à tous sans pré-requis de diplôme, ou de connaissance en informatique.. C’est une immersion complète dans un univers où le futur est déjà présent, où l’informatique et les lignes de codes sont plus qu’un concept flou et rébarbatif…</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a><span class="st">La pédagogie de Treize, Trente-Sept s’articule autour du peer-learning. Un fonctionnement participatif qui permet aux étudiants de libérer leur créativité grâce à l’apprentissage par projet. Pour former les futurs codeurs de demain, il fallait repenser l’apprentissage, faire de l’informatique quelque chose de ludique, de passionnant et aux antipodes de la vision restrictive que le grand public peut en avoir.</span></span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a><span class="st">Treize, Trente-Sept utilise les méthodes techniques et pédagogiques de 42 Paris, élue meilleure école de code au monde par CodinGame.</span></span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a><span class="st">Treize, Trente-Sept, une école du présent tournée vers le futur.</span></span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a><span class="st">1337 هي أول تكوين معلوماتي فالمغرب، كلو بالمجان، مفتوح للجميع اللي تيتراوح عمرهم بين 18 و30 سنة. ما محتاجش يكون عندك دبلوم فالمعلوميات، أو تكون درتي شي تكوين أو تخصص فالمعلوميات. المفتاح الوحيد اللي كيتيح لك باب الدخول ل 1337 هو الإبداع.</span></span>
+<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-17"><a href="#cb63-17" aria-hidden="true" tabindex="-1"></a><span class="st">البيداغوجية ديال 1337 كتعتمد على peer-learning اللي هو نوع من التعلم التعاوني اللي كيساعد الطلبة على تحرير الإبداع ديالهم بفضل التعلم بإنجاز المشاريع. وباش نكوّنو مبرمجي الغد، اللي كيكوديو، كان لازم نراجعو طريقة التعلم، ونجعلو تعلم المعلوميات عملية ترفيهية، فيها الرغبة والشغف، ماشي كيف كيتخيلوها الناس.</span></span>
+<span id="cb63-18"><a href="#cb63-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-19"><a href="#cb63-19" aria-hidden="true" tabindex="-1"></a><span class="st">1337 هي مدرسة الكود بامتياز، مجانية وفمتناول الجميع, وما تتطلبش منك تكون حائز على دبلوم. وتعتبر اندماج كامل، فعالم مستقبلي اللي ما بقاش فيه الكود مفهوم غامض.</span></span>
+<span id="cb63-20"><a href="#cb63-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-21"><a href="#cb63-21" aria-hidden="true" tabindex="-1"></a><span class="st">1337 مدرسة الحاضر المتطلعة للمستقبل.</span></span>
+<span id="cb63-22"><a href="#cb63-22" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-98" class="cell" data-execution_count="237">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>encoded_merged_input, updated_vocab <span class="op">=</span> encode(input_string, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The added ids to the corpus are the following:</p>
+<div id="cell-100" class="cell" data-execution_count="238">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({x:updated_vocab.get(x) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">256</span>, <span class="bu">max</span>(updated_vocab.keys()) <span class="op">+</span> <span class="dv">1</span>)})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{256: (101, 32), 257: (217, 132), 258: (216, 167), 259: (217, 133), 260: (217, 138), 261: (217, 136), 262: (32, 216), 263: (258, 257), 264: (114, 101), 265: (115, 32), 266: (105, 110), 267: (116, 32), 268: (32, 263), 269: (216, 170), 270: (44, 32), 271: (217, 134), 272: (216, 185), 273: (116, 105), 274: (217, 131), 275: (101, 114)}</code></pre>
+</div>
+</div>
+<div id="cell-101" class="cell" data-execution_count="239">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">=</span> decode(encoded_merged_input, updated_vocab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us check the decoded corpus against the original corpus:</p>
+<div id="cell-103" class="cell" data-execution_count="240">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>decoded_corpus <span class="op">==</span> corpus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="240">
+<pre><code>True</code></pre>
+</div>
+</div>
+<p>While in this case the result of the decoding process yields the same result as the original, you shouldn’t always expect it to be the case. If during the decoding process, we encounter an id (like 128) that we can’t decode using UTF-8, it will get replaced with <code>�</code> in the current implementation. The comparison of the decoding result with the original text won’t yield equality.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

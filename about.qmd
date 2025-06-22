@@ -1,0 +1,16 @@
+---
+title: "About"
+image: profile.png
+about:
+  template: jolla
+  links:
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/safouane-chergui/
+    - icon: github
+      text: Github
+      href: https://github.com/chsafouane
+
+---
+
+About this blog
