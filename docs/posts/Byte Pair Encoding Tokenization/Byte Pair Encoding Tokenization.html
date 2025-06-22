@@ -191,6 +191,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+<p>The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.</p>
+<p>We’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long <a href="https://www.youtube.com/watch?v=zduSFxRajkE">video by the amazing Andrej Karpathy</a>. Everything in this post comes from Andrej’s video or the resources he shared in his video.</p>
+<p>This post is just a way for me to organize ideas in my head before moving on to the next topic.</p>
 <p><strong>Table of contents</strong><a id="toc0_"></a><br>
 - <a href="#toc1_1_">Hexadecimal representation</a><br>
 - <a href="#toc1_2_">UTF-8 encoding</a><br>
@@ -213,9 +216,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     maxLevel=6
     /vscode-jupyter-toc-config -->
 <!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
-<p>The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.</p>
-<p>We’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long <a href="https://www.youtube.com/watch?v=zduSFxRajkE">video by the amazing Andrej Karpathy</a>. Everything in this post comes from Andrej’s video or the resources he shared in his video.</p>
-<p>This post is just a way for me to organize ideas in my head before moving on to the next topic.</p>
 <section id="hexadecimal-representation" class="level2">
 <h2 class="anchored" data-anchor-id="hexadecimal-representation"><a id="toc1_1_"></a><a href="#toc0_">Hexadecimal representation</a></h2>
 <p>Let go for a quick tour of hexadecimal representation. We, as humans, usually represent numbers in base 10. Computers make use of base 2 representation.</p>
@@ -291,7 +291,7 @@ The character ص has as a code point 1589 in decimal, which corresponds to 0x635
 <p>Now, the thing is that UTF-8 encoding doesn’t just convert the Unicode code point to its binary presentation. It does it in a specific way. The following table from wikipedia explains very well the conversion from code points to UTF8-encoding.</p>
 <p>This table shows four ranges, the 1st range is encoded using 1 byte only, the second one 2 bytes, etc. Each range has its own norm for encoding code points using UTF-8.</p>
 <p align="center">
-<img src="https://github.com/chsafouane/chsafouane.github.io/blob/master/images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png?raw=true" alt="image.png">
+<img src="assets/utf8_table.png">
 </p>
 <p><strong>Character ص example</strong>:</p>
 <p>The character <code>ص</code> code point is <code>U+0635</code> (1589 in decimal). If you try to represent this using binary presentation, it doesn’t fit into 1 byte, you’ll need to use 2 bytes.</p>
@@ -644,7 +644,7 @@ Check of equality with the original corpus: True</code></pre>
 <h4 class="anchored" data-anchor-id="one-last-problem-to-solve"><a id="toc1_3_3_3_"></a><a href="#toc0_">One last problem to solve</a></h4>
 <p>When encoding, we get to add new ids as tokens and we just incremented with 1 each time. Now, remember this table from wikipedia:</p>
 <p align="center">
-<img src="https://github.com/chsafouane/chsafouane.github.io/blob/master/images/2024-07-07-Byte_Pair_Encoding_Tokenization/utf8_table.png?raw=true" alt="image.png">
+<img src="assets/utf8_table.png">
 </p>
 <p>What this table entails is that not all bytes are valid UTF-8 encodings. For example, any 1-byte number starting with 1 its binary representation is not a valid UTF-8 encoding. The number <code>10000000</code> (which corresponds to 128 in the decimal representation) is not a valid UTF-8 encoding.</p>
 <p>Let us check what Python will say if we try to decode it using UTF-8</p>

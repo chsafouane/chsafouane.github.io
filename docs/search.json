@@ -1,17 +1,10 @@
 [
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
-  },
-  {
     "objectID": "posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html",
     "href": "posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html",
     "title": "Byte Pair Encoding Tokenization",
     "section": "",
-    "text": "Table of contents\n- Hexadecimal representation\n- UTF-8 encoding\n- Some Unicode vocab\n- WTF is UTF-8 ?\n- A sentence example\n- BPE Tokenization\n- BPE in action\n- How does it work\n- Let us build a BPE tokenizer\n- Encoding\n- Decoding\n- One last problem to solve\n- One final example\nThe aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.\nWe’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long video by the amazing Andrej Karpathy. Everything in this post comes from Andrej’s video or the resources he shared in his video.\nThis post is just a way for me to organize ideas in my head before moving on to the next topic."
+    "text": "The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.\nWe’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long video by the amazing Andrej Karpathy. Everything in this post comes from Andrej’s video or the resources he shared in his video.\nThis post is just a way for me to organize ideas in my head before moving on to the next topic.\nTable of contents\n- Hexadecimal representation\n- UTF-8 encoding\n- Some Unicode vocab\n- WTF is UTF-8 ?\n- A sentence example\n- BPE Tokenization\n- BPE in action\n- How does it work\n- Let us build a BPE tokenizer\n- Encoding\n- Decoding\n- One last problem to solve\n- One final example"
   },
   {
     "objectID": "posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html#hexadecimal-representation",
@@ -46,13 +39,6 @@
     "href": "index.html",
     "title": "Weekends Eureka",
     "section": "",
-    "text": "Post With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nJun 22, 2025\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nJun 19, 2025\n\n\nTristan O’Malley\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
-    "section": "",
-    "text": "This is a post with executable code."
+    "text": "Byte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
   }
 ]
