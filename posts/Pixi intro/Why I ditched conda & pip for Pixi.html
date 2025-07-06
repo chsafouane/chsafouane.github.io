@@ -109,7 +109,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
@@ -183,7 +183,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-is-pixi" id="toc-what-is-pixi" class="nav-link active" data-scroll-target="#what-is-pixi"></a><a id="toc1_" class="nav-link" data-scroll-target="undefined"></a>What is pixi ?
+  <ul class="collapse">
+  <li><a href="#pixis-toolset" id="toc-pixis-toolset" class="nav-link" data-scroll-target="#pixis-toolset"></a><a id="toc1_1_" class="nav-link" data-scroll-target="undefined"></a>Pixi’s toolset</li>
+  <li><a href="#pixis-project-philosophy" id="toc-pixis-project-philosophy" class="nav-link" data-scroll-target="#pixis-project-philosophy"></a><a id="toc1_2_" class="nav-link" data-scroll-target="undefined"></a>Pixi’s project philosophy</li>
+  </ul></li>
+  <li><a href="#your-first-project-with-pixi" id="toc-your-first-project-with-pixi" class="nav-link" data-scroll-target="#your-first-project-with-pixi"></a><a id="toc2_" class="nav-link" data-scroll-target="undefined"></a>Your first project with <code>pixi</code>
+  <ul class="collapse">
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation"></a><a id="toc2_1_" class="nav-link" data-scroll-target="undefined"></a>Installation</li>
+  <li><a href="#getting-hands-on" id="toc-getting-hands-on" class="nav-link" data-scroll-target="#getting-hands-on"></a><a id="toc2_2_" class="nav-link" data-scroll-target="undefined"></a>Getting hands-on
+  <ul class="collapse">
+  <li><a href="#initiating-the-project" id="toc-initiating-the-project" class="nav-link" data-scroll-target="#initiating-the-project"></a><a id="toc2_2_1_" class="nav-link" data-scroll-target="undefined"></a>Initiating the project</li>
+  <li><a href="#adding-dependencies" id="toc-adding-dependencies" class="nav-link" data-scroll-target="#adding-dependencies"></a><a id="toc2_2_2_" class="nav-link" data-scroll-target="undefined"></a>Adding dependencies</li>
+  <li><a href="#managing-environments-with-features" id="toc-managing-environments-with-features" class="nav-link" data-scroll-target="#managing-environments-with-features"></a><a id="toc2_2_3_" class="nav-link" data-scroll-target="undefined"></a>Managing environments with features</li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks"></a><a id="toc3_" class="nav-link" data-scroll-target="undefined"></a>Tasks
+  <ul class="collapse">
+  <li><a href="#creating-tasks" id="toc-creating-tasks" class="nav-link" data-scroll-target="#creating-tasks"></a><a id="toc3_1_" class="nav-link" data-scroll-target="undefined"></a>Creating tasks
+  <ul class="collapse">
+  <li><a href="#running-tasks" id="toc-running-tasks" class="nav-link" data-scroll-target="#running-tasks"></a><a id="toc3_1_1_" class="nav-link" data-scroll-target="undefined"></a>Running tasks</li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#pixis-configuration" id="toc-pixis-configuration" class="nav-link" data-scroll-target="#pixis-configuration"></a><a id="toc4_" class="nav-link" data-scroll-target="undefined"></a>Pixi’s configuration
+  <ul class="collapse">
+  <li><a href="#why-another-config-file" id="toc-why-another-config-file" class="nav-link" data-scroll-target="#why-another-config-file"></a><a id="toc4_1_" class="nav-link" data-scroll-target="undefined"></a>Why another config file ?</li>
+  <li><a href="#useful-keys" id="toc-useful-keys" class="nav-link" data-scroll-target="#useful-keys"></a><a id="toc4_2_" class="nav-link" data-scroll-target="undefined"></a>Useful keys
+  <ul class="collapse">
+  <li><a href="#using-private-conda-pypi-repositories" id="toc-using-private-conda-pypi-repositories" class="nav-link" data-scroll-target="#using-private-conda-pypi-repositories"></a><a id="toc4_2_1_" class="nav-link" data-scroll-target="undefined"></a>Using private conda &amp; PyPI repositories</li>
+  <li><a href="#pinning-strategy-1" id="toc-pinning-strategy-1" class="nav-link" data-scroll-target="#pinning-strategy-1"></a><a id="toc4_2_2_" class="nav-link" data-scroll-target="undefined"></a>Pinning strategy</li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"></a><a id="toc5_" class="nav-link" data-scroll-target="undefined"></a>Conclusion</li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
 
@@ -195,36 +234,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>I discovered <code>pixi</code> thanks to Eric Ma <a href="https://ericmjl.github.io/blog/2024/8/16/its-time-to-try-out-pixi/">blog post</a>. At the time, the thing that caught my attention the most is how easy it is to manage the installation of the same environment but one with CUDA support and the other without.</p>
 <p>After months of using <code>pixi</code> now, I can say that the 3 things I like the most about <code>pixi</code> are: - The features concept that allows to mix and match packages to create environments - Being able to run tasks - How fast it is!</p>
 <p>We’ll take a look at all of this in this blog. The final version of the code generated in this blog is available in <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">this repository</a>.</p>
-<p><strong>Table of contents</strong><a id="toc0_"></a><br>
-- <a href="#toc1_">What is pixi ?</a><br>
-- <a href="#toc1_1_">Pixi’s toolset</a><br>
-- <a href="#toc1_2_">Pixi’s project philosophy</a><br>
-- <a href="#toc2_">Your first project with <code>pixi</code></a><br>
-- <a href="#toc2_1_">Installation</a><br>
-- <a href="#toc2_2_">Getting hands-on</a><br>
-- <a href="#toc2_2_1_">Initiating the project</a><br>
-- <a href="#toc2_2_2_">Adding dependencies</a><br>
-- <a href="#toc2_2_2_1_">Pinning strategy</a><br>
-- <a href="#toc2_2_3_">Managing environments with features</a><br>
-- <a href="#toc2_2_3_1_">Creating environments from dependency groups (features)</a><br>
-- <a href="#toc2_2_3_2_">Environments installation</a><br>
-- <a href="#toc3_">Tasks</a><br>
-- <a href="#toc3_1_">Creating tasks</a><br>
-- <a href="#toc3_1_1_">Running tasks</a><br>
-- <a href="#toc4_">Pixi’s configuration</a><br>
-- <a href="#toc4_1_">Why another config file ?</a><br>
-- <a href="#toc4_2_">Useful keys</a><br>
-- <a href="#toc4_2_1_">Using private conda &amp; PyPI repositories</a><br>
-- <a href="#toc4_2_2_">Pinning strategy</a><br>
-- <a href="#toc5_">Conclusion</a></p>
-<!-- vscode-jupyter-toc-config
-    numbering=false
-    anchor=true
-    flat=false
-    minLevel=1
-    maxLevel=6
-    /vscode-jupyter-toc-config -->
-<!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
 <section id="what-is-pixi" class="level1">
 <h1><a id="toc1_"></a><a href="#toc0_">What is pixi ?</a></h1>
 <p align="center">
