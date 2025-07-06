@@ -195,13 +195,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>I discovered <code>pixi</code> thanks to Eric Ma <a href="https://ericmjl.github.io/blog/2024/8/16/its-time-to-try-out-pixi/">blog post</a>. At the time, the thing that caught my attention the most is how easy it is to manage the installation of the same environment but one with CUDA support and the other without.</p>
 <p>After months of using <code>pixi</code> now, I can say that the 3 things I like the most about <code>pixi</code> are: - The features concept that allows to mix and match packages to create environments - Being able to run tasks - How fast it is!</p>
 <p>We’ll take a look at all of this in this blog. The final version of the code generated in this blog is available in <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">this repository</a>.</p>
+<p><strong>Table of contents</strong><a id="toc0_"></a><br>
+- <a href="#toc1_">What is pixi ?</a><br>
+- <a href="#toc1_1_">Pixi’s toolset</a><br>
+- <a href="#toc1_2_">Pixi’s project philosophy</a><br>
+- <a href="#toc2_">Your first project with <code>pixi</code></a><br>
+- <a href="#toc2_1_">Installation</a><br>
+- <a href="#toc2_2_">Getting hands-on</a><br>
+- <a href="#toc2_2_1_">Initiating the project</a><br>
+- <a href="#toc2_2_2_">Adding dependencies</a><br>
+- <a href="#toc2_2_2_1_">Pinning strategy</a><br>
+- <a href="#toc2_2_3_">Managing environments with features</a><br>
+- <a href="#toc2_2_3_1_">Creating environments from dependency groups (features)</a><br>
+- <a href="#toc2_2_3_2_">Environments installation</a><br>
+- <a href="#toc3_">Tasks</a><br>
+- <a href="#toc3_1_">Creating tasks</a><br>
+- <a href="#toc3_1_1_">Running tasks</a><br>
+- <a href="#toc4_">Pixi’s configuration</a><br>
+- <a href="#toc4_1_">Why another config file ?</a><br>
+- <a href="#toc4_2_">Useful keys</a><br>
+- <a href="#toc4_2_1_">Using private conda &amp; PyPI repositories</a><br>
+- <a href="#toc4_2_2_">Pinning strategy</a><br>
+- <a href="#toc5_">Conclusion</a></p>
+<!-- vscode-jupyter-toc-config
+    numbering=false
+    anchor=true
+    flat=false
+    minLevel=1
+    maxLevel=6
+    /vscode-jupyter-toc-config -->
+<!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
 <section id="what-is-pixi" class="level1">
-<h1>What is pixi ?</h1>
+<h1><a id="toc1_"></a><a href="#toc0_">What is pixi ?</a></h1>
 <p align="center">
 <img src="assets/pixi.webp" width="50%">
 </p>
 <section id="pixis-toolset" class="level2">
-<h2 class="anchored" data-anchor-id="pixis-toolset">Pixi’s toolset</h2>
+<h2 class="anchored" data-anchor-id="pixis-toolset"><a id="toc1_1_"></a><a href="#toc0_">Pixi’s toolset</a></h2>
 <p>Now, Pixi is many things but I’ll focus on the things that will be of use to you as a python developer</p>
 <ul>
 <li>Pixi is a package manager that can manage packages from both Conda &amp; PyPI. The dependency resolution tools used by Pixi (<code>resolvo</code> for conda &amp; uv resolution tool for PyPI packages) are very fast.</li>
@@ -215,23 +245,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Now, while <code>mamba</code> is fast, in my experience, <code>pixi</code> is faster. <code>mamba</code> also lacks lock-files that are essential for reproducibility and a task runner that comes very handy in many situations (CI/CD, Other people running your project, etc.)</p>
 </section>
 <section id="pixis-project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="pixis-project-philosophy">Pixi’s project philosophy</h2>
+<h2 class="anchored" data-anchor-id="pixis-project-philosophy"><a id="toc1_2_"></a><a href="#toc0_">Pixi’s project philosophy</a></h2>
 <p>While <code>conda</code> is environment-centric, <code>pixi</code> is all about projects. When you init a pixi project, it will create a <code>pixi.toml</code> (or a <code>pyproject.toml</code> instead if you want). In this file, you can specify many environments that can be composed of different features. For example, you can have: - a base feature that includes the basic packages needed by your project - a run feature that consists of packages needed for only running the project - a test feature that consists of additional packages needed for testing the project - a build feature that consists of additional packages or tools needed for building the project.</p>
 <p>Imagine having to train a model on a GPU but then when running it, to only have a CPU at your disposal. What you would do is have: - A training environment composed of the features <code>base</code> + <code>build</code> + <code>test</code> that will include the base packages, some CUDA dependencies and pytorch with GPU support coming from the build feature, and test packages like <code>pytest</code> coming from the test feature. - A CI/CD environment composed of <code>base</code> + <code>run</code> + <code>test</code>. The only difference this time is that you’ll be using the run feature that include <code>pytorch-cpu</code> and no CUDA dependencies. - A run environment composed only of <code>base</code> + <code>run</code> features.</p>
 <p>The other nice thing is that you can say that you can enforce that some environments (or all of them) use the same versions of the common packages.</p>
 </section>
 </section>
 <section id="your-first-project-with-pixi" class="level1">
-<h1>Your first project with <code>pixi</code></h1>
+<h1><a id="toc2_"></a><a href="#toc0_">Your first project with <code>pixi</code></a></h1>
 <section id="installation" class="level2">
-<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<h2 class="anchored" data-anchor-id="installation"><a id="toc2_1_"></a><a href="#toc0_">Installation</a></h2>
 <p>Start first by installing <code>pixi</code> by grabbing the one command-line that corresponds to your case from here: <a href="https://pixi.sh/latest/installation">Pixi installation</a>.</p>
 <p>It’s really just one command, restart your terminal and there you go.</p>
 </section>
 <section id="getting-hands-on" class="level2">
-<h2 class="anchored" data-anchor-id="getting-hands-on">Getting hands-on</h2>
+<h2 class="anchored" data-anchor-id="getting-hands-on"><a id="toc2_2_"></a><a href="#toc0_">Getting hands-on</a></h2>
 <section id="initiating-the-project" class="level3">
-<h3 class="anchored" data-anchor-id="initiating-the-project">Initiating the project</h3>
+<h3 class="anchored" data-anchor-id="initiating-the-project"><a id="toc2_2_1_"></a><a href="#toc0_">Initiating the project</a></h3>
 <p>We’ll work through an example where we’d like to develop a FastAPI app.</p>
 <p>Let us initiate a pixi project:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> init fastapi_app <span class="at">--format</span> pyproject</span>
@@ -270,7 +300,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>The <code>[tool.pixi.tasks]</code> section</strong> is empty for the time-being. You can imagine tasks as a replacement of makefiles. We’ll add some tasks later in the blog post.</p>
 </section>
 <section id="adding-dependencies" class="level3">
-<h3 class="anchored" data-anchor-id="adding-dependencies">Adding dependencies</h3>
+<h3 class="anchored" data-anchor-id="adding-dependencies"><a id="toc2_2_2_"></a><a href="#toc0_">Adding dependencies</a></h3>
 <p>Let us add python 3.12 to the project</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add python=3.12</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As we’re going to create a FastAPI app, let us add fastapi and uvicorn but this time from PyPI.</p>
@@ -303,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.dependencies]</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="dt">python</span> <span class="op">=</span> <span class="st">"3.12.*"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="pinning-strategy" class="level4">
-<h4 class="anchored" data-anchor-id="pinning-strategy">Pinning strategy</h4>
+<h4 class="anchored" data-anchor-id="pinning-strategy"><a id="toc2_2_2_1_"></a><a href="#toc0_">Pinning strategy</a></h4>
 <p>The thing that bothered me the most when I started with <code>pixi</code> is that the pinning of the packages. By default, <code>pixi</code> will use a very strict pinning strategy as you can see with fastapi for example: <code>"fastapi&gt;=0.115.14,&lt;0.116"</code>, even if the user didn’t specify a version when adding fastapi.</p>
 <p>If later you’d like to install a package that is not compatible with the pinned version of fastapi (even though you don’t care about the specific minor version of fastapi shown in the pyproject.toml, or the upper bound constraint), you’ll get an error, and this was frustrating.</p>
 <p><code>pixi</code> developers explain why <a href="https://prefix.dev/blog/the_python_packaging_debate">they chose this strategy</a> and discuss the matter at length in this <a href="https://github.com/prefix-dev/pixi/issues/639">GitHub issue</a>.</p>
@@ -311,7 +341,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 <section id="managing-environments-with-features" class="level3">
-<h3 class="anchored" data-anchor-id="managing-environments-with-features">Managing environments with features</h3>
+<h3 class="anchored" data-anchor-id="managing-environments-with-features"><a id="toc2_2_3_"></a><a href="#toc0_">Managing environments with features</a></h3>
 <p>One of pixi’s amazing features is being able to manage different sets of dependencies for different purposes (like the example for the run, build, test, etc above) using <code>features</code>. A <code>feature</code> (also called a <code>dependency group</code> is just a named set of dependencies).</p>
 <p>By default, when adding packages, pixi will automatically add packages to the standard group of dependencies. You can add packages to a specific feature by using the <code>--feature</code> flag.</p>
 <p>Let’s say that our core dependencies that are needed for running the app are <code>fastapi</code> and <code>uvicorn</code>. Let us add two families of dependencies (two features): - A <code>test</code> feature that will include <code>pytest</code> &amp; <code>pytest-cov</code></p>
@@ -352,7 +382,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.feature.dev.dependencies]</span></span>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="dt">ruff</span> <span class="op">=</span> <span class="st">"*"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="creating-environments-from-dependency-groups-features" class="level4">
-<h4 class="anchored" data-anchor-id="creating-environments-from-dependency-groups-features">Creating environments from dependency groups (features)</h4>
+<h4 class="anchored" data-anchor-id="creating-environments-from-dependency-groups-features"><a id="toc2_2_3_1_"></a><a href="#toc0_">Creating environments from dependency groups (features)</a></h4>
 <p>In pixi, every environment is a collection of features (can be two features or more). The main project dependencies added without any feature like <code>fastapi</code> and <code>uvicorn</code> are added to an implicit default feature and to a default environment. If you execute</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">pixi</span> project environment list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You’ll see that the default environment is called <code>default</code> and it includes the default feature.</p>
@@ -393,7 +423,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>All of this can be added manually instead to the pyproject.toml but it’s error prone and the pixi CLI is honestly very handy.</p>
 </section>
 <section id="environments-installation" class="level4">
-<h4 class="anchored" data-anchor-id="environments-installation">Environments installation</h4>
+<h4 class="anchored" data-anchor-id="environments-installation"><a id="toc2_2_3_2_"></a><a href="#toc0_">Environments installation</a></h4>
 <p>Now, let us create the environments by first install the default environment</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> install</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You can also simply run <code>pixi shell</code> to install the default environment and open a shell in it.</p>
@@ -409,12 +439,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 <section id="tasks" class="level1">
-<h1>Tasks</h1>
+<h1><a id="toc3_"></a><a href="#toc0_">Tasks</a></h1>
 <p><code>pixi</code> can be used as a task runner and thus would replace <code>make</code> or <code>just</code>. You can define tasks in the <code>pyproject.toml</code> file under the <code>[tool.pixi.tasks]</code> section.</p>
 <p>You can use the CLI to add the tasks but sometimes I find it easier to write the tasks manually in <code>pyproject.toml</code> specially if they are multiline tasks.</p>
 <p>In the <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">repo</a> provided with this tutorial, you’ll find the files needed (<code>src/main.py</code>) to execute the tasks along with the tutorial.</p>
 <section id="creating-tasks" class="level2">
-<h2 class="anchored" data-anchor-id="creating-tasks">Creating tasks</h2>
+<h2 class="anchored" data-anchor-id="creating-tasks"><a id="toc3_1_"></a><a href="#toc0_">Creating tasks</a></h2>
 <p>To create a task, you can use the <code>pixi task add</code> command and you’ll have to specify two things:</p>
 <ul>
 <li>The task name</li>
@@ -429,6 +459,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb22"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.tasks]</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="dt">start</span> <span class="op">=</span> <span class="st">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="dt">lint</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">task</span><span class="op"> =</span> <span class="st">"ruff check src --fix"</span><span class="op">, </span><span class="dt">environment</span><span class="op"> =</span> <span class="st">"fastapi-dev-env"</span><span class="op"> }</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="running-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="running-tasks"><a id="toc3_1_1_"></a><a href="#toc0_">Running tasks</a></h3>
 <p>To run the linting task in the dev environment, you can run:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> run <span class="at">-e</span> fastapi-dev-env lint</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You’ll get the following output:</p>
@@ -451,10 +483,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 </section>
 </section>
-<section id="pixi-configuration" class="level1">
-<h1>Pixi configuration</h1>
+</section>
+<section id="pixis-configuration" class="level1">
+<h1><a id="toc4_"></a><a href="#toc0_">Pixi’s configuration</a></h1>
 <section id="why-another-config-file" class="level2">
-<h2 class="anchored" data-anchor-id="why-another-config-file">Why another config file ?</h2>
+<h2 class="anchored" data-anchor-id="why-another-config-file"><a id="toc4_1_"></a><a href="#toc0_">Why another config file ?</a></h2>
 <p>The <code>pyproject.toml</code> (or the <code>pixi.toml</code>) file reprensents the configuration of the pixi project. It includes the project metadata, the dependencies, the environments, the tasks, etc.</p>
 <p>There is additional configuration that is not required for the project per say but in a way changes the behavior you would place in a <code>config.toml</code> file.</p>
 <p>You can set this config at one of three levels: - locally: in this case, the configuration will be stored <code>your_project/.pixi/config.toml</code> and will impact only the current project. - globally: in this case, the configuration will be stored in <code>$PIXI_HOME/config.toml</code> and will impact all the projects using pixi. - system-wide: in this case, the configuration will be stored in <code>/etc/pixi/config.toml</code> and will impact all the projects using pixi.</p>
@@ -492,9 +525,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     proxy-config.non-proxy-hosts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="useful-keys" class="level2">
-<h2 class="anchored" data-anchor-id="useful-keys">Useful keys</h2>
+<h2 class="anchored" data-anchor-id="useful-keys"><a id="toc4_2_"></a><a href="#toc0_">Useful keys</a></h2>
 <section id="using-private-conda-pypi-repositories" class="level3">
-<h3 class="anchored" data-anchor-id="using-private-conda-pypi-repositories">Using private conda &amp; PyPI repositories</h3>
+<h3 class="anchored" data-anchor-id="using-private-conda-pypi-repositories"><a id="toc4_2_1_"></a><a href="#toc0_">Using private conda &amp; PyPI repositories</a></h3>
 <p>Some of my very security-oriented customers usually have their own conda and pip repositories (like <code>nexus</code>) and oblige everyone to use them as they only include packages that are approved by the security team.</p>
 <p>For this, I use <code>pypi-config.index-url</code> and <code>pypi-config.extra-index-urls</code> to specify the index URL and the extra index URLs to use for PyPI packages.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> config set pypi-config.index-url https://nexus.some_random_company.com/pypi/simple</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -514,7 +547,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>If you need to manage credentials for private repositories, you can check <code>pixi auth login</code>.</p>
 </section>
 <section id="pinning-strategy-1" class="level3">
-<h3 class="anchored" data-anchor-id="pinning-strategy-1">Pinning strategy</h3>
+<h3 class="anchored" data-anchor-id="pinning-strategy-1"><a id="toc4_2_2_"></a><a href="#toc0_">Pinning strategy</a></h3>
 <p>The other key that I find useful is the <code>pinning-strategy</code> key. As I said before, by default, pixi uses a very strict pinning strategy that can be annoying at times. You can change it to one of the strategies listed in the <a href="https://pixi.sh/dev/reference/pixi_configuration/#pinning-strategy">documentation</a>.</p>
 <p>Personally, I like to pin to the major version using:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> config set pinning-strategy major</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -523,7 +556,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 </section>
 <section id="conclusion" class="level1">
-<h1>Conclusion</h1>
+<h1><a id="toc5_"></a><a href="#toc0_">Conclusion</a></h1>
 <p>Well, that was quire a ride. I hope you enjoyed it and that you learned something new.</p>
 <p>My advice to you is to start using pixi in your personal projects. At first, there is going to be a slight learning curve but once you get used to it, you’ll find it extremely fast and convenient to use.</p>
 <p>If you have any questions, feel free to reach out to me on <a href="https://www.linkedin.com/in/chsafouane/">my linkedin</a>.</p>
