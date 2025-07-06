@@ -42,25 +42,11 @@
     "text": "Creating tasks\nTo create a task, you can use the pixi task add command and you’ll have to specify two things:\n\nThe task name\nThe command to run\n\nExecute pixi task add --help to see the available options, as you can add for example environment variables or isolate the task from the shell when running (not having access to the shell variables for example) among other things.\nLet us create a task to start a uvicorn server with hot reloading. The task will have as a name start. The command will add the task to the pyproject.toml file under the [tool.pixi.tasks] section.\npixi task add start \"uvicorn my_app.main:app --reload --host 0.0.0.0\"\nLet us also add a linting task that uses ruff\npixi task add lint \"ruff check src --fix\"\nIf you look now at the pyproject.toml file, you’ll see that the tasks are added under the [tool.pixi.tasks] section:\n\n\n\nTo run the linting task in the dev environment, you can run:\npixi run -e fastapi-dev-env lint\nYou’ll get the following output:\nPixi task (lint in fastapi-dev-env): ruff check src --fix\nAll checks passed!\nNow, you can specify in the pyproject.toml the default environment in which the task should run but I haven’t found a way to do it through the CLI yet.\n[tool.pixi.tasks]\nstart = \"uvicorn my_app.main:app --reload --host 0.0.0.0\"\nlint = { task = \"ruff check src --fix\", environment = \"fastapi-dev-env\" }\nAs I can’t go through everything you can do with tasks, I’ll just list the things that I find useful but you can find more in the pixi documentation: - You can create a task that is composed of many tasks using the dependes-on field. that for example executes the linting task and then runs the app - You can create a tasks that runs the same task in multiple environments. If for example you’d like to test your code against multiple python versions, you can create a task that runs the same task in environments with different python versions (instead of using matrices of environments in CI/CD). Here an example from pixi’s documentation:\n# Task that depends on other tasks in different environments\n[tasks.test-all]\ndepends-on = [\n  { task = \"test\", environment = \"py311\" },\n  { task = \"test\", environment = \"py312\" },\n]\n\nYou can add environment variables or isolate the task when running from the shell (and thus not having access to the shell variables).\nIf a task depends on another task, you can cache the result of the first task and use it in the second task. Pixi won’t rerun the first task after doing some verifications that can be found in the documentation."
   },
   {
-    "objectID": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html",
-    "href": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html",
-    "title": "1. Async programming & event loops",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Weekends Eureka",
     "section": "",
-    "text": "import asyncio\nimport nest_asyncio\n\nnest_asyncio.apply()"
-  },
-  {
-    "objectID": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html#async-programming",
-    "href": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html#async-programming",
-    "title": "1. Async programming & event loops",
-    "section": "1.1. Async programming",
-    "text": "1.1. Async programming\nThis is a very brief intro to async programming & event loops.\nAsynchronous programming is a style of programming that allows a single thread of execution to handle many tasks. This sounds like gibberish, I know!\nI asked Gemini for an analogy and it came up with the following:\n\nImagine a chef in a kitchen making a meal: - Synchronous Chef: They would put a pot of water on the stove to boil. They would then stand and watch it until it boils before doing anything else. Once it boils, they add pasta. They stand and watch the pasta cook for 10 minutes before starting to chop vegetables for the sauce. This is inefficient, as most of the time is spent just waiting.\n\nAsynchronous Chef: They put the water on to boil. Instead of waiting, they immediately start chopping vegetables. When they hear the water boiling (an “event”), they pause chopping, add the pasta, and then immediately return to chopping while the pasta cooks.\n\n\nAsynchronous programming is good for I/O-bound tasks (reading files, waiting for a query to return the data, etc.)"
-  },
-  {
-    "objectID": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html#coroutines",
-    "href": "posts/Asyncio_part_1_Coroutines_and_Tasks/asyncio_part_1_Coroutines_and_Tasks.html#coroutines",
-    "title": "1. Async programming & event loops",
-    "section": "2. Coroutines",
-    "text": "2. Coroutines\n\n2.1. What the hell is a coroutine ?\nTake a regular python function like the function print_hello_world below. When you call it, it runs from the begining to the end and nothing else is executed until the execution of this function is finished.\n\ndef print_hello_world():\n    print(\"Hello...\")\n    print(\"World!\")\n\n\nprint_hello_world()\n\nHello...\nWorld!\n\n\nA coroutine looks similar to a normal python function but works very differently. It can choose to pause its execution at a specific point and give control to another code to run.\nImagine your function is waiting for a response from a server. If some part of your code can run without the server response, there’s no point in your whole program waiting for that function execution.\nWell, coroutines have this ability of saying “Hey dude, I’m going to be waiting for a bit for the server response. Feel free to do what you like but wake me up once the server responds.\nThe ability to behave this way makes coroutines perfect for I/O operations that take time and where the program would just be wasting time waiting for I/O operation to finish.\n\n\n2.2. Coding your first coroutine\nUnlike a normal function, coroutines are defined with async def and not only with def.\n\nasync def async_print_hello_world():\n    print(\"Hello...\")\n    print(\"World!\")\n\nLet us call async_print_hello_world to see its output\n\nasync_print_hello_world()\n\n&lt;coroutine object async_print_hello_world at 0x0000012F22774400&gt;\n\n\nWhy the hell it didn’t print anything ??? The first difference with functions is that when you call a coroutine, it doesn’t run. Calling a coroutine just creates a asyncio.Coroutine object that you need to explicitly program to run!\nIn order to program a coroutine to run, you should use asyncio.run and pass the coroutine that you’d like to run to it. (There’s a very important concept about how async awaitables are programmed to run that we’re going to tackle later in this blog post)\n\nasyncio.run(async_print_hello_world())\n\nHello...\nWorld!\n\n\nWe’ve successfully run a coroutine but we haven’t tapped into its potential yet; we’ve used just like a normal function but in a more verbose manner !\n\n\n2.3 Pausing & Resuming\nNow, let us make use of the pausing capability of coroutines.\n\nimport asyncio\nimport time\n\nasync def fetch_data():\n    print(\"Going to fetch data\")\n    # Simulate waiting to fetch data\n    await asyncio.sleep(5)\n    print(\"Data fetched\")\n    return {\"x\": 1}"
+    "text": "Why I ditched pip & conda for Pixi\n\n\n\nPython\n\nenv\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -68,13 +54,6 @@
     "title": "About",
     "section": "",
     "text": "This blog serves for archiving my notes."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Weekends Eureka",
-    "section": "",
-    "text": "1. Async programming & event loops\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhy I ditched pip & conda for Pixi\n\n\n\nPython\n\nenv\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html",
