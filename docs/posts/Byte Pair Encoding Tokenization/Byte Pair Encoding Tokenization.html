@@ -193,7 +193,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.</p>
 <p>We’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long <a href="https://www.youtube.com/watch?v=zduSFxRajkE">video by the amazing Andrej Karpathy</a>. Everything in this post comes from Andrej’s video or the resources he shared in his video.</p>
-<p>This post is just a way for me to organize ideas in my head before moving on to the next topic.</p>
 <p><strong>Table of contents</strong><a id="toc0_"></a><br>
 - <a href="#toc1_1_">Hexadecimal representation</a><br>
 - <a href="#toc1_2_">UTF-8 encoding</a><br>
@@ -803,7 +802,7 @@ Cell <span class="ansi-green-fg">In[215], line 5</span>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/chsafouane\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

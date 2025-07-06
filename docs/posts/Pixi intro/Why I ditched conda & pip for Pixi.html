@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Safouane Chergui">
+<meta name="dcterms.date" content="2025-07-05">
+
+<title>Why I ditched pip &amp; conda for Pixi – Safouane Chergui</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-dfb324f25d9b1687192fa8be62ac8f9c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Safouane Chergui</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/chsafouane"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/safouane-chergui/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Why I ditched pip &amp; conda for Pixi</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Python</div>
+                <div class="quarto-category">env</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Safouane Chergui </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 5, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>I’ve been using pip and then conda for as long as I can remember. Last year, I did a double-switch. First, I moved to <code>uv</code> and then not long after it I moved to <code>pixi</code>.</p>
+<p>I discovered <code>pixi</code> thanks to Eric Ma <a href="https://ericmjl.github.io/blog/2024/8/16/its-time-to-try-out-pixi/">blog post</a>. At the time, the thing that caught my attention the most is how easy it is to manage the installation of the same environment but one with CUDA support and the other without.</p>
+<p>After months of using <code>pixi</code> now, I can say that the 3 things I like the most about <code>pixi</code> are: - The features concept that allows to mix and match packages to create environments - Being able to run tasks - How fast it is!</p>
+<p>We’ll take a look at all of this in this blog. The final version of the code generated in this blog is available in <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">this repository</a>.</p>
+<section id="what-is-pixi" class="level1">
+<h1>What is pixi ?</h1>
+<p align="center" width="10%">
+<img src="assets/pixi.webp">
+</p>
+<section id="pixis-toolset" class="level2">
+<h2 class="anchored" data-anchor-id="pixis-toolset">Pixi’s toolset</h2>
+<p>Now, Pixi is many things but I’ll focus on the things that will be of use to you as a python developer</p>
+<ul>
+<li>Pixi is a package manager that can manage packages from both Conda &amp; PyPI. The dependency resolution tools used by Pixi (<code>resolvo</code> for conda &amp; uv resolution tool for PyPI packages) are very fast.</li>
+<li>Pixi manages environments (similar to <code>venv</code> for <code>pip</code> users, a feature that is built into <code>conda</code>)</li>
+<li>Pixi manages <code>python</code> version as well (similar to <code>pyenv</code> if you use <code>pip</code>, built into <code>conda</code>)</li>
+<li>Pixi has a lock file that allows you to reproduce excatly the same environment (similar to what you’d get <code>conda-lock</code> or <code>pip-lock</code>)</li>
+<li>Pixi can be used as a task-runner, just like <code>make</code> or <code>just</code>.</li>
+<li>Pixi has built-in cross-platform reproducibility. The lock file includes the exact versions and dependencies in all targeted platforms. You can pick and choose the targeted platform by your project (Linux, Windows, etc).</li>
+</ul>
+<p>Now, while <code>mamba</code> is fast, in my experience, <code>pixi</code> is faster. <code>mamba</code> also lacks lock-files that are essential for reproducibility and a task runner that comes very handy in many situations (CI/CD, Other people running your project, etc.)</p>
+</section>
+<section id="pixis-project-philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="pixis-project-philosophy">Pixi’s project philosophy</h2>
+<p>While <code>conda</code> is environment-centric, <code>pixi</code> is all about projects. When you init a pixi project, it will create a <code>pixi.toml</code> (or a <code>pyproject.toml</code> instead if you want). In this file, you can specify many environments that can be composed of different features. For example, you can have: - a base feature that includes the basic packages needed by your project - a run feature that consists of packages needed for only running the project - a test feature that consists of additional packages needed for testing the project - a build feature that consists of additional packages or tools needed for building the project.</p>
+<p>Imagine having to train a model on a GPU but then when running it, to only have a CPU at your disposal. What you would do is have: - A training environment composed of the features <code>base</code> + <code>build</code> + <code>test</code> that will include the base packages, some CUDA dependencies and pytorch with GPU support coming from the build feature, and test packages like <code>pytest</code> coming from the test feature. - A CI/CD environment composed of <code>base</code> + <code>run</code> + <code>test</code>. The only difference this time is that you’ll be using the run feature that include <code>pytorch-cpu</code> and no CUDA dependencies. - A run environment composed only of <code>base</code> + <code>run</code> features.</p>
+<p>The other nice thing is that you can say that you can enforce that some environments (or all of them) use the same versions of the common packages.</p>
+</section>
+</section>
+<section id="your-first-project-with-pixi" class="level1">
+<h1>Your first project with <code>pixi</code></h1>
+<section id="installation" class="level2">
+<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<p>Start first by installing <code>pixi</code> by grabbing the one command-line that corresponds to your case from here: <a href="https://pixi.sh/latest/installation">Pixi installation</a>.</p>
+<p>It’s really just one command, restart your terminal and there you go.</p>
+</section>
+<section id="getting-hands-on" class="level2">
+<h2 class="anchored" data-anchor-id="getting-hands-on">Getting hands-on</h2>
+<section id="initiating-the-project" class="level3">
+<h3 class="anchored" data-anchor-id="initiating-the-project">Initiating the project</h3>
+<p>We’ll work through an example where we’d like to develop a FastAPI app.</p>
+<p>Let us initiate a pixi project:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> init fastapi_app <span class="at">--format</span> pyproject</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> fastapi_app</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you already have an existing folder, you can simply go inside of it and execute</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> init <span class="at">--format</span> pyproject</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>By default, pixi uses a <code>pixi.toml</code> file for its configuration. As people in python use <code>pyproject.toml</code>, you can specify that you want to use the latter with the <code>--format pyproject</code>.</p>
+<p>The initiation of the project creates the following files:</p>
+<p align="center">
+<img src="assets/pixi_init_structure.png" alt="pixi init structure">
+</p>
+<p>If you look at the content of the <code>pyproject.toml</code>, you’ll see different things:</p>
+<p align="center">
+<img src="assets/pixi_init_pyproject_toml.png" alt="pixi pyproject.toml file">
+</p>
+<p>Let us dive into the most important fields:</p>
+<p><strong>The <code>[project]</code> section</strong> includes project metadata. - As we haven’t added a specific python interpreter to the project, the <code>requires-python</code> entry shows the currently active python interpreter in the terminal. You can change it manually if you want.</p>
+<p><strong>The <code>[tool.pixi.workspace]</code> section</strong> has two entries: - The <code>channels</code> shows the conda channels that can be used to download the conda packages.If you have a company repository (like <code>nexus</code>), it can be used instead or added before conda-forge to be used first. - The <code>platforms</code> corresponds to the platform you’re using. You can add other platforms here and the <code>pixi.lock</code> will include the packages that need to be installed to reproduce the exact environment in the case of the additional platforms.</p>
+<p><strong>The <code>[tool.pixi.pypi-dependencies]</code> section</strong> is used to specify the packages to install from PyPI. By default, the code you’re developping shows up as an editable package. Your code will be installed in editable mode and you’ll be able to see the changes you make to your code directly reflected in your environment.</p>
+<p><strong>The <code>[tool.pixi.tasks]</code> section</strong> is empty for the time-being. You can imagine tasks as a replacement of makefiles. We’ll add some tasks later in the blog post.</p>
+</section>
+<section id="adding-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="adding-dependencies">Adding dependencies</h3>
+<p>Let us add python 3.12 to the project</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add python=3.12</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As we’re going to create a FastAPI app, let us add fastapi and uvicorn but this time from PyPI.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add <span class="at">--pypi</span> fastapi <span class="st">"uvicorn[standard]"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now that we have proceeded with adding these dependencies, we can see that we have a <code>pixi.lock</code> file that was created.</p>
+<p align="center">
+<img src="assets/pixi_first_installation.png" alt="pixi structure after first installation">
+</p>
+The <code>pyproject.toml</code> file is now updated to include the new dependencies:
+<p align="center">
+<img src="assets/pixi_pyproject_first_installation.png" alt="pixi pyproject.toml first installation">
+</p>
+<section id="pinning-strategy" class="level4">
+<h4 class="anchored" data-anchor-id="pinning-strategy">Pinning strategy</h4>
+<p>The thing that bothered me the most when I started with <code>pixi</code> is that the pinning of the packages. By default, <code>pixi</code> will use a very strict pinning strategy as you can see with fastapi for example: <code>"fastapi&gt;=0.115.14,&lt;0.116"</code>, even if the user didn’t specify a version when adding fastapi.</p>
+<p>If later you’d like to install a package that is not compatible with the pinned version of fastapi (even though you don’t care about the specific minor version of fastapi shown in the pyproject.toml, or the upper bound constraint), you’ll get an error, and this was frustrating.</p>
+<p><code>pixi</code> developers explain why <a href="https://prefix.dev/blog/the_python_packaging_debate">they chose this strategy</a> and discuss the matter at length in this <a href="https://github.com/prefix-dev/pixi/issues/639">GitHub issue</a>.</p>
+<p>Nonetheless, you can override the pinning strategy by using the <a href="https://pixi.sh/v0.49.0/reference/pixi_configuration/#pinning-strategy">pinning-strategy</a> configuration but we’ll look at pixi’s config file later.</p>
+</section>
+</section>
+<section id="managing-environments-with-features" class="level3">
+<h3 class="anchored" data-anchor-id="managing-environments-with-features">Managing environments with features</h3>
+<p>One of pixi’s amazing features is being able to manage different sets of dependencies for different purposes (like the example for the run, build, test, etc above) using <code>features</code>. A <code>feature</code> (also called a <code>dependency group</code> is just a named set of dependencies).</p>
+<p>By default, when adding packages, pixi will automatically add packages to the standard group of dependencies. You can add packages to a specific feature by using the <code>--feature</code> flag.</p>
+<p>Let’s say that our core dependencies that are needed for running the app are <code>fastapi</code> and <code>uvicorn</code>. Let us add two families of dependencies (two features): - A <code>test</code> feature that will include <code>pytest</code> &amp; <code>pytest-cov</code></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add <span class="at">--feature</span> test pytest pytest-cov</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>A <code>dev</code> feature that will include packages needed for development like <code>ruff</code></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> add <span class="at">--feature</span> dev ruff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When you’ll add this second feature, you’ll get a warning saying that the test feature was added but is not used by any environment and that is ok as we’re going to do it just after.</p>
+<p>Now, if you look at the <code>pyproject.toml</code> file, you’ll see that the dependencies are now grouped by features:</p>
+<p align="center">
+<img src="assets/pixi_pyproject_second_installation.png" alt="pixi pyproject.toml features">
+</p>
+<section id="creating-environments-from-dependency-groups-features" class="level4">
+<h4 class="anchored" data-anchor-id="creating-environments-from-dependency-groups-features">Creating environments from dependency groups (features)</h4>
+<p>In pixi, every environment is a collection of features (can be two features or more). The main project dependencies added without any feature like <code>fastapi</code> and <code>uvicorn</code> are added to an implicit default feature and to a default environment. If you execute</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a> <span class="ex">pixi</span> project environment list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You’ll see that the default environment is called <code>default</code> and it includes the default feature.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Environments:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> default:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">features:</span> default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When you create a feature like <code>test</code>, pixi will create an environment from the default feature + the <code>test</code> feature, unless you explicitly say that you don’t want to do so. This means, that by default, the <code>test</code> environment isn’t composed of just the dependencies in the <code>test</code> feature but also the dependencies in the default feature: - All dependencies from the default feature (fastapi, uvicorn) - All dependencies from the <code>test</code> feature (pytest, pytest-cov)</p>
+<p>Before creating the environments, let us tackle one last thing: the <code>solve-groups</code>.</p>
+<p>Imagine having the default environment that includes <code>fastapi</code> and <code>uvicorn</code> and a <code>test</code> environment that includes additionally <code>pytest</code> and <code>pytest-cov</code>. When pixi will resolve the dependencies, the default environment can have different versions of fastapi and uvicorn than the test environment. To force pixi to group both environments together at the solve stage, you need to say that the test environment should be solved together with the default environment by using the <code>--solve-groups</code> flag.</p>
+<p>Here’s the documentation definition of the <code>--solve-groups</code> flag:</p>
+<blockquote class="blockquote">
+<p>solve-group: String: The solve group is used to group environments together at the solve stage. This is useful for environments that need to have the same dependencies but might extend them with additional dependencies. For instance when testing a production environment with additional test dependencies.</p>
+</blockquote>
+<p>Let us create the environments now:</p>
+<p><strong>Test environment:</strong></p>
+<p>We’re saying that we want to create a <code>test_env</code> environment that includes the <code>test</code> feature and that we want to solve it together with the default environment (the one that includes fastapi and uvicorn).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> project environment add fastapi-test-env <span class="at">--feature</span> test <span class="at">--solve-group</span> default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Dev environment:</strong></p>
+<p>We’re saying that we want to create a <code>test_env</code> environment that includes the <code>test</code> feature and that we want to solve it together with the default environment (the one that includes fastapi and uvicorn).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> project environment add fastapi-dev-env <span class="at">--feature</span> test <span class="at">--feature</span> dev <span class="at">--solve-group</span> default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now, if you list the environments, you’ll see that the <code>test_env</code> and <code>dev_env</code> are created and that they include the features we specified:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> project environment list</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Environments:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> default:</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">features:</span> default</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> fastapi-test-env:</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">features:</span> test, default</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">solve_group:</span> default</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> fastapi-dev-env:</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">features:</span> test, dev, default</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">solve_group:</span> default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you look at the <code>pyproject.toml</code> file, you’ll see that you have a new section called <code>[tool.pixi.environments]</code> that includes the environments you created:</p>
+<p align="center">
+<img src="assets/pixi_pyproject_solve_groups.png" alt="pixi pyproject.toml environments">
+</p>
+<p>All of this can be added manually instead to the pyproject.toml but it’s error prone and the pixi CLI is honestly very handy.</p>
+</section>
+<section id="environments-installation" class="level4">
+<h4 class="anchored" data-anchor-id="environments-installation">Environments installation</h4>
+<p>Now, let us create the environments by first install the default environment</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> install</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also simply run <code>pixi shell</code> to install the default environment and open a shell in it.</p>
+<p>To install the dev environment, you can run:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> install fastapi-dev-env</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also install all the environments at once using the flag <code>--all</code> to install:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> install <span class="at">--all</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now you can any one of the environment inside the shell by running for example:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> shell fastapi-dev-env</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’ll see how you can use them in vscode later.</p>
+</section>
+</section>
+</section>
+</section>
+<section id="tasks" class="level1">
+<h1>Tasks</h1>
+<p><code>pixi</code> can be used as a task runner and thus would replace <code>make</code> or <code>just</code>. You can define tasks in the <code>pyproject.toml</code> file under the <code>[tool.pixi.tasks]</code> section.</p>
+<p>You can use the CLI to add the tasks but sometimes I find it easier to write the tasks manually in <code>pyproject.toml</code> specially if they are multiline tasks.</p>
+<p>In the <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">repo</a> provided with this tutorial, you’ll find the files needed (<code>src/main.py</code>) to execute the tasks along with the tutorial.</p>
+<section id="creating-tasks" class="level2">
+<h2 class="anchored" data-anchor-id="creating-tasks">Creating tasks</h2>
+<p>To create a task, you can use the <code>pixi task add</code> command and you’ll have to specify two things:</p>
+<ul>
+<li>The task name</li>
+<li>The command to run</li>
+</ul>
+<p>Execute <code>pixi task add --help</code> to see the available options, as you can add for example environment variables or isolate the task from the shell when running (not having access to the shell variables for example) among other things.</p>
+<p>Let us create a task to start a uvicorn server with hot reloading. The task will have as a name <strong>start</strong>. The command will add the task to the <code>pyproject.toml</code> file under the <code>[tool.pixi.tasks]</code> section.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> task add start <span class="st">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let us also add a linting task that uses <code>ruff</code></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> task add lint <span class="st">"ruff check src --fix"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you look now at the <code>pyproject.toml</code> file, you’ll see that the tasks are added under the <code>[tool.pixi.tasks]</code> section:</p>
+<p align="center">
+<img src="assets/pixi_pyproject_tasks.png" alt="pixi pyproject.toml tasks">
+</p>
+<p>To run the linting task in the dev environment, you can run:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> run <span class="at">-e</span> fastapi-dev-env lint</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You’ll get the following output:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Pixi</span> task <span class="er">(</span><span class="ex">lint</span> in fastapi-dev-env<span class="kw">)</span><span class="bu">:</span> ruff check src <span class="at">--fix</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">All</span> checks passed!</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now, you can specify in the pyproject.toml the default environment in which the task should run but I haven’t found a way to do it through the CLI yet.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.tasks]</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">start</span> <span class="op">=</span> <span class="st">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="dt">lint</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">task</span><span class="op"> =</span> <span class="st">"ruff check src --fix"</span><span class="op">, </span><span class="dt">environment</span><span class="op"> =</span> <span class="st">"fastapi-dev-env"</span><span class="op"> }</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As I can’t go through everything you can do with tasks, I’ll just list the things that I find useful but you can find more in the <a href="https://pixi.sh/latest/workspace/advanced_tasks/">pixi documentation</a>: - You can create a task that is composed of many tasks using the <code>dependes-on</code> field. that for example executes the linting task and then runs the app - You can create a tasks that runs the same task in multiple environments. If for example you’d like to test your code against multiple python versions, you can create a task that runs the same task in environments with different python versions (instead of using matrices of environments in CI/CD). Here an example from pixi’s documentation:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Task that depends on other tasks in different environments</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[tasks.test-all]</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="dt">depends-on</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{ </span><span class="dt">task</span><span class="op"> =</span> <span class="st">"test"</span><span class="op">, </span><span class="dt">environment</span><span class="op"> =</span> <span class="st">"py311"</span><span class="op"> },</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">{ </span><span class="dt">task</span><span class="op"> =</span> <span class="st">"test"</span><span class="op">, </span><span class="dt">environment</span><span class="op"> =</span> <span class="st">"py312"</span><span class="op"> },</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>You can add environment variables or isolate the task when running from the shell (and thus not having access to the shell variables).</li>
+<li>If a task depends on another task, you can cache the result of the first task and use it in the second task. Pixi won’t rerun the first task after doing some verifications that can be found in the <a href="https://pixi.sh/latest/workspace/advanced_tasks/#caching">documentation</a>.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/chsafouane\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
