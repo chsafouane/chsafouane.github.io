@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <h1 class="title">Why I ditched pip &amp; conda for Pixi</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Python</div>
-                <div class="quarto-category">env</div>
+                <div class="quarto-category">Package management</div>
               </div>
                   </div>
   </div>
@@ -210,6 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Pixi has a lock file that allows you to reproduce excatly the same environment (similar to what you’d get <code>conda-lock</code> or <code>pip-lock</code>)</li>
 <li>Pixi can be used as a task-runner, just like <code>make</code> or <code>just</code>.</li>
 <li>Pixi has built-in cross-platform reproducibility. The lock file includes the exact versions and dependencies in all targeted platforms. You can pick and choose the targeted platform by your project (Linux, Windows, etc).</li>
+<li>Pixi can also install tools like <code>brew</code> and you can have access to the globally.</li>
 </ul>
 <p>Now, while <code>mamba</code> is fast, in my experience, <code>pixi</code> is faster. <code>mamba</code> also lacks lock-files that are essential for reproducibility and a task runner that comes very handy in many situations (CI/CD, Other people running your project, etc.)</p>
 </section>
@@ -448,9 +449,86 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>You can add environment variables or isolate the task when running from the shell (and thus not having access to the shell variables).</li>
 <li>If a task depends on another task, you can cache the result of the first task and use it in the second task. Pixi won’t rerun the first task after doing some verifications that can be found in the <a href="https://pixi.sh/latest/workspace/advanced_tasks/#caching">documentation</a>.</li>
 </ul>
-
-
 </section>
+</section>
+<section id="pixi-configuration" class="level1">
+<h1>Pixi configuration</h1>
+<section id="why-another-config-file" class="level2">
+<h2 class="anchored" data-anchor-id="why-another-config-file">Why another config file ?</h2>
+<p>The <code>pyproject.toml</code> (or the <code>pixi.toml</code>) file reprensents the configuration of the pixi project. It includes the project metadata, the dependencies, the environments, the tasks, etc.</p>
+<p>There is additional configuration that is not required for the project per say but in a way changes the behavior you would place in a <code>config.toml</code> file.</p>
+<p>You can set this config at one of three levels: - locally: in this case, the configuration will be stored <code>your_project/.pixi/config.toml</code> and will impact only the current project. - globally: in this case, the configuration will be stored in <code>$PIXI_HOME/config.toml</code> and will impact all the projects using pixi. - system-wide: in this case, the configuration will be stored in <code>/etc/pixi/config.toml</code> and will impact all the projects using pixi.</p>
+<p>You can also use the <code>pixi config set &lt;some_config_key&gt; &lt;some_config_value&gt;</code> command to set the configuration. While I will show you right away the keys that I find useful, you can find the full list of configuration keys as of version 0.49 that you can set:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span> Supported keys:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     default-channels,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     authentication-override-file,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     tls-no-verify,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     mirrors,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     detached-environments,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     pinning-strategy,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     max-concurrent-solves,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     repodata-config,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     repodata-config.disable-jlap,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     repodata-config.disable-bzip2,</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     repodata-config.disable-zstd,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     repodata-config.disable-sharded,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     pypi-config,</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     pypi-config.index-url,</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     pypi-config.extra-index-urls,</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     pypi-config.keyring-provider,</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     shell,</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     shell.force-activate,</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     shell.source-completion-scripts,</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     shell.change-ps1,</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     s3-options,</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     s3-options.<span class="op">&lt;</span>bucket<span class="op">&gt;</span>,</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     s3-options.<span class="op">&lt;</span>bucket<span class="op">&gt;</span>.endpoint-url,</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     s3-options.<span class="op">&lt;</span>bucket<span class="op">&gt;</span>.region,</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     s3-options.<span class="op">&lt;</span>bucket<span class="op">&gt;</span>.force-path-style,</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     experimental.use-environment-activation-cache,</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     proxy-config,</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     proxy-config.https,</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     proxy-config.http,</span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  <span class="ex">│</span>     proxy-config.non-proxy-hosts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="useful-keys" class="level2">
+<h2 class="anchored" data-anchor-id="useful-keys">Useful keys</h2>
+<section id="using-private-conda-pypi-repositories" class="level3">
+<h3 class="anchored" data-anchor-id="using-private-conda-pypi-repositories">Using private conda &amp; PyPI repositories</h3>
+<p>Some of my very security-oriented customers usually have their own conda and pip repositories (like <code>nexus</code>) and oblige everyone to use them as they only include packages that are approved by the security team.</p>
+<p>For this, I use <code>pypi-config.index-url</code> and <code>pypi-config.extra-index-urls</code> to specify the index URL and the extra index URLs to use for PyPI packages.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> config set pypi-config.index-url https://nexus.some_random_company.com/pypi/simple</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Looking at the documentation, these can also be added to the <code>pyproject.toml</code> file under the <code>[tool.pixi.pypi-options]</code> section but I’ve never added them here.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.pypi-options]</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Public packages will be sourced from the official PyPI</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="dt">index-url</span> <span class="op">=</span> <span class="st">"https://nexus.some_random_company.com/pypi/simple"</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Internal packages will be searched for here first</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extra-index-urls</span> <span class="op">=</span> <span class="op">[</span><span class="st">"https://nexus.some_additional_random_company.com/pypi/simple"</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For conda, I add the channels to the channels entry under the <code>[tool.pixi.workspace]</code> section in the <code>pyproject.toml</code> file:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pixi.workspace]</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="dt">channels</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://nexus.some_random_company.com/conda-forge"</span><span class="op">,</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://nexus.some_random_company_second.com/conda-forge"</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="dt">platforms</span> <span class="op">=</span> <span class="op">[</span><span class="st">"win-64"</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you need to manage credentials for private repositories, you can check <code>pixi auth login</code>.</p>
+</section>
+<section id="pinning-strategy-1" class="level3">
+<h3 class="anchored" data-anchor-id="pinning-strategy-1">Pinning strategy</h3>
+<p>The other key that I find useful is the <code>pinning-strategy</code> key. As I said before, by default, pixi uses a very strict pinning strategy that can be annoying at times. You can change it to one of the strategies listed in the <a href="https://pixi.sh/dev/reference/pixi_configuration/#pinning-strategy">documentation</a>.</p>
+<p>Personally, I like to pin to the major version using:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> config set pinning-strategy major</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This might not be a very good practice as you can see <a href="https://prefix.dev/blog/the_python_packaging_debate">here</a> but it works just fine for my needs.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Well, that was quire a ride. I hope you enjoyed it and that you learned something new.</p>
+<p>My advice to you is to start using pixi in your personal projects. At first, there is going to be a slight learning curve but once you get used to it, you’ll find it extremely fast and convenient to use.</p>
+<p>If you have any questions, feel free to reach out to me on <a href="https://www.linkedin.com/in/chsafouane/">my linkedin</a>.</p>
+
+
 </section>
 
 </main> <!-- /main -->
