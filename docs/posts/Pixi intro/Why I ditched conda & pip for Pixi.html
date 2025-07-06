@@ -579,7 +579,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1><a id="toc5_"></a><a href="#toc0_">Conclusion</a></h1>
 <p>Well, that was quire a ride. I hope you enjoyed it and that you learned something new.</p>
 <p>My advice to you is to start using pixi in your personal projects. At first, there is going to be a slight learning curve but once you get used to it, you’ll find it extremely fast and convenient to use.</p>
-<p>If you have any questions, feel free to reach out to me on <a href="https://www.linkedin.com/in/chsafouane/">my linkedin</a>.</p>
+<p>If you have any questions, feel free to reach out to me on <a href="https://www.linkedin.com/in/safouane-chergui/">my linkedin</a>.</p>
 
 
 </section>
@@ -657,7 +657,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/chsafouane\.github\.io\/");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

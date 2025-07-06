@@ -13,7 +13,6 @@ about:
     - icon: cup-straw
       text: Buy me a coffee
       href: https://buymeacoffee.com/chsafouane
-
 ---
 
 This blog serves for archiving my notes.
