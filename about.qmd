@@ -13,4 +13,4 @@ about:
 
 ---
 
-About this blog
+This blog serves for archiving my notes.
