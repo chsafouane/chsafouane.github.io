@@ -4,6 +4,8 @@ project:
 
 website:
   title: "Safouane Chergui"
+  site-url: https://chsafouane.github.io
+  description: "Just a fancy note-taking website for my notes not to die on my iPad"
   navbar:
     right:
       - about.qmd
@@ -13,6 +15,8 @@ website:
         href: https://www.linkedin.com/in/safouane-chergui/
       - icon: cup-straw
         href: https://buymeacoffee.com/chsafouane
+      - icon: rss
+        href: index.xml
 format:
   html:
     theme:
