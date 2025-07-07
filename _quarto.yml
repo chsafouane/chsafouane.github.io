@@ -16,7 +16,7 @@ website:
       - icon: cup-straw
         href: https://buymeacoffee.com/chsafouane
       - icon: rss
-        href: index.xml
+        href: sitemap.xml
 format:
   html:
     theme:
