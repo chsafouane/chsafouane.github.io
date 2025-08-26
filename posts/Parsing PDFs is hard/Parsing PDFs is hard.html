@@ -177,72 +177,23 @@ ul.task-list li input[type="checkbox"] {
   </ul>
 </nav>
 <p>Lately, I’ve been working on a project with a customer where the goal is to extract some specific information from PDF documents. To my big surprise, this task has proven to be quite challenging.</p>
-<p>The main challenges stem from the following elements: - <strong>Privacy concerns:</strong> using an external API to parse the PDFs was a no-go as the PDFs contained sensitive information. - <strong>Complexity of the documents:</strong> the PDFs at hand contained a mix of text, complex tables, math formulas, all of which needed to be processed and understood in context. - <strong>Absence of a clear structure:</strong> the lack of consistent formatting and structure across the documents made it difficult to apply standard parsing across the board.</p>
-<p><br><br><br></p>
+The main challenges stem from the following elements: - <strong>Privacy concerns:</strong> using an external API to parse the PDFs was a no-go as the PDFs contained sensitive information. - <strong>Complexity of the documents:</strong> the PDFs at hand contained a mix of text, complex tables, math formulas, all of which needed to be processed and understood in context. - <strong>Absence of a clear structure:</strong> the lack of consistent formatting and structure across the documents made it difficult to apply standard parsing across the board. <br><br>
 <div data-align="center">
-<p><img src="./assets/pdf-icon.png" alt="PDF icon" width="25%"></p>
+<p><img src="./assets/pdf-icon.png" alt="PDF icon" width="25%" style="display: block; margin: 0 auto;"></p>
 </div>
+<p><br></p>
 <section id="what-the-hell-is-a-pdf-document" class="level2">
 <h2 class="anchored" data-anchor-id="what-the-hell-is-a-pdf-document">What the hell is a PDF document ?</h2>
 <section id="a-first-glimpse-at-a-pdf-file-internal-structure" class="level3">
 <h3 class="anchored" data-anchor-id="a-first-glimpse-at-a-pdf-file-internal-structure">A first glimpse at a PDF file internal structure</h3>
 <p>Have you ever opened a PDF document with notepad or vscode instead of your preferred PDF reader ? If you do so , you’ll stumble upon something that looks like this :</p>
 <div data-align="center">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./assets/example_pdf_start.png" class="img-fluid figure-img"></p>
-<figcaption>PDF Internal Structure</figcaption>
-</figure>
-</div>
-<p><em>Figure 1: Internal structure of a PDF document when viewed as raw text</em></p>
+<p><img src="./assets/example_pdf_start.png" alt="PDF Internal Structure" style="display: block; margin: 0 auto;"></p>
+<p align="center">
+<em>Figure 1: Internal structure of a PDF document when viewed as raw text</em>
+</p>
 </div>
 <p>If you’d like to see the full PDF internal structure, you can find the example PDF <a href="https://gist.github.com/chsafouane/0079eb20531a0effb632e9aea7ddfabe?short_path=b320036">here</a>.</p>
-<p>graph TD subgraph “Start” A end</p>
-<pre><code>subgraph "Stage 1: Ingestion &amp; Parsing"
-    A --&gt; B(PDF Backend);
-    B --&gt; C;
-    B --&gt; D;
-end
-
-subgraph "Stage 2: AI-Powered Structural Understanding"
-    D --&gt; E{Layout Segmentation&lt;br&gt;(DocLayNet-trained Model)};
-    E --&gt; F;
-    
-    subgraph "Table Processing"
-        F -- Table Detected --&gt; G;
-        G --&gt; H(Table Structure Recognition&lt;br&gt;TableFormer Model);
-        H --&gt; I;
-        I &amp; C --&gt; J;
-    end
-
-    subgraph "Text &amp; Other Element Processing"
-        F -- Text/List/Title Detected --&gt; K;
-    end
-
-    subgraph "Scanned Content Processing (Optional)"
-        D --&gt; L(OCR Engine&lt;br&gt;e.g., Tesseract, EasyOCR);
-        L --&gt; M;
-    end
-end
-
-subgraph "Stage 3: Assembly &amp; Finalization"
-    J --&gt; N(Assembly Stage);
-    K --&gt; N;
-    M --&gt; N;
-    N --&gt; O();
-end
-
-subgraph "Stage 4: Export &amp; RAG Integration"
-    O --&gt; P{Export or Integrate};
-    P --&gt; Q;
-    P --&gt; R(Structure-Aware Chunking);
-    R --&gt; S;
-    S --&gt; T((LLM for RAG Application));
-end
-
-style A fill:#f9f,stroke:#333,stroke-width:2px
-style O fill:#bbf,stroke:#333,stroke-width:4px
-style T fill:#9f9,stroke:#333,stroke-width:2px</code></pre>
 
 
 </section>
