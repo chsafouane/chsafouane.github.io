@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://chsafouane.github.io/posts/Pixi intro/Why I ditched conda &amp; pip for Pixi.html</loc>
-    <lastmod>2025-07-18T09:03:41.347Z</lastmod>
-  </url>
-  <url>
-    <loc>https://chsafouane.github.io/index.html</loc>
-    <lastmod>2025-07-07T18:04:59.748Z</lastmod>
-  </url>
-  <url>
     <loc>https://chsafouane.github.io/about.html</loc>
-    <lastmod>2025-07-06T23:48:20.122Z</lastmod>
+    <lastmod>2025-08-26T21:39:51.341Z</lastmod>
   </url>
   <url>
     <loc>https://chsafouane.github.io/posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html</loc>
-    <lastmod>2025-07-06T12:07:41.352Z</lastmod>
+    <lastmod>2025-08-26T21:39:51.349Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chsafouane.github.io/posts/Parsing PDFs is hard/Parsing PDFs is hard.html</loc>
+    <lastmod>2025-08-26T22:54:35.747Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chsafouane.github.io/posts/Pixi intro/Why I ditched conda &amp; pip for Pixi.html</loc>
+    <lastmod>2025-08-26T21:39:51.349Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chsafouane.github.io/index.html</loc>
+    <lastmod>2025-08-26T21:39:51.348Z</lastmod>
   </url>
 </urlset>
