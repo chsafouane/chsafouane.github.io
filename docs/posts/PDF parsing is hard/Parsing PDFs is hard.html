@@ -9,7 +9,7 @@
 <meta name="author" content="Safouane Chergui">
 <meta name="dcterms.date" content="2025-08-27">
 
-<title>Parsing PDFs is hard – Safouane Chergui</title>
+<title>PDF parsing is hard – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -126,7 +126,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Parsing PDFs is hard</h1>
+      <h1 class="title">PDF parsing is hard</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Python</div>
                 <div class="quarto-category">PDF</div>
@@ -173,9 +173,16 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-the-hell-is-a-pdf-document" id="toc-what-the-hell-is-a-pdf-document">What the hell is a PDF document ?</a>
   <ul>
   <li><a href="#a-first-glimpse-at-a-pdf-file-internal-structure" id="toc-a-first-glimpse-at-a-pdf-file-internal-structure">A first glimpse at a PDF file internal structure</a></li>
+  <li><a href="#pdf-page-description-language" id="toc-pdf-page-description-language">PDF Page Description Language</a></li>
+  <li><a href="#the-internal-structure-of-a-pdf" id="toc-the-internal-structure-of-a-pdf">The internal structure of a PDF</a>
+  <ul>
+  <li><a href="#the-header" id="toc-the-header">The header</a></li>
+  <li><a href="#the-body" id="toc-the-body">The body</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
+<p>The goal of this blogpost is to explain what a PDF is internally and why parsing PDF files is not that easy.</p>
 <p>Lately, I’ve been working on a project with a customer where the goal is to extract some specific information from PDF documents. To my big surprise, this task has proven to be quite challenging.</p>
 The main challenges stem from the following elements: - <strong>Privacy concerns:</strong> using an external API to parse the PDFs was a no-go as the PDFs contained sensitive information. - <strong>Complexity of the documents:</strong> the PDFs at hand contained a mix of text, complex tables, math formulas, all of which needed to be processed and understood in context. - <strong>Absence of a clear structure:</strong> the lack of consistent formatting and structure across the documents made it difficult to apply standard parsing across the board. <br><br>
 <div data-align="center">
@@ -194,8 +201,44 @@ The main challenges stem from the following elements: - <strong>Privacy concerns
 </p>
 </div>
 <p>If you’d like to see the full PDF internal structure, you can find the example PDF <a href="https://gist.github.com/chsafouane/0079eb20531a0effb632e9aea7ddfabe?short_path=b320036">here</a>.</p>
+</section>
+<section id="pdf-page-description-language" class="level3">
+<h3 class="anchored" data-anchor-id="pdf-page-description-language">PDF Page Description Language</h3>
+<p>To understand why PDFs are hard to parse, one must understand how a PDF file is built.</p>
+<p>A PDF file is based on Page Description Language (PDL), which is a language used to describe the layout and appearance of a printed page. PDF PDL provides a standardized set of commands to reconstruct a page with perfect fidelity.</p>
+<p>As a result, a PDF file is essentially a collection of instructions for rendering a page, rather than a linear sequence of text and images. If you look at the example pdf available in the github gist, you’ll see starting line 34 the following commands:</p>
+<pre class="pdf"><code>/F1 18 Tf
+100 700 Td
+(This is a PDF tutorial) Tj</code></pre>
+<p>What the following instructions do is: - <code>/F1 18 Tf</code> : set the font to F1 with size 18 - <code>100 700 Td</code> : move the text position to (100, 700) - <code>(This is a PDF tutorial) Tj</code> : show the text string</p>
+<p>Every PDF looks just like this; a precise sequence of commands that specify what to draw and exactly at what coordinates. It does not contain a semantic representation of its content. It does not state, “This is a paragraph that flows through two columns” or “this is a table”.</p>
+<p>A table, for example, is just a grid of lines and text positioned at specific coordinates. There are no inherent relationships between the cells, no indication of headers or footers, and no understanding of the data contained within.</p>
+<p>So when a parser sees what’s supposed to be a table, it sees just a bunch of lines and text. Its task (rather difficult task) is to infer the structure and relationships between these elements.</p>
+<p>This lack of semantic structure makes it challenging to parse complex PDF documents.</p>
+</section>
+<section id="the-internal-structure-of-a-pdf" class="level3">
+<h3 class="anchored" data-anchor-id="the-internal-structure-of-a-pdf">The internal structure of a PDF</h3>
+<p>What you see in Figure 1 or in the gist file is the internal structure of a PDF document. Let us dive into the key components that make up this structure.</p>
+<p>A PDF is composed internally of four sections:</p>
+<div data-align="center">
+<p><img src="./assets/pdf_internal_structure.png" alt="PDF Internal Structure Components" style="display: block; margin: 0 auto;"></p>
+<p align="center">
+<em>Figure 2: Internal structure of a PDF document</em>
+</p>
+<p align="center">
+<small>Source: <a href="https://www.researchgate.net/figure/An-example-of-the-PDF-file-structure_fig1_360275035">ResearchGate - An example of the PDF file structure</a></small>
+</p>
+</div>
+<section id="the-header" class="level4">
+<h4 class="anchored" data-anchor-id="the-header">The header</h4>
+<p>The header of a PDF file tells you about the PDF specifications version used to generate it. It is always the first line of the file and starts with the <code>%PDF-</code> marker. In Figure 1, it corresponds to <code>%PDF-1.7</code>.</p>
+</section>
+<section id="the-body" class="level4">
+<h4 class="anchored" data-anchor-id="the-body">The body</h4>
+<p>Now, the body is where you “define” the content of the PDF.</p>
 
 
+</section>
 </section>
 </section>
 
