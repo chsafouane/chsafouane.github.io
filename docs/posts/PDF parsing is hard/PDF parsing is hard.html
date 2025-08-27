@@ -216,7 +216,12 @@ ul.task-list li input[type="checkbox"] {
 <pre class="pdf"><code>/F1 18 Tf
 100 700 Td
 (This is a PDF tutorial) Tj</code></pre>
-<p>What the following instructions do is: - <code>/F1 18 Tf</code> : set the font to F1 with size 18 - <code>100 700 Td</code> : move the text position to (100, 700) - <code>(This is a PDF tutorial) Tj</code> : show the text string</p>
+<p>What the following instructions do is:</p>
+<ul>
+<li><code>/F1 18 Tf</code> : set the font to F1 with size 18</li>
+<li><code>100 700 Td</code> : move the text position to (100, 700)</li>
+<li><code>(This is a PDF tutorial) Tj</code> : show the text string</li>
+</ul>
 <p>Every PDF looks just like this; a precise sequence of commands that specify what to draw and exactly at what coordinates. It does not contain a semantic representation of its content. It does not state, “This is a paragraph that flows through two columns” or “this is a table”.</p>
 <p>A table, for example, is just a grid of lines and text positioned at specific coordinates. There are no inherent relationships between the cells, no indication of headers or footers, and no understanding of the data contained within.</p>
 <p>So when a parser sees what’s supposed to be a table, it sees just a bunch of lines and text. Its task (rather difficult task) is to infer the structure and relationships between these elements.</p>
