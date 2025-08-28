@@ -197,7 +197,13 @@ startxref
 <div data-align="center">
 <p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_processing.png" alt="Docling Processing" width="50%" style="display: block; margin: 0 auto;"></p>
 </div>
-<p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are: - <a href="https://github.com/docling-project/docling-serve"><code>docling-serve</code></a>: The FastAPI wrappers for running Docling as REST API and distribute large jobs. - <a href="https://github.com/docling-project/docling-sdg"><code>docling-sdg</code></a>: Synthetic data generation (SDG) on documents for dataset generation for RAG, finetuning, etc. - <a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents. While I didn’t try these three packages, I’m looking forward to it.</p>
+<p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are:</p>
+<ul>
+<li><a href="https://github.com/docling-project/docling-serve"><code>docling-serve</code></a>: The FastAPI wrappers for running Docling as REST API and distribute large jobs.</li>
+<li><a href="https://github.com/docling-project/docling-sdg"><code>docling-sdg</code></a>: Synthetic data generation (SDG) on documents for dataset generation for RAG, finetuning, etc.</li>
+<li><a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents.</li>
+</ul>
+<p>While I didn’t try these three packages, I’m looking forward to it.</p>
 
 
 </section>
