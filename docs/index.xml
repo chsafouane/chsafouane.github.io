@@ -10,7 +10,7 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Tue, 26 Aug 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 28 Aug 2025 22:00:00 GMT</lastBuildDate>
 <item>
   <title>PDF parsing is hard</title>
   <dc:creator>Safouane Chergui</dc:creator>
@@ -148,13 +148,13 @@ startxref
 <section id="project-context" class="level3">
 <h3 class="anchored" data-anchor-id="project-context">Project context</h3>
 <p>So, here are the main constraints of the project: - It had some high privacy concerns. This means that using an external API for PDF parsing was not an option. - The PDFs were very complex. They contained a mix of text and really complex tables, math formulas, etc. - The customer preferred to run the workload of PDF parsing on their on-premise infrastructure that didn’t provide any GPU.</p>
-<p>The point that was to our advantage is that the incoming documents didn’t need to be processed online. Batch processing of documents was sufficient, and we could afford to take our time with the parsing.</p>
+<p>The point that was to our advantage is that the incoming documents didn’t need to be processed online. Batch processing of documents was sufficient, and I could afford to take our time with the parsing.</p>
 </section>
-<section id="why-we-went-for-docling" class="level3">
-<h3 class="anchored" data-anchor-id="why-we-went-for-docling">Why we went for Docling ?</h3>
+<section id="why-i-went-for-docling" class="level3">
+<h3 class="anchored" data-anchor-id="why-i-went-for-docling">Why I went for Docling ?</h3>
 <section id="the-fast-good-enough-didnt-cut-it" class="level4">
 <h4 class="anchored" data-anchor-id="the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</h4>
-<p>While I used to go with <code>PyMuPDF</code> for PDF parsing because it’s easy to use, fast, and good enough for PDF with text and simple tables, it did a really bad job on the documents that we had to handle. The tables were very badly parsed.</p>
+<p>While I used to go with <code>PyMuPDF</code> for PDF parsing because it’s easy to use, fast, and good enough for PDF with text and simple tables, it did a really bad job on the documents that I had to handle. The tables were very badly parsed.</p>
 <p>To preserve the speed advantage, I decided to use a combination of <code>PyMuPDF</code> for the initial text extraction and a library dedicated to table extraction like <code>tabula</code> or <code>camelot</code>. Not only did this approach add more dependencies and more complexity, <code>tabula</code> and <code>camelot</code> both did a very bad job at extracting most tables.</p>
 <p>Now, these packages look at the PDF instructions (like the ones shown in the PDL section) and try to reverse-engineer the layout of the document. While this makes for fast parsing, they have a hard time parsing a two-column layout accurately or a complex table. A good way to put it is that they have a hard time looking at things a human does.</p>
 <p><code>camelot</code> and <code>tabula</code> both rely on heuristics and rules that work well for simple well-structured tables.</p>
@@ -162,7 +162,7 @@ startxref
 <section id="ml-focused-parsing" class="level4">
 <h4 class="anchored" data-anchor-id="ml-focused-parsing">ML-focused parsing</h4>
 <p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
-<p>We benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents we had to handle.</p>
+<p>I benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents I had to handle.</p>
 <p><strong>Note:</strong> I didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
 </section>
 </section>
@@ -185,7 +185,7 @@ startxref
 </section>
 <section id="docling-in-practice" class="level3">
 <h3 class="anchored" data-anchor-id="docling-in-practice">Docling in practice</h3>
-<p>We used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
+<p>I used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
 <p>The things that didn’t work that well include: - tables that roll over two pages. In my experience, Docling considers them as separate tables - multicolumn text is rarely but sometimes is considered a table</p>
 </section>
 <section id="explore-more-with-docling" class="level3">
@@ -203,6 +203,10 @@ startxref
 <li><a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents.</li>
 </ul>
 <p>While I didn’t try these three packages, I’m looking forward to it.</p>
+</section>
+<section id="some-final-feedback" class="level3">
+<h3 class="anchored" data-anchor-id="some-final-feedback">Some final feedback</h3>
+<p>While <code>docling</code> is an amazing framework, it still has some limitations and areas for improvement. - If you’re just looking for speed and good enough result, go for PyMuPDF - If you’re looking for excellent parsing quality and are ready to trade speed for it, go for Docling</p>
 <p><br><br> <strong>Happy parsing with DOCLING&nbsp;!</strong></p>
 
 
@@ -213,7 +217,7 @@ startxref
   <category>Python</category>
   <category>PDF</category>
   <guid>https://chsafouane.github.io/posts/PDF parsing is hard/PDF parsing is hard.html</guid>
-  <pubDate>Tue, 26 Aug 2025 22:00:00 GMT</pubDate>
+  <pubDate>Thu, 28 Aug 2025 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Why I ditched pip and conda for Pixi</title>
