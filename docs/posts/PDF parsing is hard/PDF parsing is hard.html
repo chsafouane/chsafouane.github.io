@@ -178,6 +178,8 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#the-header" id="toc-the-header">The header</a></li>
   <li><a href="#the-body" id="toc-the-body">The body</a></li>
+  <li><a href="#the-cross-reference-table" id="toc-the-cross-reference-table">The cross-reference table</a></li>
+  <li><a href="#the-trailer" id="toc-the-trailer">The trailer</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -229,6 +231,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-internal-structure-of-a-pdf" class="level3">
 <h3 class="anchored" data-anchor-id="the-internal-structure-of-a-pdf">The internal structure of a PDF</h3>
+<p>This is an optional part and will not help you in understanding the difficulty of parsing PDFs. So you can skip if you want to focus on the practical aspects of PDF parsing.</p>
 <p>What you see in Figure 1 or in the gist file is the internal structure of a PDF document. Let us dive into the key components that make up this structure.</p>
 <p>A PDF is composed internally of four sections:</p>
 <div data-align="center">
@@ -246,7 +249,57 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-body" class="level4">
 <h4 class="anchored" data-anchor-id="the-body">The body</h4>
-<p>Now, the body is where you “define” the content of the PDF.</p>
+<p>Now, the body is where you define the content of the PDF. Everything that you see when you open a PDF - the text you read, the images you view, the fonts that make the text look pretty - all of this is generated from the “objects” defined in the body.</p>
+<p>Think about when you open a PDF and scroll through it. You might see different pages, each with its own layout, fonts, and content. Behind the scenes, each of these elements is stored as a separate object in the PDF body.</p>
+<p>If you look at the PDF file in the gist, you’ll see that it contains 5 objects. Each object in a PDF is identified by a unique object number and a generation number (usually 0 for new objects).</p>
+</section>
+<section id="the-cross-reference-table" class="level4">
+<h4 class="anchored" data-anchor-id="the-cross-reference-table">The cross-reference table</h4>
+<p>Now, here’s where the magic happens that makes PDFs so fast to navigate. You know how you can instantly jump to page 50 of a 200-page PDF, or how quickly a PDF opens even when it’s a large file? That’s thanks to the cross-reference table (or “xref table”).</p>
+<p>The xref table maps object numbers to their byte positions in the file. Here’s the one from our sample PDF:</p>
+<pre class="pdf"><code>xref
+0 6
+0000000000 65535 f 
+0000000017 00000 n 
+0000000070 00000 n 
+0000000126 00000 n 
+0000000281 00000 n 
+0000000385 00000 n </code></pre>
+<p>Let me break this down:</p>
+<ul>
+<li><code>xref</code> marks the start of the cross-reference table</li>
+<li><code>0 6</code> means this section covers 6 objects starting from object 0</li>
+<li>Each line has three parts: <code>byte_offset generation_number n/f</code>
+<ul>
+<li><strong>Byte offset</strong>: The exact position in the file where the object starts (like a street address)</li>
+<li><strong>Generation number</strong>: Usually 0 for active objects</li>
+<li><strong>n/f flag</strong>: <code>n</code> means the object is in use, <code>f</code> means it’s free (deleted)</li>
+</ul></li>
+</ul>
+<p>The generation number and the n/f flag are useful when the PDF is modified.</p>
+<p>For example, when you want to see the page content, the PDF reader looks up object 4 (content stream) in this table, sees it at byte position 281, jumps directly there, and gets the drawing commands. No searching, no scanning, just instant access.</p>
+<p>This is why PDFs load so quickly even when they’re huge files. Your PDF viewer doesn’t have to read the whole document.</p>
+</section>
+<section id="the-trailer" class="level4">
+<h4 class="anchored" data-anchor-id="the-trailer">The trailer</h4>
+<p>Finally, we have the trailer - think of it as the PDF’s “instruction manual” that tells your PDF viewer how to get started. When you double-click a PDF file to open it, your PDF reader doesn’t start reading from the beginning. Instead, it jumps to the end of the file and reads the trailer first.</p>
+<p>Here’s the trailer from our sample PDF:</p>
+<pre class="pdf"><code>trailer
+&lt;&lt; /Size 6
+/Root 1 0 R
+&gt;&gt;
+startxref
+449
+%%EOF</code></pre>
+<p>Here’s what happens when you open a PDF:</p>
+<ul>
+<li><strong><code>/Size 6</code></strong>: The PDF reader learns there are 6 objects total in the cross-reference table</li>
+<li><strong><code>/Root 1 0 R</code></strong>: “Start reading from the catalog object (object 1) to understand the document structure”</li>
+<li><strong><code>startxref 449</code></strong>: “The cross-reference table starts at byte position 449”</li>
+<li><strong><code>%%EOF</code></strong>: “This is truly the end of the file”</li>
+</ul>
+<p>So when you open a PDF, here’s the behind-the-scenes process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
+<p>This four-part structure (header, body, xref, trailer) is what makes PDFs very fast to read no matter their size.</p>
 
 
 </section>
