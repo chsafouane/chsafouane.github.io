@@ -298,7 +298,7 @@ startxref
 <li><strong><code>startxref 449</code></strong>: “The cross-reference table starts at byte position 449”</li>
 <li><strong><code>%%EOF</code></strong>: “This is truly the end of the file”</li>
 </ul>
-<p>So when you open a PDF, here’s the behind-the-scenes process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
+<p>So when you open a PDF, here’s the process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
 <p>This four-part structure (header, body, xref, trailer) is what makes PDFs very fast to read no matter their size.</p>
 
 
