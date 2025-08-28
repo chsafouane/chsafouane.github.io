@@ -164,9 +164,42 @@ startxref
 <p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
 <p>We benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents we had to handle.</p>
 <p><strong>Note:</strong> I didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
-
-
 </section>
+</section>
+<section id="how-does-docling-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-docling-work">How does Docling work ?</h3>
+<p>Docling uses a combination of techniques to parse PDF documents effectively:</p>
+<ol type="1">
+<li><p><strong>Text Extraction</strong>: Initially, it extracts text from the PDF using a fast and efficient text extraction engine.</p></li>
+<li><p><strong>Layout Detection</strong>: It employs a layout detection model to identify different elements on the page, such as titles, text, images, tables, etc.</p></li>
+<li><p><strong>Table Analysis</strong>: For detected tables, Docling uses a specialized table analysis model to understand the structure and content of the table cells.</p></li>
+<li><p><strong>OCR</strong>: Optionally, one can activate OCR if handling scanned documents.</p></li>
+<li><p><strong>Assembly</strong>: Finally, it applies post-processing steps to combine all the extracted information and present it in a structured format in <code>DoclingDocument</code>.</p></li>
+</ol>
+<p>The resulting object <code>DoclingDocument</code> is not a simple text string. It is a hierarchical representation of the original document, containing organized lists of items defined in Docling (<code>TextItem</code>, <code>PictureItem</code>, etc.). Each of these objects holds its content, coordinates, type, and relationships to other elements.</p>
+<p>Please refer to the <a href="https://docling-project.github.io/docling/concepts/docling_document/">Docling documentation</a> for more details on the structure and usage of <code>DoclingDocument</code>.</p>
+</section>
+<section id="parsing-output" class="level3">
+<h3 class="anchored" data-anchor-id="parsing-output">Parsing output</h3>
+<p>On top of the docling document that contains anything you can imagine, you can convert the docling document to a a simple string or to a markdown. You can also extract tables as pandas dataframes wich is really very handy.</p>
+</section>
+<section id="docling-in-practice" class="level3">
+<h3 class="anchored" data-anchor-id="docling-in-practice">Docling in practice</h3>
+<p>We used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
+<p>As a parsing output</p>
+<p>The things that didn’t work that well include: - tables that roll over two pages. In my experience, Docling considers them as separate tables - multicolumn text is rarely but sometimes is considered a table</p>
+</section>
+<section id="explore-more-with-docling" class="level3">
+<h3 class="anchored" data-anchor-id="explore-more-with-docling">Explore more with Docling!</h3>
+<ul>
+<li>Docling can be used to parse many types of documents like powerpoint docs, word docs, html docs, PDFs and more.</li>
+</ul>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_processing.png" alt="Docling Processing" width="50%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are: - <a href="https://github.com/docling-project/docling-serve"><code>docling-serve</code></a>: The FastAPI wrappers for running Docling as REST API and distribute large jobs. - <a href="https://github.com/docling-project/docling-sdg"><code>docling-sdg</code></a>: Synthetic data generation (SDG) on documents for dataset generation for RAG, finetuning, etc. - <a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents. While I didn’t try these three packages, I’m looking forward to it.</p>
+
+
 </section>
 </section>
 
