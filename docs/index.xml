@@ -194,7 +194,7 @@ startxref
 <li>Docling can be used to parse many types of documents like powerpoint docs, word docs, html docs, PDFs and more.</li>
 </ul>
 <div data-align="center">
-<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_processing.png" alt="Docling Processing" style="display: block; margin: 0 auto;"></p>
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_processing.png" alt="Docling Processing" width="60%" style="display: block; margin: 0 auto;"></p>
 </div>
 <p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are:</p>
 <ul>
