@@ -182,6 +182,15 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-trailer" id="toc-the-trailer">The trailer</a></li>
   </ul></li>
   </ul></li>
+  <li><a href="#docling-v2" id="toc-docling-v2">Docling V2</a>
+  <ul>
+  <li><a href="#project-context" id="toc-project-context">Project context</a></li>
+  <li><a href="#why-we-went-for-docling" id="toc-why-we-went-for-docling">Why we went for Docling ?</a>
+  <ul>
+  <li><a href="#the-fast-good-enough-didnt-cut-it" id="toc-the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</a></li>
+  <li><a href="#ml-focused-parsing" id="toc-ml-focused-parsing">ML-focused parsing</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
 <p>The goal of this blogpost is to explain what a PDF is internally and why parsing PDF files is not that easy.</p>
@@ -300,6 +309,30 @@ startxref
 </ul>
 <p>So when you open a PDF, here’s the process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
 <p>This four-part structure (header, body, xref, trailer) is what makes PDFs very fast to read no matter their size.</p>
+</section>
+</section>
+</section>
+<section id="docling-v2" class="level2">
+<h2 class="anchored" data-anchor-id="docling-v2">Docling V2</h2>
+<section id="project-context" class="level3">
+<h3 class="anchored" data-anchor-id="project-context">Project context</h3>
+<p>So, here are the main constraints of the project: - It had some high privacy concerns. This means that using an external API for PDF parsing was not an option. - The PDFs were very complex. They contained a mix of text and really complex tables, math formulas, etc. - The customer preferred to run the workload of PDF parsing on their on-premise infrastructure that didn’t provide any GPU.</p>
+<p>The point that was to our advantage is that the incoming documents didn’t need to be processed online. Batch processing of documents was sufficient, and we could afford to take our time with the parsing.</p>
+</section>
+<section id="why-we-went-for-docling" class="level3">
+<h3 class="anchored" data-anchor-id="why-we-went-for-docling">Why we went for Docling ?</h3>
+<section id="the-fast-good-enough-didnt-cut-it" class="level4">
+<h4 class="anchored" data-anchor-id="the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</h4>
+<p>While I used to go with <code>PyMuPDF</code> for PDF parsing because it’s easy to use, fast, and good enough for PDF with text and simple tables, it did a really bad job on the documents that we had to handle. The tables were very badly parsed.</p>
+<p>To preserve the speed advantage, I decided to use a combination of <code>PyMuPDF</code> for the initial text extraction and a library dedicated to table extraction like <code>tabula</code> or <code>camelot</code>. Not only did this approach add more dependencies and more complexity, <code>tabula</code> and <code>camelot</code> both did a very bad job at extracting most tables.</p>
+<p>Now, these packages look at the PDF instructions (like the ones shown in the PDL section) and try to reverse-engineer the layout of the document. While this makes for fast parsing, they have a hard time parsing a two-column layout accurately or a complex table. A good way to put it is that they have a hard time looking at things a human does.</p>
+<p><code>camelot</code> and <code>tabula</code> both rely on heuristics and rules that work well for simple well-structured tables.</p>
+</section>
+<section id="ml-focused-parsing" class="level4">
+<h4 class="anchored" data-anchor-id="ml-focused-parsing">ML-focused parsing</h4>
+<p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
+<p>We benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents we had to handle.</p>
+<p><strong>Note:</strong> We didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
 
 
 </section>
