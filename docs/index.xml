@@ -142,6 +142,9 @@ startxref
 </section>
 <section id="docling-v2" class="level2">
 <h2 class="anchored" data-anchor-id="docling-v2">Docling V2</h2>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_logo.png" alt="Docling Logo" width="50%" style="display: block; margin: 0 auto;"></p>
+</div>
 <section id="project-context" class="level3">
 <h3 class="anchored" data-anchor-id="project-context">Project context</h3>
 <p>So, here are the main constraints of the project: - It had some high privacy concerns. This means that using an external API for PDF parsing was not an option. - The PDFs were very complex. They contained a mix of text and really complex tables, math formulas, etc. - The customer preferred to run the workload of PDF parsing on their on-premise infrastructure that didn’t provide any GPU.</p>
@@ -160,7 +163,7 @@ startxref
 <h4 class="anchored" data-anchor-id="ml-focused-parsing">ML-focused parsing</h4>
 <p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
 <p>We benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents we had to handle.</p>
-<p><strong>Note:</strong> We didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
+<p><strong>Note:</strong> I didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
 
 
 </section>
