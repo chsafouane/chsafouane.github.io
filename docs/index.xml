@@ -186,7 +186,6 @@ startxref
 <section id="docling-in-practice" class="level3">
 <h3 class="anchored" data-anchor-id="docling-in-practice">Docling in practice</h3>
 <p>We used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
-<p>As a parsing output</p>
 <p>The things that didn’t work that well include: - tables that roll over two pages. In my experience, Docling considers them as separate tables - multicolumn text is rarely but sometimes is considered a table</p>
 </section>
 <section id="explore-more-with-docling" class="level3">
