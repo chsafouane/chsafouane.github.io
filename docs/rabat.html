@@ -5,14 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guide Touristique - Rabat, Maroc</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            -webkit-print-color-adjust: exact;
+        :root {
+            --morocco-red: #C53030;
+            --morocco-green: #2F855A;
+            --morocco-gold: #D69E2E;
+            --morocco-blue: #2B6CB0;
+            --morocco-terracotta: #E53E3E;
+            --morocco-sand: #FBF5F0;
+            --morocco-mint: #38B2AC;
+            --morocco-burgundy: #742A2A;
+            --morocco-cream: #FFFAF0;
         }
-        h1, h2, h3 {
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-print-color-adjust: exact;
+            background: linear-gradient(135deg, var(--morocco-sand) 0%, #F7FAFC 100%);
+        }
+        
+        h1 {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(135deg, var(--morocco-red), var(--morocco-burgundy));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(197, 48, 48, 0.3);
+        }
+        
+        h2, h3 {
             font-family: 'Playfair Display', serif;
+        }
+        
+        .moroccan-pattern {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .moroccan-pattern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, var(--morocco-gold) 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, var(--morocco-mint) 2px, transparent 2px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .geometric-border {
+            position: relative;
+            border: 3px solid var(--morocco-red);
+            border-image: linear-gradient(45deg, var(--morocco-red), var(--morocco-gold)) 1;
+        }
+        
+        .geometric-border::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: linear-gradient(45deg, var(--morocco-green), var(--morocco-blue));
+            z-index: -1;
+            border-radius: inherit;
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(197, 48, 48, 0.25);
+        }
+        
+        .moroccan-arch {
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            background: linear-gradient(135deg, var(--morocco-cream) 0%, white 100%);
+            border: 2px solid var(--morocco-gold);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--morocco-red), var(--morocco-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, var(--morocco-red), var(--morocco-gold), var(--morocco-green), var(--morocco-blue));
+            border-radius: 2px;
+            margin: 2rem 0;
+        }
+        
+        .icon-morocco {
+            color: var(--morocco-gold);
+            filter: drop-shadow(2px 2px 4px rgba(214, 158, 46, 0.3));
+        }
+        
+        @keyframes moroccan-shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+        
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200% 100%;
+            animation: moroccan-shimmer 3s infinite;
         }
         @page {
             size: A4;
@@ -27,17 +134,17 @@
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                background: #FFF;
-                transform: scale(0.75);
+                background: #FFF !important;
+                transform: scale(0.65);
                 transform-origin: top left;
-                width: 133.33%;
+                width: 154%;
                 overflow: hidden;
             }
             .no-print {
                 display: none;
             }
             /* Override tailwind for a compact, single-page print layout */
-            .max-w-4xl {
+            .max-w-6xl {
                 max-width: 100%;
                 padding: 0 !important;
                 margin: 0 !important;
@@ -50,64 +157,120 @@
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
             }
-            .bg-gray-100 {
-                background-color: #FFF !important;
+            
+            .moroccan-pattern, .moroccan-arch {
+                background: #FFF !important;
+                border: none !important;
             }
-            header h1 {
-                font-size: 1.8rem !important;
+            
+            .section-divider {
+                height: 1px !important;
+                margin: 0.5rem 0 !important;
+            }
+            
+            header h1, header h2 {
+                font-size: 1.5rem !important;
                 margin-bottom: 0.2rem !important;
             }
             header p {
-                font-size: 0.9rem !important;
+                font-size: 0.8rem !important;
             }
             header {
-                margin-bottom: 0.75rem !important;
-                padding-bottom: 0.5rem !important;
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.3rem !important;
             }
             main {
-                gap: 0.75rem !important;
+                gap: 0.5rem !important;
             }
             h2 {
-                font-size: 1.1rem !important;
-                margin-bottom: 0.3rem !important;
+                font-size: 1rem !important;
+                margin-bottom: 0.2rem !important;
             }
             h3 {
-                font-size: 0.9rem !important;
-                margin-bottom: 0.2rem !important;
+                font-size: 0.8rem !important;
+                margin-bottom: 0.15rem !important;
             }
             p, li {
-                font-size: 0.7rem !important;
-                line-height: 1.2 !important;
-                margin-bottom: 0.2rem !important;
+                font-size: 0.65rem !important;
+                line-height: 1.1 !important;
+                margin-bottom: 0.1rem !important;
             }
-            .p-6 { padding: 0.5rem !important; }
-            .p-4 { padding: 0.4rem !important; }
+            .p-6 { padding: 0.3rem !important; }
+            .p-4 { padding: 0.25rem !important; }
             .my-8 { margin: 0 !important; }
-            .h-40 { height: 4rem !important; }
-            .h-32 { height: 3rem !important; }
-            .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
-            .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.4rem !important; }
-            .gap-6 { gap: 0.4rem !important; }
-            .gap-10 { gap: 0.6rem !important; }
-            .mb-4 { margin-bottom: 0.3rem !important; }
-            .mb-3 { margin-bottom: 0.25rem !important; }
-            .mt-2 { margin-top: 0.2rem !important; }
-            .mt-4 { margin-top: 0.3rem !important; }
-            .rounded-lg { border-radius: 0.25rem !important; }
+            .h-48 { height: 3rem !important; }
+            .h-40 { height: 2.5rem !important; }
+            .h-32 { height: 2rem !important; }
+            .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.3rem !important; }
+            .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem !important; }
+            .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.1rem !important; }
+            .gap-6 { gap: 0.3rem !important; }
+            .gap-10 { gap: 0.4rem !important; }
+            .gap-3 { gap: 0.2rem !important; }
+            .mb-4, .mb-6 { margin-bottom: 0.2rem !important; }
+            .mb-3 { margin-bottom: 0.15rem !important; }
+            .mt-2 { margin-top: 0.1rem !important; }
+            .mt-4, .mt-6 { margin-top: 0.2rem !important; }
+            .mt-12 { margin-top: 0.5rem !important; }
+            .pt-8 { padding-top: 0.3rem !important; }
+            .rounded-lg { border-radius: 0.15rem !important; }
+            .text-6xl { font-size: 1.2rem !important; }
+            .text-4xl { font-size: 1rem !important; }
+            .text-3xl { font-size: 0.9rem !important; }
+            .text-2xl { font-size: 0.8rem !important; }
+            .text-xl { font-size: 0.75rem !important; }
+            .text-lg { font-size: 0.7rem !important; }
+            .text-sm { font-size: 0.6rem !important; }
+            .text-xs { font-size: 0.55rem !important; }
             footer {
-                padding-top: 0.5rem !important;
-                margin-top: 0.5rem !important;
+                padding-top: 0.3rem !important;
+                margin-top: 0.3rem !important;
+            }
+            
+            /* Ensure all backgrounds are visible in print */
+            .bg-gradient-to-r, .bg-gradient-to-b, .bg-gradient-to-br {
+                background: #F9F9F9 !important;
             }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-4xl mx-auto bg-white p-8 sm:p-12 shadow-lg my-8">
+<body class="min-h-screen">
+    <div class="max-w-6xl mx-auto moroccan-pattern moroccan-arch p-8 sm:p-12 shadow-2xl my-8 relative z-10">
 
-        <!-- En-tête -->
-        <header class="text-center mb-10 border-b-2 border-amber-800 pb-6">
-            <h1 class="text-5xl font-bold text-amber-900">Rabat</h1>
-            <p class="text-xl text-gray-600 mt-2">Trésors Impériaux et Douceur Atlantique</p>
+        <!-- En-tête Mariage -->
+        <header class="text-center mb-12 relative">
+            <div class="section-divider mb-6"></div>
+            
+            <!-- Annonce du Mariage -->
+            <div class="bg-gradient-to-r from-pink-50 via-red-50 to-yellow-50 p-6 rounded-lg border-2 border-opacity-40 mb-6" style="border-color: var(--morocco-gold);">
+                <div class="flex justify-center items-center mb-3">
+                    <i class="fas fa-heart text-red-500 text-2xl mx-2"></i>
+                    <i class="fas fa-ring text-yellow-500 text-3xl mx-2"></i>
+                    <i class="fas fa-heart text-red-500 text-2xl mx-2"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gradient mb-2">Bienvenue à nos invités !</h3>
+                <p class="text-lg text-gray-700 mb-2">
+                    <i class="fas fa-calendar-heart icon-morocco mr-2"></i>
+                    <strong>Mariage · 29 Novembre 2025</strong>
+                    <i class="fas fa-calendar-heart icon-morocco ml-2"></i>
+                </p>
+                <p class="text-sm text-gray-600">
+                    Nous avons préparé ce guide spécialement pour vous aider à découvrir les merveilles de notre belle capitale
+                </p>
+            </div>
+            
+            <div class="flex justify-center items-center mb-4">
+                <i class="fas fa-mosque icon-morocco text-4xl mx-4"></i>
+                <h1 class="text-6xl font-bold">الرباط</h1>
+                <i class="fas fa-mosque icon-morocco text-4xl mx-4"></i>
+            </div>
+            <h2 class="text-4xl font-bold text-gradient mb-2">Rabat</h2>
+            <p class="text-xl text-gray-700 mt-3 font-medium">
+                <i class="fas fa-star icon-morocco mr-2"></i>
+                Trésors Impériaux et Douceur Atlantique
+                <i class="fas fa-star icon-morocco ml-2"></i>
+            </p>
+            <div class="section-divider mt-6"></div>
         </header>
 
         <!-- Section Principale -->
@@ -117,113 +280,581 @@
             <div class="md:col-span-2 space-y-8">
                 
                 <!-- Les Incontournables -->
-                <section>
-                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Les Incontournables</h2>
+                <section class="mb-8">
+                    <h2 class="text-3xl font-bold text-gradient border-l-4 border-gradient pl-4 mb-6 flex items-center">
+                        <i class="fas fa-gem icon-morocco mr-3"></i>
+                        Les Incontournables
+                    </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <img src="https://www.visitrabat.com/wp-content/uploads/2019/04/kasabah_oudayas-min.jpg" alt="Kasbah des Oudaïas" class="rounded-lg object-cover h-40 w-full shadow-md">
-                            <h3 class="font-bold mt-2 text-lg">Kasbah des Oudaïas</h3>
-                            <p class="text-sm text-gray-600">Perdez-vous dans ses ruelles bleues et blanches, avec une vue imprenable sur l'océan.</p>
+                        <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden border-2 border-opacity-20" style="border-color: var(--morocco-gold);">
+                            <div class="relative">
+                                <img src="https://www.visitrabat.com/wp-content/uploads/2019/04/kasabah_oudayas-min.jpg" alt="Kasbah des Oudaïas" class="object-cover h-48 w-full">
+                                <div class="absolute top-4 right-4 bg-white bg-opacity-90 rounded-full p-2">
+                                    <i class="fas fa-camera icon-morocco text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-xl mb-2 text-gradient">Kasbah des Oudaïas</h3>
+                                <p class="text-gray-700 text-sm leading-relaxed">Perdez-vous dans ses ruelles bleues et blanches, avec une vue imprenable sur l'océan Atlantique.</p>
+                                <div class="flex items-center mt-3">
+                                    <i class="fas fa-map-marker-alt icon-morocco mr-2"></i>
+                                    <span class="text-xs text-gray-600">Centre historique</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <img src="https://images.memphistours.com/large/977385592ec4e946d07172c7f7156154.jpg" alt="Tour Hassan" class="rounded-lg object-cover h-40 w-full shadow-md">
-                            <h3 class="font-bold mt-2 text-lg">Tour Hassan & Mausolée</h3>
-                            <p class="text-sm text-gray-600">Le minaret emblématique et le chef-d'œuvre de l'architecture marocaine moderne.</p>
+                        <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden border-2 border-opacity-20" style="border-color: var(--morocco-gold);">
+                            <div class="relative">
+                                <img src="https://images.memphistours.com/large/977385592ec4e946d07172c7f7156154.jpg" alt="Tour Hassan" class="object-cover h-48 w-full">
+                                <div class="absolute top-4 right-4 bg-white bg-opacity-90 rounded-full p-2">
+                                    <i class="fas fa-crown icon-morocco text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-xl mb-2 text-gradient">Tour Hassan & Mausolée</h3>
+                                <p class="text-gray-700 text-sm leading-relaxed">Le minaret emblématique et le chef-d'œuvre de l'architecture marocaine moderne.</p>
+                                <div class="flex items-center mt-3">
+                                    <i class="fas fa-map-marker-alt icon-morocco mr-2"></i>
+                                    <span class="text-xs text-gray-600">Monument historique</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                     <div class="mt-4 bg-gray-50 p-4 rounded-lg">
-                        <h3 class="font-bold text-lg">Autres sites majeurs</h3>
-                        <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
-                            <li><span class="font-semibold">Nécropole de Chellah :</span> Un havre de paix où histoire antique et nature se rencontrent.</li>
-                            <li><span class="font-semibold">La Médina :</span> Explorez la Rue Souika et la Rue des Consuls pour une immersion authentique.</li>
-                            <li><span class="font-semibold">Avenue Mohammed V :</span> Admirez le Parlement et la Cathédrale Saint-Pierre.</li>
-                        </ul>
+                    <div class="mt-6 bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border-l-4" style="border-color: var(--morocco-red);">
+                        <h3 class="font-bold text-xl mb-4 text-gradient flex items-center">
+                            <i class="fas fa-list-ul icon-morocco mr-2"></i>
+                            Autres sites majeurs
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-leaf icon-morocco mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-gray-800">Nécropole de Chellah</span>
+                                    <p class="text-gray-600 text-xs mt-1">Un havre de paix où histoire antique et nature se rencontrent.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-store icon-morocco mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-gray-800">La Médina</span>
+                                    <p class="text-gray-600 text-xs mt-1">Explorez la Rue Souika et la Rue des Consuls pour une immersion authentique.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-building icon-morocco mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-gray-800">Avenue Mohammed V</span>
+                                    <p class="text-gray-600 text-xs mt-1">Admirez le Parlement et la Cathédrale Saint-Pierre.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Gastronomie -->
-                <section>
-                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Saveurs Locales</h2>
-                    <div class="flex flex-col sm:flex-row gap-6 items-center">
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-lg text-gray-800">Restaurants Traditionnels</h3>
-                            <p class="text-sm text-gray-600 mb-2">Pour déguster un tajine ou un couscous inoubliable.</p>
-                            <ul class="text-sm text-gray-700 space-y-1">
-                                <li>Dar Naji</li>
-                                <li>Dinarjat</li>
-                                <li>Le Petit Beur</li>
-                                <li>Tajine wa Tanjia</li>
-                                <li>El Bahia</li>
-                            </ul>
+                <section class="mb-8">
+                    <h2 class="text-3xl font-bold text-gradient border-l-4 border-gradient pl-4 mb-6 flex items-center">
+                        <i class="fas fa-utensils icon-morocco mr-3"></i>
+                        Saveurs Locales
+                    </h2>
+                    <div class="bg-white rounded-lg shadow-lg p-6 border-2 border-opacity-20" style="border-color: var(--morocco-mint);">
+                        <div class="flex flex-col lg:flex-row gap-6 items-center">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-xl mb-3 text-gradient flex items-center">
+                                    <i class="fas fa-fire icon-morocco mr-2"></i>
+                                    Restaurants Traditionnels
+                                </h3>
+                                <p class="text-gray-700 mb-4 leading-relaxed">Pour déguster un tajine authentique ou un couscous inoubliable dans l'atmosphère chaleureuse de Rabat.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="flex items-center space-x-2 p-2 rounded" style="background-color: var(--morocco-sand);">
+                                        <i class="fas fa-star icon-morocco"></i>
+                                        <span class="font-medium">Dar Naji</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 rounded" style="background-color: var(--morocco-sand);">
+                                        <i class="fas fa-star icon-morocco"></i>
+                                        <span class="font-medium">Dinarjat</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 rounded" style="background-color: var(--morocco-sand);">
+                                        <i class="fas fa-star icon-morocco"></i>
+                                        <span class="font-medium">Le Petit Beur</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 rounded" style="background-color: var(--morocco-sand);">
+                                        <i class="fas fa-star icon-morocco"></i>
+                                        <span class="font-medium">Tajine wa Tanjia</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 rounded col-span-1 sm:col-span-2" style="background-color: var(--morocco-sand);">
+                                        <i class="fas fa-star icon-morocco"></i>
+                                        <span class="font-medium">El Bahia</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="relative">
+                                    <img src="https://www.marechal-fraicheur.fr/media/cache/synolia_cms_image_mobile_max_size/07/97/f22b67d03bfeb780fe4ddb73d6d6.png" alt="Plat de Tajine" class="rounded-lg h-40 w-64 object-cover shadow-lg border-4" style="border-color: var(--morocco-gold);">
+                                    <div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-yellow-500 text-white rounded-full p-2">
+                                        <i class="fas fa-pepper-hot text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <img src="https://www.marechal-fraicheur.fr/media/cache/synolia_cms_image_mobile_max_size/07/97/f22b67d03bfeb780fe4ddb73d6d6.png" alt="Plat de Tajine" class="rounded-lg h-32 w-full sm:w-48 object-cover shadow-md">
                     </div>
                 </section>
 
                 <!-- Shopping -->
-                <section>
-                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Shopping & Artisanat</h2>
-                     <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-700">
-                           <strong class="text-gray-800">Rue des Consuls :</strong> Idéale pour les tapis, le cuir et l'artisanat de qualité.<br>
-                           <strong class="text-gray-800">Cité des Potiers (Oulja) :</strong> Découvrez le savoir-faire des maîtres potiers.<br>
-                           <strong class="text-gray-800">Maison de l'Argent :</strong> Pour des bijoux uniques en argent.
-                        </p>
+                <section class="mb-8">
+                    <h2 class="text-3xl font-bold text-gradient border-l-4 border-gradient pl-4 mb-6 flex items-center">
+                        <i class="fas fa-shopping-bag icon-morocco mr-3"></i>
+                        Shopping & Artisanat
+                    </h2>
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-lg border-l-4" style="border-color: var(--morocco-green);">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="text-center p-4 bg-white rounded-lg shadow-md card-hover">
+                                <i class="fas fa-rug icon-morocco text-3xl mb-3"></i>
+                                <h4 class="font-bold text-gray-800 mb-2">Rue des Consuls</h4>
+                                <p class="text-sm text-gray-600">Idéale pour les tapis, le cuir et l'artisanat de qualité</p>
+                            </div>
+                            <div class="text-center p-4 bg-white rounded-lg shadow-md card-hover">
+                                <i class="fas fa-fire icon-morocco text-3xl mb-3"></i>
+                                <h4 class="font-bold text-gray-800 mb-2">Cité des Potiers</h4>
+                                <p class="text-sm text-gray-600">Découvrez le savoir-faire des maîtres potiers à Oulja</p>
+                            </div>
+                            <div class="text-center p-4 bg-white rounded-lg shadow-md card-hover">
+                                <i class="fas fa-ring icon-morocco text-3xl mb-3"></i>
+                                <h4 class="font-bold text-gray-800 mb-2">Maison de l'Argent</h4>
+                                <p class="text-sm text-gray-600">Pour des bijoux uniques en argent traditionnel</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Conseils Culturels -->
+                <section class="mb-8">
+                    <h2 class="text-3xl font-bold text-gradient border-l-4 border-gradient pl-4 mb-6 flex items-center">
+                        <i class="fas fa-lightbulb icon-morocco mr-3"></i>
+                        Conseils & Culture
+                    </h2>
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-l-4" style="border-color: var(--morocco-blue);">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3 text-gradient flex items-center">
+                                    <i class="fas fa-hand-peace icon-morocco mr-2"></i>
+                                    Étiquette Locale
+                                </h3>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
+                                        <span>Saluer avec "Salam Alaikum" ou "Bonjour"</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
+                                        <span>Négocier dans les souks avec le sourire</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
+                                        <span>S'habiller modestement dans les lieux religieux</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1 flex-shrink-0"></i>
+                                        <span>Accepter le thé à la menthe offert</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-3 text-gradient flex items-center">
+                                    <i class="fas fa-coins icon-morocco mr-2"></i>
+                                    Infos Pratiques
+                                </h3>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-money-bill-wave icon-morocco mt-1 flex-shrink-0"></i>
+                                        <span>Monnaie : Dirham marocain (MAD)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-language icon-morocco mt-1 flex-shrink-0"></i>
+                                        <span>Langues : Arabe, Berbère, Français</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-clock icon-morocco mt-1 flex-shrink-0"></i>
+                                        <span>Fuseau : GMT+1 (heure de Paris)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-phone icon-morocco mt-1 flex-shrink-0"></i>
+                                        <span>Urgences : Police 19, Ambulances 15</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recommandations spéciales pour les invités -->
+                <section class="mb-8">
+                    <h2 class="text-3xl font-bold text-gradient border-l-4 border-gradient pl-4 mb-6 flex items-center">
+                        <i class="fas fa-heart text-red-500 mr-3"></i>
+                        Spécial Invités du Mariage
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Activités avant/après le mariage -->
+                        <div class="bg-gradient-to-r from-pink-50 to-red-50 p-6 rounded-lg border-l-4" style="border-color: var(--morocco-red);">
+                            <h3 class="font-bold text-xl mb-4 text-gradient flex items-center">
+                                <i class="fas fa-calendar-check icon-morocco mr-2"></i>
+                                Programme suggéré
+                            </h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <strong class="text-gray-800">Jeudi 27 Nov</strong>
+                                    <p class="text-gray-600">Arrivée - Installation à l'hôtel - Dîner de bienvenue</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <strong class="text-gray-800">Vendredi 28 Nov</strong>
+                                    <p class="text-gray-600">Visite guidée Kasbah des Oudaïas - Shopping médina</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow-sm border-2 border-red-200">
+                                    <strong class="text-red-600">Samedi 29 Nov</strong>
+                                    <p class="text-red-600">🎉 <strong>JOUR J - MARIAGE</strong> 🎉</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg shadow-sm">
+                                    <strong class="text-gray-800">Dimanche 30 Nov</strong>
+                                    <p class="text-gray-600">Brunch de récupération - Tour Hassan - Départ</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Conseils pratiques -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border-l-4" style="border-color: var(--morocco-gold);">
+                            <h3 class="font-bold text-xl mb-4 text-gradient flex items-center">
+                                <i class="fas fa-gifts icon-morocco mr-2"></i>
+                                Souvenirs & Cadeaux
+                            </h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start space-x-2">
+                                    <i class="fas fa-star icon-morocco mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <strong>Artisanat authentique</strong>
+                                        <p class="text-gray-600">Tapis berbères, poteries de Salé, bijoux en argent</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <i class="fas fa-leaf icon-morocco mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <strong>Produits naturels</strong>
+                                        <p class="text-gray-600">Huile d'argan, savon noir, henné naturel</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <i class="fas fa-pepper-hot icon-morocco mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <strong>Épices & Gourmandises</strong>
+                                        <p class="text-gray-600">Ras el hanout, thé à la menthe, pâtisseries</p>
+                                    </div>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded mt-3">
+                                    <p class="text-xs text-green-700">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <strong>Tip:</strong> Négociez toujours dans les souks !
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
 
             <!-- Colonne de Droite -->
-            <aside class="space-y-6 bg-amber-50 p-6 rounded-lg">
+            <aside class="space-y-6 bg-gradient-to-b from-orange-50 via-red-50 to-yellow-50 p-6 rounded-lg border-2 border-opacity-30" style="border-color: var(--morocco-gold);">
                 
-                <!-- Hébergement -->
-                <section>
-                    <h3 class="text-xl font-bold text-amber-800 mb-3">Séjourner à Rabat</h3>
-                    <p class="text-sm font-semibold text-gray-700">Hôtels de Luxe :</p>
-                    <p class="text-xs text-gray-600 mb-2">Riad Kalaa, Villa Mandarine, Sofitel</p>
-                    <p class="text-sm font-semibold text-gray-700">Moyenne Gamme :</p>
-                    <p class="text-xs text-gray-600">Le Pietri, Dar Aida, Mercure</p>
+                <!-- Transport depuis l'aéroport -->
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-plane-arrival icon-morocco mr-2"></i>
+                        Arrivée à Rabat
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="p-3 rounded-lg" style="background-color: var(--morocco-sand);">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-map-marker-alt icon-morocco mr-2"></i>
+                                <strong class="text-gray-800">Aéroport Mohammed V (CMN)</strong>
+                            </div>
+                            <p class="text-xs text-gray-600">→ Rabat : 1h30 en voiture</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-taxi text-yellow-600"></i>
+                                <span class="text-gray-700"><strong>Taxi :</strong> ~400-500 MAD</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-train text-blue-600"></i>
+                                <span class="text-gray-700"><strong>Train :</strong> Casa → Rabat (50 MAD)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-car text-green-600"></i>
+                                <span class="text-gray-700"><strong>Location :</strong> Dispo à l'aéroport</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded text-xs text-center">
+                            <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                            Nous organisons des navettes pour le mariage
+                        </div>
+                    </div>
                 </section>
-                <div class="border-t border-amber-200"></div>
+                <div class="section-divider" style="height: 2px; margin: 1rem 0;"></div>
+
+                <!-- Météo Novembre -->
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-calendar-alt icon-morocco mr-2"></i>
+                        Météo en Novembre 2025
+                    </h3>
+                    
+                    <!-- Météo spécifique pour novembre -->
+                    <div class="bg-gradient-to-r from-orange-100 to-yellow-100 p-4 rounded-lg mb-3 border-2 border-opacity-30" style="border-color: var(--morocco-gold);">
+                        <div class="text-center">
+                            <i class="fas fa-leaf text-orange-600 text-3xl mb-2"></i>
+                            <div class="font-bold text-lg text-gray-800">Fin d'Automne</div>
+                            <div class="text-2xl font-bold text-gradient">15-22°C</div>
+                            <div class="text-xs text-gray-600 mt-1">Température idéale pour visiter</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-tshirt icon-morocco"></i>
+                            <span class="text-gray-700"><strong>Tenue conseillée :</strong> Vêtements légers + veste</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-umbrella icon-morocco"></i>
+                            <span class="text-gray-700"><strong>Précipitations :</strong> Faibles à modérées</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-eye icon-morocco"></i>
+                            <span class="text-gray-700"><strong>Visibilité :</strong> Excellente pour photos</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-heart text-red-500"></i>
+                            <span class="text-gray-700"><strong>Parfait pour :</strong> Un mariage romantique !</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-center text-xs text-gray-600 bg-green-50 p-2 rounded">
+                        <i class="fas fa-thumbs-up text-green-500 mr-1"></i>
+                        Novembre est une période idéale pour découvrir Rabat
+                    </div>
+                </section>
+                <div class="section-divider" style="height: 2px; margin: 1rem 0;"></div>
+
+                <!-- Hébergement -->
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-bed icon-morocco mr-2"></i>
+                        Séjourner à Rabat
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-lg" style="background-color: var(--morocco-cream);">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-crown icon-morocco mr-2"></i>
+                                <span class="text-sm font-bold text-gray-800">Hôtels de Luxe</span>
+                            </div>
+                            <div class="text-xs text-gray-600 space-y-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-star text-yellow-500 mr-1" style="font-size: 8px;"></i>
+                                    <span>Riad Kalaa</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-star text-yellow-500 mr-1" style="font-size: 8px;"></i>
+                                    <span>Villa Mandarine</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-star text-yellow-500 mr-1" style="font-size: 8px;"></i>
+                                    <span>Sofitel</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg" style="background-color: var(--morocco-sand);">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-hotel icon-morocco mr-2"></i>
+                                <span class="text-sm font-bold text-gray-800">Moyenne Gamme</span>
+                            </div>
+                            <div class="text-xs text-gray-600 space-y-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-circle text-blue-500 mr-1" style="font-size: 6px;"></i>
+                                    <span>Le Pietri</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-circle text-blue-500 mr-1" style="font-size: 6px;"></i>
+                                    <span>Dar Aida</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-circle text-blue-500 mr-1" style="font-size: 6px;"></i>
+                                    <span>Mercure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="section-divider" style="height: 2px; margin: 1rem 0;"></div>
 
                 <!-- Cafés & Pâtisseries -->
-                <section>
-                    <h3 class="text-xl font-bold text-amber-800 mb-3">Pause Café & Pâtisseries</h3>
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        <li><span class="font-semibold">Café des Oudayas :</span> Pour un thé à la menthe avec vue.</li>
-                        <li><span class="font-semibold">Pâtisserie Maymana :</span> L'excellence de la pâtisserie marocaine.</li>
-                        <li><span class="font-semibold">Boho Café :</span> Ambiance moderne et décontractée.</li>
-                         <li><span class="font-semibold">Pâtisserie Berrada :</span> Une institution locale.</li>
-                    </ul>
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-coffee icon-morocco mr-2"></i>
+                        Pause Café & Pâtisseries
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-mug-hot icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Café des Oudayas</span>
+                                <p class="text-xs text-gray-600">Pour un thé à la menthe avec vue</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-birthday-cake icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Pâtisserie Maymana</span>
+                                <p class="text-xs text-gray-600">L'excellence de la pâtisserie marocaine</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-leaf icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Boho Café</span>
+                                <p class="text-xs text-gray-600">Ambiance moderne et décontractée</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-cookie icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Pâtisserie Berrada</span>
+                                <p class="text-xs text-gray-600">Une institution locale</p>
+                            </div>
+                        </div>
+                    </div>
                 </section>
-                 <div class="border-t border-amber-200"></div>
+                <div class="section-divider" style="height: 2px; margin: 1rem 0;"></div>
 
                 <!-- Bars & Sorties -->
-                <section>
-                    <h3 class="text-xl font-bold text-amber-800 mb-3">Bars & Soirées</h3>
-                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        <li><span class="font-semibold">Le Dhow :</span> Un bateau-bar sur le Bouregreg pour des couchers de soleil magiques.</li>
-                        <li><span class="font-semibold">Le Bistro du Pietri :</span> Ambiance musicale et conviviale.</li>
-                        <li><span class="font-semibold">La Péniche :</span> Un cadre original pour boire un verre.</li>
-                    </ul>
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-glass-cheers icon-morocco mr-2"></i>
+                        Bars & Soirées
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-ship icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Le Dhow</span>
+                                <p class="text-xs text-gray-600">Un bateau-bar sur le Bouregreg pour des couchers de soleil magiques</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-music icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Le Bistro du Pietri</span>
+                                <p class="text-xs text-gray-600">Ambiance musicale et conviviale</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-anchor icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">La Péniche</span>
+                                <p class="text-xs text-gray-600">Un cadre original pour boire un verre</p>
+                            </div>
+                        </div>
+                    </div>
                 </section>
-                 <div class="border-t border-amber-200"></div>
+                <div class="section-divider" style="height: 2px; margin: 1rem 0;"></div>
 
                 <!-- Musées -->
-                 <section>
-                    <h3 class="text-xl font-bold text-amber-800 mb-3">Art & Culture</h3>
-                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        <li>Musée Mohammed VI d'Art Moderne et Contemporain</li>
-                        <li>Musée de la Bank Al Maghrib</li>
-                    </ul>
+                <section class="bg-white p-4 rounded-lg shadow-md card-hover">
+                    <h3 class="text-xl font-bold text-gradient mb-4 flex items-center">
+                        <i class="fas fa-university icon-morocco mr-2"></i>
+                        Art & Culture
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-palette icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Musée Mohammed VI</span>
+                                <p class="text-xs text-gray-600">Art Moderne et Contemporain</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-coins icon-morocco mt-1 flex-shrink-0"></i>
+                            <div>
+                                <span class="font-semibold text-sm">Musée Bank Al Maghrib</span>
+                                <p class="text-xs text-gray-600">Histoire monétaire du Maroc</p>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </aside>
         </main>
         
-        <!-- Pied de page -->
-        <footer class="text-center mt-10 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-500">Profitez de votre séjour dans la capitale sereine du Maroc !</p>
-            <button onclick="window.print()" class="no-print mt-4 bg-amber-800 text-white py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Imprimer en PDF</button>
+        <!-- Pied de page Mariage -->
+        <footer class="text-center mt-12 pt-8 relative">
+            <div class="section-divider mb-6"></div>
+            
+            <!-- Message spécial mariage -->
+            <div class="bg-gradient-to-r from-pink-50 via-red-50 to-yellow-50 p-8 rounded-lg border-2 border-opacity-30 mb-6" style="border-color: var(--morocco-gold);">
+                <div class="flex justify-center items-center mb-6">
+                    <i class="fas fa-heart text-red-500 text-2xl mx-2"></i>
+                    <i class="fas fa-ring text-yellow-500 text-3xl mx-2"></i>
+                    <i class="fas fa-heart text-red-500 text-2xl mx-2"></i>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-gradient mb-4">Merci d'être là pour nous !</h3>
+                
+                <div class="max-w-2xl mx-auto mb-6">
+                    <p class="text-lg text-gray-700 mb-3">
+                        Votre présence à notre mariage est le plus beau des cadeaux. Ce guide vous aidera à découvrir la beauté de Rabat, notre ville natale, et à créer de merveilleux souvenirs pendant votre séjour.
+                    </p>
+                    <p class="text-gray-600 italic">
+                        "L'amour ne se trouve pas seulement dans les mots, mais dans les moments partagés avec ceux qui nous sont chers."
+                    </p>
+                </div>
+                
+                <div class="flex justify-center items-center space-x-8 text-sm text-gray-600 mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-sun icon-morocco mr-1"></i>
+                        <span>Climat ensoleillé</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-utensils icon-morocco mr-1"></i>
+                        <span>Cuisine authentique</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users icon-morocco mr-1"></i>
+                        <span>Hospitalité marocaine</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-sm max-w-md mx-auto">
+                    <p class="text-sm text-gray-700 font-medium">
+                        <i class="fas fa-phone icon-morocco mr-2"></i>
+                        Pour toute question : +212 XXX XXX XXX
+                    </p>
+                    <p class="text-xs text-gray-600 mt-1">
+                        Nous sommes à votre disposition avant et pendant votre séjour
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex justify-center space-x-4 no-print">
+                <button onclick="window.print()" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-lg shadow-lg card-hover flex items-center space-x-2 transition-all">
+                    <i class="fas fa-download"></i>
+                    <span>Imprimer en PDF</span>
+                </button>
+                <button onclick="window.location.reload()" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg shadow-lg card-hover flex items-center space-x-2 transition-all">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualiser</span>
+                </button>
+            </div>
+            
+            <div class="mt-6 text-xs text-gray-500 flex justify-center items-center">
+                <i class="fas fa-heart text-red-400 mr-2"></i>
+                <span>Guide spécial mariage - 29 Novembre 2025 - Rabat, Maroc</span>
+                <i class="fas fa-heart text-red-400 ml-2"></i>
+            </div>
         </footer>
     </div>
 </body>
