@@ -86,11 +86,6 @@
             box-shadow: 0 25px 50px -12px rgba(197, 48, 48, 0.25);
         }
         
-        .moroccan-arch {
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            background: linear-gradient(135deg, var(--morocco-cream) 0%, white 100%);
-            border: 2px solid var(--morocco-gold);
-        }
         
         .text-gradient {
             background: linear-gradient(135deg, var(--morocco-red), var(--morocco-green));
@@ -158,9 +153,9 @@
                 break-inside: avoid !important;
             }
             
-            .moroccan-pattern, .moroccan-arch {
+            .moroccan-pattern {
                 background: #FFF !important;
-                border: none !important;
+                border: 1px solid #DDD !important;
             }
             
             .section-divider {
@@ -235,7 +230,7 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <div class="max-w-6xl mx-auto moroccan-pattern moroccan-arch p-8 sm:p-12 shadow-2xl my-8 relative z-10">
+    <div class="max-w-6xl mx-auto moroccan-pattern p-8 sm:p-12 shadow-2xl my-8 relative z-10 bg-white rounded-xl border border-opacity-20" style="border-color: var(--morocco-gold);">
 
         <!-- En-tête Mariage -->
         <header class="text-center mb-12 relative">
