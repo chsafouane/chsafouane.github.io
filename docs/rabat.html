@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Touristique - Rabat, Maroc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            -webkit-print-color-adjust: exact;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        @page {
+            size: A4;
+            margin: 0.5cm;
+        }
+        
+        @media print {
+            * {
+                page-break-inside: avoid !important;
+            }
+            
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: #FFF;
+                transform: scale(0.75);
+                transform-origin: top left;
+                width: 133.33%;
+                overflow: hidden;
+            }
+            .no-print {
+                display: none;
+            }
+            /* Override tailwind for a compact, single-page print layout */
+            .max-w-4xl {
+                max-width: 100%;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                page-break-inside: avoid !important;
+            }
+            
+            section, aside, header, main, footer {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .bg-gray-100 {
+                background-color: #FFF !important;
+            }
+            header h1 {
+                font-size: 1.8rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            header p {
+                font-size: 0.9rem !important;
+            }
+            header {
+                margin-bottom: 0.75rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            main {
+                gap: 0.75rem !important;
+            }
+            h2 {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.3rem !important;
+            }
+            h3 {
+                font-size: 0.9rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            p, li {
+                font-size: 0.7rem !important;
+                line-height: 1.2 !important;
+                margin-bottom: 0.2rem !important;
+            }
+            .p-6 { padding: 0.5rem !important; }
+            .p-4 { padding: 0.4rem !important; }
+            .my-8 { margin: 0 !important; }
+            .h-40 { height: 4rem !important; }
+            .h-32 { height: 3rem !important; }
+            .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem !important; }
+            .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.4rem !important; }
+            .gap-6 { gap: 0.4rem !important; }
+            .gap-10 { gap: 0.6rem !important; }
+            .mb-4 { margin-bottom: 0.3rem !important; }
+            .mb-3 { margin-bottom: 0.25rem !important; }
+            .mt-2 { margin-top: 0.2rem !important; }
+            .mt-4 { margin-top: 0.3rem !important; }
+            .rounded-lg { border-radius: 0.25rem !important; }
+            footer {
+                padding-top: 0.5rem !important;
+                margin-top: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto bg-white p-8 sm:p-12 shadow-lg my-8">
+
+        <!-- En-tête -->
+        <header class="text-center mb-10 border-b-2 border-amber-800 pb-6">
+            <h1 class="text-5xl font-bold text-amber-900">Rabat</h1>
+            <p class="text-xl text-gray-600 mt-2">Trésors Impériaux et Douceur Atlantique</p>
+        </header>
+
+        <!-- Section Principale -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+            <!-- Colonne de Gauche -->
+            <div class="md:col-span-2 space-y-8">
+                
+                <!-- Les Incontournables -->
+                <section>
+                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Les Incontournables</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://www.visitrabat.com/wp-content/uploads/2019/04/kasabah_oudayas-min.jpg" alt="Kasbah des Oudaïas" class="rounded-lg object-cover h-40 w-full shadow-md">
+                            <h3 class="font-bold mt-2 text-lg">Kasbah des Oudaïas</h3>
+                            <p class="text-sm text-gray-600">Perdez-vous dans ses ruelles bleues et blanches, avec une vue imprenable sur l'océan.</p>
+                        </div>
+                        <div>
+                            <img src="https://images.memphistours.com/large/977385592ec4e946d07172c7f7156154.jpg" alt="Tour Hassan" class="rounded-lg object-cover h-40 w-full shadow-md">
+                            <h3 class="font-bold mt-2 text-lg">Tour Hassan & Mausolée</h3>
+                            <p class="text-sm text-gray-600">Le minaret emblématique et le chef-d'œuvre de l'architecture marocaine moderne.</p>
+                        </div>
+                    </div>
+                     <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg">Autres sites majeurs</h3>
+                        <ul class="list-disc list-inside text-gray-700 mt-2 text-sm space-y-1">
+                            <li><span class="font-semibold">Nécropole de Chellah :</span> Un havre de paix où histoire antique et nature se rencontrent.</li>
+                            <li><span class="font-semibold">La Médina :</span> Explorez la Rue Souika et la Rue des Consuls pour une immersion authentique.</li>
+                            <li><span class="font-semibold">Avenue Mohammed V :</span> Admirez le Parlement et la Cathédrale Saint-Pierre.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Gastronomie -->
+                <section>
+                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Saveurs Locales</h2>
+                    <div class="flex flex-col sm:flex-row gap-6 items-center">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-lg text-gray-800">Restaurants Traditionnels</h3>
+                            <p class="text-sm text-gray-600 mb-2">Pour déguster un tajine ou un couscous inoubliable.</p>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li>Dar Naji</li>
+                                <li>Dinarjat</li>
+                                <li>Le Petit Beur</li>
+                                <li>Tajine wa Tanjia</li>
+                                <li>El Bahia</li>
+                            </ul>
+                        </div>
+                        <img src="https://www.marechal-fraicheur.fr/media/cache/synolia_cms_image_mobile_max_size/07/97/f22b67d03bfeb780fe4ddb73d6d6.png" alt="Plat de Tajine" class="rounded-lg h-32 w-full sm:w-48 object-cover shadow-md">
+                    </div>
+                </section>
+
+                <!-- Shopping -->
+                <section>
+                    <h2 class="text-2xl font-bold text-amber-800 border-l-4 border-amber-800 pl-3 mb-4">Shopping & Artisanat</h2>
+                     <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-700">
+                           <strong class="text-gray-800">Rue des Consuls :</strong> Idéale pour les tapis, le cuir et l'artisanat de qualité.<br>
+                           <strong class="text-gray-800">Cité des Potiers (Oulja) :</strong> Découvrez le savoir-faire des maîtres potiers.<br>
+                           <strong class="text-gray-800">Maison de l'Argent :</strong> Pour des bijoux uniques en argent.
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Colonne de Droite -->
+            <aside class="space-y-6 bg-amber-50 p-6 rounded-lg">
+                
+                <!-- Hébergement -->
+                <section>
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">Séjourner à Rabat</h3>
+                    <p class="text-sm font-semibold text-gray-700">Hôtels de Luxe :</p>
+                    <p class="text-xs text-gray-600 mb-2">Riad Kalaa, Villa Mandarine, Sofitel</p>
+                    <p class="text-sm font-semibold text-gray-700">Moyenne Gamme :</p>
+                    <p class="text-xs text-gray-600">Le Pietri, Dar Aida, Mercure</p>
+                </section>
+                <div class="border-t border-amber-200"></div>
+
+                <!-- Cafés & Pâtisseries -->
+                <section>
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">Pause Café & Pâtisseries</h3>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <li><span class="font-semibold">Café des Oudayas :</span> Pour un thé à la menthe avec vue.</li>
+                        <li><span class="font-semibold">Pâtisserie Maymana :</span> L'excellence de la pâtisserie marocaine.</li>
+                        <li><span class="font-semibold">Boho Café :</span> Ambiance moderne et décontractée.</li>
+                         <li><span class="font-semibold">Pâtisserie Berrada :</span> Une institution locale.</li>
+                    </ul>
+                </section>
+                 <div class="border-t border-amber-200"></div>
+
+                <!-- Bars & Sorties -->
+                <section>
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">Bars & Soirées</h3>
+                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <li><span class="font-semibold">Le Dhow :</span> Un bateau-bar sur le Bouregreg pour des couchers de soleil magiques.</li>
+                        <li><span class="font-semibold">Le Bistro du Pietri :</span> Ambiance musicale et conviviale.</li>
+                        <li><span class="font-semibold">La Péniche :</span> Un cadre original pour boire un verre.</li>
+                    </ul>
+                </section>
+                 <div class="border-t border-amber-200"></div>
+
+                <!-- Musées -->
+                 <section>
+                    <h3 class="text-xl font-bold text-amber-800 mb-3">Art & Culture</h3>
+                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <li>Musée Mohammed VI d'Art Moderne et Contemporain</li>
+                        <li>Musée de la Bank Al Maghrib</li>
+                    </ul>
+                </section>
+            </aside>
+        </main>
+        
+        <!-- Pied de page -->
+        <footer class="text-center mt-10 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">Profitez de votre séjour dans la capitale sereine du Maroc !</p>
+            <button onclick="window.print()" class="no-print mt-4 bg-amber-800 text-white py-2 px-4 rounded-lg hover:bg-amber-900 transition-colors">Imprimer en PDF</button>
+        </footer>
+    </div>
+</body>
+</html>
+
