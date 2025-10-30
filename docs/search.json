@@ -91,6 +91,48 @@
     "text": "Useful keys\n\nUsing private conda & PyPI repositories\nSome of my very security-oriented customers usually have their own conda and pip repositories (like nexus) and oblige everyone to use them as they only include packages that are approved by the security team.\nFor this, I use pypi-config.index-url and pypi-config.extra-index-urls to specify the index URL and the extra index URLs to use for PyPI packages.\npixi config set pypi-config.index-url https://nexus.some_random_company.com/pypi/simple\nLooking at the documentation, these can also be added to the pyproject.toml file under the [tool.pixi.pypi-options] section but I’ve never added them here.\n[tool.pixi.pypi-options]\n# Public packages will be sourced from the official PyPI\nindex-url = \"https://nexus.some_random_company.com/pypi/simple\"\n# Internal packages will be searched for here first\nextra-index-urls = [\"https://nexus.some_additional_random_company.com/pypi/simple\"]\nFor conda, I add the channels to the channels entry under the [tool.pixi.workspace] section in the pyproject.toml file:\n[tool.pixi.workspace]\nchannels = [\n    \"https://nexus.some_random_company.com/conda-forge\", \n    \"https://nexus.some_random_company_second.com/conda-forge\"\n]\nplatforms = [\"win-64\"]\nIf you need to manage credentials for private repositories, you can check pixi auth login.\n\n\nPinning strategy\nThe other key that I find useful is the pinning-strategy key. As I said before, by default, pixi uses a very strict pinning strategy that can be annoying at times. You can change it to one of the strategies listed in the documentation.\nPersonally, I like to pin to the major version using:\npixi config set pinning-strategy major\nThis might not be a very good practice as you can see here but it works just fine for my needs."
   },
   {
+    "objectID": "resume.html",
+    "href": "resume.html",
+    "title": "Resume",
+    "section": "",
+    "text": "Lead Data Scientist | Paris, France\nchsafouane@gmail.com | LinkedIn | GitHub\n\n\n\nML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection\n\n\n\n\n\n\n\nArchitected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings and vector databases (Elasticsearch, Pinecone)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)\n\n\n\n\n\n\n\nProduction Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams\n\n\n\n\n\n\nMSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online\n\n\n\n\n\nEnglish (Native) French (Professional) Arabic (Native) Spanish (Fluent)"
+  },
+  {
+    "objectID": "resume.html#technical-expertise",
+    "href": "resume.html#technical-expertise",
+    "title": "Resume",
+    "section": "",
+    "text": "ML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection"
+  },
+  {
+    "objectID": "resume.html#professional-experience",
+    "href": "resume.html#professional-experience",
+    "title": "Resume",
+    "section": "",
+    "text": "Architected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings and vector databases (Elasticsearch, Pinecone)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)"
+  },
+  {
+    "objectID": "resume.html#key-achievements-leadership",
+    "href": "resume.html#key-achievements-leadership",
+    "title": "Resume",
+    "section": "",
+    "text": "Production Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams"
+  },
+  {
+    "objectID": "resume.html#education-certifications",
+    "href": "resume.html#education-certifications",
+    "title": "Resume",
+    "section": "",
+    "text": "MSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online"
+  },
+  {
+    "objectID": "resume.html#languages",
+    "href": "resume.html#languages",
+    "title": "Resume",
+    "section": "",
+    "text": "English (Native) French (Professional) Arabic (Native) Spanish (Fluent)"
+  },
+  {
     "objectID": "posts/PDF parsing is hard/PDF parsing is hard.html",
     "href": "posts/PDF parsing is hard/PDF parsing is hard.html",
     "title": "PDF parsing is hard",

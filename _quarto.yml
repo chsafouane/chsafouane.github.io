@@ -9,6 +9,7 @@ website:
   navbar:
     right:
       - about.qmd
+      - resume.qmd
       - icon: github
         href: https://github.com/chsafouane
       - icon: linkedin

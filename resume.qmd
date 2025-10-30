@@ -1,0 +1,71 @@
+---
+title: "Resume"
+page-layout: full
+title-block-banner: true
+---
+
+# Safouane Chergui
+**Lead Data Scientist** | Paris, France
+
+[chsafouane@gmail.com](mailto:chsafouane@gmail.com) | [LinkedIn](https://www.linkedin.com/in/safouanechergui) | [GitHub](https://github.com/chsafouane)
+
+---
+
+## Technical Expertise
+
+**ML/AI Domains:** NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision  
+**Cloud & Infrastructure:** Docker, Kubernetes, AWS, GCP, MLflow, Airflow  
+**Specialized:** LLM Evaluation, Production ML Monitoring, Model Drift Detection
+
+---
+
+## Professional Experience
+
+### **Lead Data Scientist** | EDF | *April 2025 - Current*
+- Architected and deployed a pipeline for document parsing and question answering using **RAG systems** over internal knowledge bases
+- Led the development of an **LLM evaluation framework** to benchmark and monitor model performance on key business tasks
+
+### **Senior Data Scientist** | Doctolib | *Sep 2024 - April 2025*
+- Architected and deployed a **RAG system** reducing customer support costs by **20%**
+- Enhanced phone assistant system that allows patients to make a medical appointment using a fast **search system** and **agents**
+
+### **Senior Data Scientist** | Mirakl | *Oct 2023 - Aug 2024*
+- Built & deployed an **LLM-powered catalog integration system** reducing products onboarding time from **20+ days to hours**
+- Implemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow
+- Trained & Deployed small LLMs for domain-specific tasks to **reduce costs of third-party API usage by 10X**
+
+### **Senior Data Scientist** | TheFork (TripAdvisor) | *May 2022 - Oct 2023*
+- Designed **recommendation algorithms** driving **35% increase** in page visits across web, mobile, and email channels
+- Pioneered **LLM-based review summarization** system processing 500K+ reviews monthly
+- Optimized search functionality using semantic embeddings and vector databases (Elasticsearch, Pinecone)
+- Built collaborative filtering and content-based recommendation models serving 20M+ users
+
+### **Data Scientist** | EDF | *Dec 2018 - May 2022*
+- Deployed **production ML models** for customer segmentation, churn prediction (AUC 0.92), and LTV modeling
+- Designed **real-time drift detection system** monitoring 15+ models in production environment
+- Built A/B testing framework and interactive dashboard reducing experiment analysis time by 60%
+- Developed predictive maintenance models using **signal processing and deep learning** (CNN/RNN architectures)
+
+---
+
+## Key Achievements & Leadership
+
+- **Production Impact:** Deployed 20+ ML models to production with measurable business and costs impact
+- **Technical Leadership:** Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF
+- **Cross-functional Collaboration:** Led projects spanning engineering, product, and business teams
+
+---
+
+## Education & Certifications
+
+- **MSc Engineering** - INSA Lyon (2013-2018)
+- **Deep Learning Specialization** - Coursera
+- **Statistical Learning** - Stanford Online
+
+---
+
+## Languages
+English (Native)
+French (Professional)
+Arabic (Native)
+Spanish (Fluent)
