@@ -37,7 +37,7 @@ title-block-banner: true
 ### **Senior Data Scientist** | TheFork (TripAdvisor) | *May 2022 - Oct 2023*
 - Designed **recommendation algorithms** driving **35% increase** in page visits across web, mobile, and email channels
 - Pioneered **LLM-based review summarization** system processing 500K+ reviews monthly
-- Optimized search functionality using semantic embeddings and vector databases (Elasticsearch, Pinecone)
+- Optimized search functionality using semantic embeddings (Elasticsearch, pgvector)
 - Built collaborative filtering and content-based recommendation models serving 20M+ users
 
 ### **Data Scientist** | EDF | *Dec 2018 - May 2022*
@@ -65,7 +65,8 @@ title-block-banner: true
 ---
 
 ## Languages
-English (Native)
-French (Professional)
-Arabic (Native)
-Spanish (Fluent)
+- English (Native)
+- French (Professional)
+- Arabic (Native)
+- Spanish (Fluent)
+- Mandarin (In the learning process)
