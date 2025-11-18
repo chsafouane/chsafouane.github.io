@@ -9,7 +9,7 @@
 <meta name="author" content="Safouane Chergui">
 <meta name="dcterms.date" content="2025-11-19">
 
-<title>LLM Evals: What Actually Works – Safouane Chergui</title>
+<title>LLM Evals: 5 lessons of what actually works – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -130,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">LLM Evals: What Actually Works</h1>
+      <h1 class="title">LLM Evals: 5 lessons of what actually works</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">LLM</div>
                 <div class="quarto-category">Evaluation</div>
@@ -175,7 +175,11 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
-  <li><a href="#lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" id="toc-lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start">Lesson 1: I don’t have any data to test my application, where do I start ?</a></li>
+  <li><a href="#lesson-1-ill-vibe-check-my-app" id="toc-lesson-1-ill-vibe-check-my-app">Lesson 1: I’ll vibe-check my app</a></li>
+  <li><a href="#lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start" id="toc-lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start">Lesson 2: I don’t have any data to test my application, where do I start ?</a></li>
+  <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a></li>
+  <li><a href="#lesson-4-off-the-shelf-evals-dont-work" id="toc-lesson-4-off-the-shelf-evals-dont-work">Lesson 4: Off-the-shelf evals don’t work</a></li>
+  <li><a href="#lesson-5-the-evaluation-interface-matters" id="toc-lesson-5-the-evaluation-interface-matters">Lesson 5: The evaluation interface matters</a></li>
   </ul>
 </nav>
 <section id="introduction" class="level2">
@@ -191,13 +195,28 @@ ul.task-list li input[type="checkbox"] {
 <p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
 <p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
-<section id="lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
-<h1>Lesson 1: I don’t have any data to test my application, where do I start ?</h1>
+<section id="lesson-1-ill-vibe-check-my-app" class="level1">
+<h1>Lesson 1: I’ll vibe-check my app</h1>
 <p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
-<p><strong>Sub-lesson 1: Vibe checks don’t work</strong></p>
+<p>People expects anything related to AI these days to go fast and to “just work”. This can be seen in the way most people do evals.</p>
+<p>While working with so many customers, I’ve seen them promote this idea of doing “vibe checks” to test the app where you ask a few questions to the app and see if the answers look good to you.</p>
+<p>This is a terrible way to evaluate your LLM applications for multiple reasons:</p>
+</section>
+<section id="lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
+<h1>Lesson 2: I don’t have any data to test my application, where do I start ?</h1>
+<p><strong>Sub-lesson 1: Real data is better than synthetic data</strong></p>
 <p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
 <p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
-<p><strong>Sub-lesson 4: Real data is better than synthetic data</strong></p>
+</section>
+<section id="lesson-3-have-a-systematic-way-to-identify-failure-modes" class="level1">
+<h1>Lesson 3: Have a systematic way to identify failure modes</h1>
+<p>When you start evaluating your LLM applications, you need to have a systematic way to identify failure modes.</p>
+</section>
+<section id="lesson-4-off-the-shelf-evals-dont-work" class="level1">
+<h1>Lesson 4: Off-the-shelf evals don’t work</h1>
+</section>
+<section id="lesson-5-the-evaluation-interface-matters" class="level1">
+<h1>Lesson 5: The evaluation interface matters</h1>
 
 
 </section>
