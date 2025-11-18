@@ -1,0 +1,2892 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Safouane Chergui</title>
+<link>https://chsafouane.github.io/</link>
+<atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
+<description>Just a fancy note-taking website for my notes not to die on my iPad</description>
+<generator>quarto-1.7.33</generator>
+<lastBuildDate>Thu, 28 Aug 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>PDF parsing is hard</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/PDF parsing is hard/PDF parsing is hard.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>The goal of this blogpost is to explain what a PDF is internally and why parsing PDF files is not that easy.</p>
+<p>Lately, I’ve been working on a project with a customer where the goal is to extract some specific information from PDF documents. To my big surprise, this task has proven to be quite challenging.</p>
+<p>The main challenges stem from the following elements:</p>
+<ul>
+<li><strong>Privacy concerns:</strong> using an external API to parse the PDFs was a no-go as the PDFs contained sensitive information.</li>
+<li><strong>Complexity of the documents:</strong> the PDFs at hand contained a mix of text, complex tables, math formulas, all of which needed to be processed and understood in context.</li>
+<li><strong>Absence of a clear structure:</strong> the lack of consistent formatting and structure across the documents made it difficult to apply standard parsing across the board.</li>
+</ul>
+<br><br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/pdf-icon.png" alt="PDF icon" width="25%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br></p>
+<section id="what-the-hell-is-a-pdf-document" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-hell-is-a-pdf-document">What the hell is a PDF document ?</h2>
+<section id="a-first-glimpse-at-a-pdf-file-internal-structure" class="level3">
+<h3 class="anchored" data-anchor-id="a-first-glimpse-at-a-pdf-file-internal-structure">A first glimpse at a PDF file internal structure</h3>
+<p>Have you ever opened a PDF document with notepad or vscode instead of your preferred PDF reader ? If you do so , you’ll stumble upon something that looks like this :</p>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/example_pdf_start.png" alt="PDF Internal Structure" style="display: block; margin: 0 auto;"></p>
+<p align="center">
+<em>Figure 1: Internal structure of a PDF document when viewed as raw text</em>
+</p>
+</div>
+<p>If you’d like to see the full PDF internal structure, you can find the example PDF <a href="https://gist.github.com/chsafouane/0079eb20531a0effb632e9aea7ddfabe?short_path=b320036">here</a>.</p>
+</section>
+<section id="pdf-page-description-language" class="level3">
+<h3 class="anchored" data-anchor-id="pdf-page-description-language">PDF Page Description Language</h3>
+<p>To understand why PDFs are hard to parse, one must understand how a PDF file is built.</p>
+<p>A PDF file is based on Page Description Language (PDL), which is a language used to describe the layout and appearance of a printed page. PDF PDL provides a standardized set of commands to reconstruct a page with perfect fidelity.</p>
+<p>As a result, a PDF file is essentially a collection of instructions for rendering a page, rather than a linear sequence of text and images. If you look at the example pdf available in the github gist, you’ll see starting line 34 the following commands:</p>
+<pre class="pdf"><code>/F1 18 Tf
+100 700 Td
+(This is a PDF tutorial) Tj</code></pre>
+<p>What the following instructions do is:</p>
+<ul>
+<li><code>/F1 18 Tf</code> : set the font to F1 with size 18</li>
+<li><code>100 700 Td</code> : move the text position to (100, 700)</li>
+<li><code>(This is a PDF tutorial) Tj</code> : show the text string</li>
+</ul>
+<p>Every PDF looks just like this; a precise sequence of commands that specify what to draw and exactly at what coordinates. It does not contain a semantic representation of its content. It does not state, “This is a paragraph that flows through two columns” or “this is a table”.</p>
+<p>A table, for example, is just a grid of lines and text positioned at specific coordinates. There are no inherent relationships between the cells, no indication of headers or footers, and no understanding of the data contained within.</p>
+<p>So when a parser sees what’s supposed to be a table, it sees just a bunch of lines and text. Its task (rather difficult task) is to infer the structure and relationships between these elements.</p>
+<p>This lack of semantic structure makes it challenging to parse complex PDF documents.</p>
+</section>
+<section id="the-internal-structure-of-a-pdf" class="level3">
+<h3 class="anchored" data-anchor-id="the-internal-structure-of-a-pdf">The internal structure of a PDF</h3>
+<p>This is an optional part and will not help you in understanding the difficulty of parsing PDFs. So you can skip if you want to focus on the practical aspects of PDF parsing.</p>
+<p>What you see in Figure 1 or in the gist file is the internal structure of a PDF document. Let us dive into the key components that make up this structure.</p>
+<p>A PDF is composed internally of four sections:</p>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/pdf_internal_structure.png" alt="PDF Internal Structure Components" style="display: block; margin: 0 auto;"></p>
+<p align="center">
+<em>Figure 2: Internal structure of a PDF document</em>
+</p>
+<p align="center">
+<small>Source: <a href="https://www.researchgate.net/figure/An-example-of-the-PDF-file-structure_fig1_360275035">ResearchGate - An example of the PDF file structure</a></small>
+</p>
+</div>
+<section id="the-header" class="level4">
+<h4 class="anchored" data-anchor-id="the-header">The header</h4>
+<p>The header of a PDF file tells you about the PDF specifications version used to generate it. It is always the first line of the file and starts with the <code>%PDF-</code> marker. In Figure 1, it corresponds to <code>%PDF-1.7</code>.</p>
+</section>
+<section id="the-body" class="level4">
+<h4 class="anchored" data-anchor-id="the-body">The body</h4>
+<p>Now, the body is where you define the content of the PDF. Everything that you see when you open a PDF - the text you read, the images you view, the fonts that make the text look pretty - all of this is generated from the “objects” defined in the body.</p>
+<p>Think about when you open a PDF and scroll through it. You might see different pages, each with its own layout, fonts, and content. Behind the scenes, each of these elements is stored as a separate object in the PDF body.</p>
+<p>If you look at the PDF file in the gist, you’ll see that it contains 5 objects. Each object in a PDF is identified by a unique object number and a generation number (usually 0 for new objects).</p>
+</section>
+<section id="the-cross-reference-table" class="level4">
+<h4 class="anchored" data-anchor-id="the-cross-reference-table">The cross-reference table</h4>
+<p>Now, here’s where the magic happens that makes PDFs so fast to navigate. You know how you can instantly jump to page 50 of a 200-page PDF, or how quickly a PDF opens even when it’s a large file? That’s thanks to the cross-reference table (or “xref table”).</p>
+<p>The xref table maps object numbers to their byte positions in the file. Here’s the one from our sample PDF:</p>
+<pre class="pdf"><code>xref
+0 6
+0000000000 65535 f 
+0000000017 00000 n 
+0000000070 00000 n 
+0000000126 00000 n 
+0000000281 00000 n 
+0000000385 00000 n </code></pre>
+<p>Let me break this down:</p>
+<ul>
+<li><code>xref</code> marks the start of the cross-reference table</li>
+<li><code>0 6</code> means this section covers 6 objects starting from object 0</li>
+<li>Each line has three parts: <code>byte_offset generation_number n/f</code>
+<ul>
+<li><strong>Byte offset</strong>: The exact position in the file where the object starts (like a street address)</li>
+<li><strong>Generation number</strong>: Usually 0 for active objects</li>
+<li><strong>n/f flag</strong>: <code>n</code> means the object is in use, <code>f</code> means it’s free (deleted)</li>
+</ul></li>
+</ul>
+<p>The generation number and the n/f flag are useful when the PDF is modified.</p>
+<p>For example, when you want to see the page content, the PDF reader looks up object 4 (content stream) in this table, sees it at byte position 281, jumps directly there, and gets the drawing commands. No searching, no scanning, just instant access.</p>
+<p>This is why PDFs load so quickly even when they’re huge files. Your PDF viewer doesn’t have to read the whole document.</p>
+</section>
+<section id="the-trailer" class="level4">
+<h4 class="anchored" data-anchor-id="the-trailer">The trailer</h4>
+<p>Finally, we have the trailer - think of it as the PDF’s “instruction manual” that tells your PDF viewer how to get started. When you double-click a PDF file to open it, your PDF reader doesn’t start reading from the beginning. Instead, it jumps to the end of the file and reads the trailer first.</p>
+<p>Here’s the trailer from our sample PDF:</p>
+<pre class="pdf"><code>trailer
+&lt;&lt; /Size 6
+/Root 1 0 R
+&gt;&gt;
+startxref
+449
+%%EOF</code></pre>
+<p>Here’s what happens when you open a PDF:</p>
+<ul>
+<li><strong><code>/Size 6</code></strong>: The PDF reader learns there are 6 objects total in the cross-reference table</li>
+<li><strong><code>/Root 1 0 R</code></strong>: “Start reading from the catalog object (object 1) to understand the document structure”</li>
+<li><strong><code>startxref 449</code></strong>: “The cross-reference table starts at byte position 449”</li>
+<li><strong><code>%%EOF</code></strong>: “This is truly the end of the file”</li>
+</ul>
+<p>So when you open a PDF, here’s the process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
+<p>This four-part structure (header, body, xref, trailer) is what makes PDFs very fast to read no matter their size.</p>
+</section>
+</section>
+</section>
+<section id="docling-v2" class="level2">
+<h2 class="anchored" data-anchor-id="docling-v2">Docling V2</h2>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_logo.png" alt="Docling Logo" width="50%" style="display: block; margin: 0 auto;"></p>
+</div>
+<section id="project-context" class="level3">
+<h3 class="anchored" data-anchor-id="project-context">Project context</h3>
+<p>So, here are the main constraints of the project: - It had some high privacy concerns. This means that using an external API for PDF parsing was not an option. - The PDFs were very complex. They contained a mix of text and really complex tables, math formulas, etc. - The customer preferred to run the workload of PDF parsing on their on-premise infrastructure that didn’t provide any GPU.</p>
+<p>The point that was to our advantage is that the incoming documents didn’t need to be processed online. Batch processing of documents was sufficient, and I could afford to take our time with the parsing.</p>
+</section>
+<section id="why-i-went-for-docling" class="level3">
+<h3 class="anchored" data-anchor-id="why-i-went-for-docling">Why I went for Docling ?</h3>
+<section id="the-fast-good-enough-didnt-cut-it" class="level4">
+<h4 class="anchored" data-anchor-id="the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</h4>
+<p>While I used to go with <code>PyMuPDF</code> for PDF parsing because it’s easy to use, fast, and good enough for PDF with text and simple tables, it did a really bad job on the documents that I had to handle. The tables were very badly parsed.</p>
+<p>To preserve the speed advantage, I decided to use a combination of <code>PyMuPDF</code> for the initial text extraction and a library dedicated to table extraction like <code>tabula</code> or <code>camelot</code>. Not only did this approach add more dependencies and more complexity, <code>tabula</code> and <code>camelot</code> both did a very bad job at extracting most tables.</p>
+<p>Now, these packages look at the PDF instructions (like the ones shown in the PDL section) and try to reverse-engineer the layout of the document. While this makes for fast parsing, they have a hard time parsing a two-column layout accurately or a complex table. A good way to put it is that they have a hard time looking at things a human does.</p>
+<p><code>camelot</code> and <code>tabula</code> both rely on heuristics and rules that work well for simple well-structured tables.</p>
+</section>
+<section id="ml-focused-parsing" class="level4">
+<h4 class="anchored" data-anchor-id="ml-focused-parsing">ML-focused parsing</h4>
+<p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
+<p>I benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents I had to handle.</p>
+<p><strong>Note:</strong> I didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
+</section>
+</section>
+<section id="how-does-docling-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-docling-work">How does Docling work ?</h3>
+<p>Docling uses a combination of techniques to parse PDF documents effectively:</p>
+<ol type="1">
+<li><p><strong>Text Extraction</strong>: Initially, it extracts text from the PDF using a fast and efficient text extraction engine.</p></li>
+<li><p><strong>Layout Detection</strong>: It employs a layout detection model to identify different elements on the page, such as titles, text, images, tables, etc.</p></li>
+<li><p><strong>Table Analysis</strong>: For detected tables, Docling uses a specialized table analysis model to understand the structure and content of the table cells.</p></li>
+<li><p><strong>OCR</strong>: Optionally, one can activate OCR if handling scanned documents.</p></li>
+<li><p><strong>Assembly</strong>: Finally, it applies post-processing steps to combine all the extracted information and present it in a structured format in <code>DoclingDocument</code>.</p></li>
+</ol>
+<p>The resulting object <code>DoclingDocument</code> is not a simple text string. It is a hierarchical representation of the original document, containing organized lists of items defined in Docling (<code>TextItem</code>, <code>PictureItem</code>, etc.). Each of these objects holds its content, coordinates, type, and relationships to other elements.</p>
+<p>Please refer to the <a href="https://docling-project.github.io/docling/concepts/docling_document/">Docling documentation</a> for more details on the structure and usage of <code>DoclingDocument</code>.</p>
+</section>
+<section id="parsing-output" class="level3">
+<h3 class="anchored" data-anchor-id="parsing-output">Parsing output</h3>
+<p>On top of the docling document that contains anything you can imagine, you can convert the docling document to a a simple string or to a markdown. You can also extract tables as pandas dataframes wich is really very handy.</p>
+</section>
+<section id="docling-in-practice" class="level3">
+<h3 class="anchored" data-anchor-id="docling-in-practice">Docling in practice</h3>
+<p>I used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
+<p>The things that didn’t work that well include: - tables that roll over two pages. In my experience, Docling considers them as separate tables - multicolumn text is rarely but sometimes is considered a table</p>
+</section>
+<section id="explore-more-with-docling" class="level3">
+<h3 class="anchored" data-anchor-id="explore-more-with-docling">Explore more with Docling!</h3>
+<ul>
+<li>Docling can be used to parse many types of documents like powerpoint docs, word docs, html docs, PDFs and more.</li>
+</ul>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/PDF parsing is hard/assets/docling_processing.png" alt="Docling Processing" width="60%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are:</p>
+<ul>
+<li><a href="https://github.com/docling-project/docling-serve"><code>docling-serve</code></a>: The FastAPI wrappers for running Docling as REST API and distribute large jobs.</li>
+<li><a href="https://github.com/docling-project/docling-sdg"><code>docling-sdg</code></a>: Synthetic data generation (SDG) on documents for dataset generation for RAG, finetuning, etc.</li>
+<li><a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents.</li>
+</ul>
+<p>While I didn’t try these three packages, I’m looking forward to it.</p>
+</section>
+<section id="some-final-feedback" class="level3">
+<h3 class="anchored" data-anchor-id="some-final-feedback">Some final feedback</h3>
+<p>While <code>docling</code> is an amazing framework, it still has some limitations and areas for improvement. - If you’re just looking for speed and good enough result, go for PyMuPDF - If you’re looking for excellent parsing quality and are ready to trade speed for it, go for Docling</p>
+<p><br><br> <strong>Happy parsing with DOCLING&nbsp;!</strong></p>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>PDF</category>
+  <guid>https://chsafouane.github.io/posts/PDF parsing is hard/PDF parsing is hard.html</guid>
+  <pubDate>Thu, 28 Aug 2025 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Why I ditched pip and conda for Pixi</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/Pixi intro/Why I ditched conda and pip for Pixi.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>—title: “Why I ditched pip and conda for Pixi”author: “Safouane Chergui”date: “2025-07-05”format: htmltoc: truetoc-location: bodytoc-depth: 4categories: [Python, Package management]—</p>
+<p>I’ve been using pip and then conda for as long as I can remember. Last year, I did a double-switch. First, I moved to <code>uv</code> and then not long after it I moved to <code>pixi</code>.</p>
+<p>I discovered <code>pixi</code> thanks to Eric Ma <a href="https://ericmjl.github.io/blog/2024/8/16/its-time-to-try-out-pixi/">blog post</a>. At the time, the thing that caught my attention the most is how easy it is to manage the installation of the same environment but one with CUDA support and the other without.</p>
+<p>After months of using <code>pixi</code> now, I can say that the 3 things I like the most about <code>pixi</code> are: - The features concept that allows to mix and match packages to create environments - Being able to run tasks - How fast it is!</p>
+<p>We’ll take a look at all of this in this blog. The final version of the code generated in this blog is available in <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">this repository</a>.</p>
+<section id="what-is-pixi" class="level1">
+<h1><a id="toc1_"></a>What is pixi ?</h1>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/Pixi intro/assets/pixi.webp" width="50%">
+</p>
+<section id="pixis-toolset" class="level2">
+<h2 class="anchored" data-anchor-id="pixis-toolset"><a id="toc1_1_"></a>Pixi’s toolset</h2>
+<p>Now, Pixi is many things but I’ll focus on the things that will be of use to you as a python developer</p>
+<ul>
+<li>Pixi is a package manager that can manage packages from both Conda &amp; PyPI. The dependency resolution tools used by Pixi (<code>resolvo</code> for conda &amp; uv resolution tool for PyPI packages) are very fast.</li>
+<li>Pixi manages environments (similar to <code>venv</code> for <code>pip</code> users, a feature that is built into <code>conda</code>)</li>
+<li>Pixi manages <code>python</code> version as well (similar to <code>pyenv</code> if you use <code>pip</code>, built into <code>conda</code>)</li>
+<li>Pixi has a lock file that allows you to reproduce excatly the same environment (similar to what you’d get <code>conda-lock</code> or <code>pip-lock</code>)</li>
+<li>Pixi can be used as a task-runner, just like <code>make</code> or <code>just</code>.</li>
+<li>Pixi has built-in cross-platform reproducibility. The lock file includes the exact versions and dependencies in all targeted platforms. You can pick and choose the targeted platform by your project (Linux, Windows, etc).</li>
+<li>Pixi can also install tools like <code>brew</code> and you can have access to the globally.</li>
+</ul>
+<p>Now, while <code>mamba</code> is fast, in my experience, <code>pixi</code> is faster. <code>mamba</code> also lacks lock-files that are essential for reproducibility and a task runner that comes very handy in many situations (CI/CD, Other people running your project, etc.)</p>
+</section>
+<section id="pixis-project-philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="pixis-project-philosophy"><a id="toc1_2_"></a>Pixi’s project philosophy</h2>
+<p>While <code>conda</code> is environment-centric, <code>pixi</code> is all about projects. When you init a pixi project, it will create a <code>pixi.toml</code> (or a <code>pyproject.toml</code> instead if you want). In this file, you can specify many environments that can be composed of different features. For example, you can have: - a base feature that includes the basic packages needed by your project - a run feature that consists of packages needed for only running the project - a test feature that consists of additional packages needed for testing the project - a build feature that consists of additional packages or tools needed for building the project.</p>
+<p>Imagine having to train a model on a GPU but then when running it, to only have a CPU at your disposal. What you would do is have: - A training environment composed of the features <code>base</code> + <code>build</code> + <code>test</code> that will include the base packages, some CUDA dependencies and pytorch with GPU support coming from the build feature, and test packages like <code>pytest</code> coming from the test feature. - A CI/CD environment composed of <code>base</code> + <code>run</code> + <code>test</code>. The only difference this time is that you’ll be using the run feature that include <code>pytorch-cpu</code> and no CUDA dependencies. - A run environment composed only of <code>base</code> + <code>run</code> features.</p>
+<p>The other nice thing is that you can say that you can enforce that some environments (or all of them) use the same versions of the common packages.</p>
+</section>
+</section>
+<section id="your-first-project-with-pixi" class="level1">
+<h1><a id="toc2_"></a>Your first project with <code>pixi</code></h1>
+<section id="installation" class="level2">
+<h2 class="anchored" data-anchor-id="installation"><a id="toc2_1_"></a>Installation</h2>
+<p>Start first by installing <code>pixi</code> by grabbing the one command-line that corresponds to your case from here: <a href="https://pixi.sh/latest/installation">Pixi installation</a>.</p>
+<p>It’s really just one command, restart your terminal and there you go.</p>
+</section>
+<section id="getting-hands-on" class="level2">
+<h2 class="anchored" data-anchor-id="getting-hands-on"><a id="toc2_2_"></a>Getting hands-on</h2>
+<section id="initiating-the-project" class="level3">
+<h3 class="anchored" data-anchor-id="initiating-the-project"><a id="toc2_2_1_"></a>Initiating the project</h3>
+<p>We’ll work through an example where we’d like to develop a FastAPI app.</p>
+<p>Let us initiate a pixi project:</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> init fastapi_app <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--format</span> pyproject</span>
+<span id="cb1-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">cd</span> fastapi_app</span></code></pre></div>
+<p>If you already have an existing folder, you can simply go inside of it and execute</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> init <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--format</span> pyproject</span></code></pre></div>
+<p>By default, pixi uses a <code>pixi.toml</code> file for its configuration. As people in python use <code>pyproject.toml</code>, you can specify that you want to use the latter with the <code>--format pyproject</code>.</p>
+<p>The initiation of the project creates the following files:</p>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/Pixi intro/assets/pixi_init_structure.png" alt="pixi init structure">
+</p>
+<p>If you look at the content of the <code>pyproject.toml</code>, you’ll see different sections:</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[project]</span></span>
+<span id="cb3-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">authors</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[{</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Safouane Chergui"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">email</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chsafouane@gmail.com"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}]</span></span>
+<span id="cb3-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi_app"</span></span>
+<span id="cb3-4"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires-python</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&gt;= 3.11"</span></span>
+<span id="cb3-5"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">version</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0.1.0"</span></span>
+<span id="cb3-6"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">dependencies</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi&gt;=0.115.14,&lt;0.116"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn[standard]&gt;=0.35.0,&lt;0.36"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb3-7"></span>
+<span id="cb3-8"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[build-system]</span></span>
+<span id="cb3-9"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">build-backend</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling.build"</span></span>
+<span id="cb3-10"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb3-11"></span>
+<span id="cb3-12"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.workspace]</span></span>
+<span id="cb3-13"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">channels</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"conda-forge"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb3-14"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">platforms</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"win-64"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb3-15"></span>
+<span id="cb3-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.pypi-dependencies]</span></span>
+<span id="cb3-17"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">fastapi_app</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">path</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"."</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">editable</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">true</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span>
+<span id="cb3-18"></span>
+<span id="cb3-19"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.tasks]</span></span></code></pre></div>
+<p>Let us dive into the most important fields:</p>
+<p><strong>The <code>[project]</code> section</strong> includes project metadata. - As we haven’t added a specific python interpreter to the project, the <code>requires-python</code> entry shows the currently active python interpreter in the terminal. You can change it manually if you want.</p>
+<p><strong>The <code>[tool.pixi.workspace]</code> section</strong> has two entries: - The <code>channels</code> shows the conda channels that can be used to download the conda packages.If you have a company repository (like <code>nexus</code>), it can be used instead or added before conda-forge to be used first. - The <code>platforms</code> corresponds to the platform you’re using. You can add other platforms here and the <code>pixi.lock</code> will include the packages that need to be installed to reproduce the exact environment in the case of the additional platforms.</p>
+<p><strong>The <code>[tool.pixi.pypi-dependencies]</code> section</strong> is used to specify the packages to install from PyPI. By default, the code you’re developping shows up as an editable package. Your code will be installed in editable mode and you’ll be able to see the changes you make to your code directly reflected in your environment.</p>
+<p><strong>The <code>[tool.pixi.tasks]</code> section</strong> is empty for the time-being. You can imagine tasks as a replacement of makefiles. We’ll add some tasks later in the blog post.</p>
+</section>
+<section id="adding-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="adding-dependencies"><a id="toc2_2_2_"></a>Adding dependencies</h3>
+<p>Let us add python 3.12 to the project</p>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> add python=3.12</span></code></pre></div>
+<p>As we’re going to create a FastAPI app, let us add fastapi and uvicorn but this time from PyPI.</p>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> add <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--pypi</span> fastapi <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn[standard]"</span></span></code></pre></div>
+<p>Now that we have proceeded with adding these dependencies, we can see that we have a <code>pixi.lock</code> file that was created.</p>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/Pixi intro/assets/pixi_first_installation.png" alt="pixi structure after first installation">
+</p>
+<p>The <code>pyproject.toml</code> file is now updated to include the new dependencies:</p>
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb6-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[project]</span></span>
+<span id="cb6-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">authors</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[{</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Safouane Chergui"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">email</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chsafouane@gmail.com"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}]</span></span>
+<span id="cb6-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi_app"</span></span>
+<span id="cb6-4"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires-python</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&gt;= 3.11"</span></span>
+<span id="cb6-5"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">version</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0.1.0"</span></span>
+<span id="cb6-6"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">dependencies</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi&gt;=0.115.14,&lt;0.116"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn[standard]&gt;=0.35.0,&lt;0.36"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb6-7"></span>
+<span id="cb6-8"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[build-system]</span></span>
+<span id="cb6-9"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">build-backend</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling.build"</span></span>
+<span id="cb6-10"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb6-11"></span>
+<span id="cb6-12"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.workspace]</span></span>
+<span id="cb6-13"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">channels</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"conda-forge"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb6-14"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">platforms</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"win-64"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb6-15"></span>
+<span id="cb6-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.pypi-dependencies]</span></span>
+<span id="cb6-17"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">fastapi_app</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">path</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"."</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">editable</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">true</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span>
+<span id="cb6-18"></span>
+<span id="cb6-19"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.tasks]</span></span>
+<span id="cb6-20"></span>
+<span id="cb6-21"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.dependencies]</span></span>
+<span id="cb6-22"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">python</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"3.12.*"</span></span></code></pre></div>
+<section id="pinning-strategy" class="level4">
+<h4 class="anchored" data-anchor-id="pinning-strategy"><a id="toc2_2_2_1_"></a>Pinning strategy</h4>
+<p>The thing that bothered me the most when I started with <code>pixi</code> is that the pinning of the packages. By default, <code>pixi</code> will use a very strict pinning strategy as you can see with fastapi for example: <code>"fastapi&gt;=0.115.14,&lt;0.116"</code>, even if the user didn’t specify a version when adding fastapi.</p>
+<p>If later you’d like to install a package that is not compatible with the pinned version of fastapi (even though you don’t care about the specific minor version of fastapi shown in the pyproject.toml, or the upper bound constraint), you’ll get an error, and this was frustrating.</p>
+<p><code>pixi</code> developers explain why <a href="https://prefix.dev/blog/the_python_packaging_debate">they chose this strategy</a> and discuss the matter at length in this <a href="https://github.com/prefix-dev/pixi/issues/639">GitHub issue</a>.</p>
+<p>Nonetheless, you can override the pinning strategy by using the <a href="https://pixi.sh/v0.49.0/reference/pixi_configuration/#pinning-strategy">pinning-strategy</a> configuration but we’ll look at pixi’s config file later.</p>
+</section>
+</section>
+<section id="managing-environments-with-features" class="level3">
+<h3 class="anchored" data-anchor-id="managing-environments-with-features"><a id="toc2_2_3_"></a>Managing environments with features</h3>
+<p>One of pixi’s amazing features is being able to manage different sets of dependencies for different purposes (like the example for the run, build, test, etc above) using <code>features</code>. A <code>feature</code> (also called a <code>dependency group</code> is just a named set of dependencies).</p>
+<p>By default, when adding packages, pixi will automatically add packages to the standard group of dependencies. You can add packages to a specific feature by using the <code>--feature</code> flag.</p>
+<p>Let’s say that our core dependencies that are needed for running the app are <code>fastapi</code> and <code>uvicorn</code>. Let us add two families of dependencies (two features): - A <code>test</code> feature that will include <code>pytest</code> &amp; <code>pytest-cov</code></p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> add <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--feature</span> test pytest pytest-cov</span></code></pre></div>
+<ul>
+<li>A <code>dev</code> feature that will include packages needed for development like <code>ruff</code></li>
+</ul>
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> add <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--feature</span> dev ruff</span></code></pre></div>
+<p>When you’ll add this second feature, you’ll get a warning saying that the test feature was added but is not used by any environment and that is ok as we’re going to do it just after.</p>
+<p>Now, if you look at the <code>pyproject.toml</code> file, you’ll see that the dependencies are now grouped by features:</p>
+<div class="sourceCode" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb9-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[project]</span></span>
+<span id="cb9-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">authors</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[{</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Safouane Chergui"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">email</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"chsafouane@gmail.com"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}]</span></span>
+<span id="cb9-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">name</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi_app"</span></span>
+<span id="cb9-4"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires-python</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&gt;= 3.11"</span></span>
+<span id="cb9-5"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">version</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0.1.0"</span></span>
+<span id="cb9-6"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">dependencies</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi&gt;=0.115.14,&lt;0.116"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn[standard]&gt;=0.35.0,&lt;0.36"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb9-7"></span>
+<span id="cb9-8"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[build-system]</span></span>
+<span id="cb9-9"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">build-backend</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling.build"</span></span>
+<span id="cb9-10"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">requires</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hatchling"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb9-11"></span>
+<span id="cb9-12"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.workspace]</span></span>
+<span id="cb9-13"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">channels</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"conda-forge"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb9-14"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">platforms</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"win-64"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb9-15"></span>
+<span id="cb9-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.pypi-dependencies]</span></span>
+<span id="cb9-17"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">fastapi_app</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">path</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"."</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">editable</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">true</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span>
+<span id="cb9-18"></span>
+<span id="cb9-19"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.tasks]</span></span>
+<span id="cb9-20"></span>
+<span id="cb9-21"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.dependencies]</span></span>
+<span id="cb9-22"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">python</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"3.12.*"</span></span>
+<span id="cb9-23"></span>
+<span id="cb9-24"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.feature.test.dependencies]</span></span>
+<span id="cb9-25"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">pytest</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"*"</span></span>
+<span id="cb9-26"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">pytest-cov</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"*"</span></span>
+<span id="cb9-27"></span>
+<span id="cb9-28"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.feature.dev.dependencies]</span></span>
+<span id="cb9-29"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">ruff</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"*"</span></span></code></pre></div>
+<section id="creating-environments-from-dependency-groups-features" class="level4">
+<h4 class="anchored" data-anchor-id="creating-environments-from-dependency-groups-features"><a id="toc2_2_3_1_"></a>Creating environments from dependency groups (features)</h4>
+<p>In pixi, every environment is a collection of features (can be two features or more). The main project dependencies added without any feature like <code>fastapi</code> and <code>uvicorn</code> are added to an implicit default feature and to a default environment. If you execute</p>
+<div class="sourceCode" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> project environment list</span></code></pre></div>
+<p>You’ll see that the default environment is called <code>default</code> and it includes the default feature.</p>
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">Environments:</span></span>
+<span id="cb11-2"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">-</span> default:</span>
+<span id="cb11-3">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">features:</span> default</span></code></pre></div>
+<p>When you create a feature like <code>test</code>, pixi will create an environment from the default feature + the <code>test</code> feature, unless you explicitly say that you don’t want to do so. This means, that by default, the <code>test</code> environment isn’t composed of just the dependencies in the <code>test</code> feature but also the dependencies in the default feature: - All dependencies from the default feature (fastapi, uvicorn) - All dependencies from the <code>test</code> feature (pytest, pytest-cov)</p>
+<p>Before creating the environments, let us tackle one last thing: the <code>solve-groups</code>.</p>
+<p>Imagine having the default environment that includes <code>fastapi</code> and <code>uvicorn</code> and a <code>test</code> environment that includes additionally <code>pytest</code> and <code>pytest-cov</code>. When pixi will resolve the dependencies, the default environment can have different versions of fastapi and uvicorn than the test environment. To force pixi to group both environments together at the solve stage, you need to say that the test environment should be solved together with the default environment by using the <code>--solve-groups</code> flag.</p>
+<p>Here’s the documentation definition of the <code>--solve-groups</code> flag:</p>
+<blockquote class="blockquote">
+<p>solve-group: String: The solve group is used to group environments together at the solve stage. This is useful for environments that need to have the same dependencies but might extend them with additional dependencies. For instance when testing a production environment with additional test dependencies.</p>
+</blockquote>
+<p>Let us create the environments now:</p>
+<p><strong>Test environment:</strong></p>
+<p>We’re saying that we want to create a <code>test_env</code> environment that includes the <code>test</code> feature and that we want to solve it together with the default environment (the one that includes fastapi and uvicorn).</p>
+<div class="sourceCode" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> project environment add fastapi-test-env <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--feature</span> test <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--solve-group</span> default</span></code></pre></div>
+<p><strong>Dev environment:</strong></p>
+<p>We’re saying that we want to create a <code>test_env</code> environment that includes the <code>test</code> feature and that we want to solve it together with the default environment (the one that includes fastapi and uvicorn).</p>
+<div class="sourceCode" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> project environment add fastapi-dev-env <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--feature</span> test <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--feature</span> dev <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--solve-group</span> default</span></code></pre></div>
+<p>Now, if you list the environments, you’ll see that the <code>test_env</code> and <code>dev_env</code> are created and that they include the features we specified:</p>
+<div class="sourceCode" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> project environment list</span>
+<span id="cb14-2"></span>
+<span id="cb14-3"></span>
+<span id="cb14-4"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">Environments:</span></span>
+<span id="cb14-5"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">-</span> default:</span>
+<span id="cb14-6">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">features:</span> default</span>
+<span id="cb14-7"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">-</span> fastapi-test-env:</span>
+<span id="cb14-8">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">features:</span> test, default</span>
+<span id="cb14-9">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">solve_group:</span> default</span>
+<span id="cb14-10"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">-</span> fastapi-dev-env:</span>
+<span id="cb14-11">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">features:</span> test, dev, default</span>
+<span id="cb14-12">    <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">solve_group:</span> default</span></code></pre></div>
+<p>If you look at the <code>pyproject.toml</code> file, you’ll see that you have a new section called <code>[tool.pixi.environments]</code> that includes the environments you created:</p>
+<div class="sourceCode" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb15-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.environments]</span></span>
+<span id="cb15-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">fastapi-test-env</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">features</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">], </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">solve-group</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"default"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span>
+<span id="cb15-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">fastapi-dev-env</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">features</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dev"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">], </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">solve-group</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"default"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span></code></pre></div>
+<p>All of this can be added manually instead to the pyproject.toml but it’s error prone and the pixi CLI is honestly very handy.</p>
+</section>
+<section id="environments-installation" class="level4">
+<h4 class="anchored" data-anchor-id="environments-installation"><a id="toc2_2_3_2_"></a>Environments installation</h4>
+<p>Now, let us create the environments by first install the default environment</p>
+<div class="sourceCode" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> install</span></code></pre></div>
+<p>You can also simply run <code>pixi shell</code> to install the default environment and open a shell in it.</p>
+<p>To install the dev environment, you can run:</p>
+<div class="sourceCode" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> install fastapi-dev-env</span></code></pre></div>
+<p>You can also install all the environments at once using the flag <code>--all</code> to install:</p>
+<div class="sourceCode" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> install <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--all</span></span></code></pre></div>
+<p>Now you can any one of the environment inside the shell by running for example:</p>
+<div class="sourceCode" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> shell fastapi-dev-env</span></code></pre></div>
+</section>
+</section>
+</section>
+</section>
+<section id="tasks" class="level1">
+<h1><a id="toc3_"></a>Tasks</h1>
+<p><code>pixi</code> can be used as a task runner and thus would replace <code>make</code> or <code>just</code>. You can define tasks in the <code>pyproject.toml</code> file under the <code>[tool.pixi.tasks]</code> section.</p>
+<p>You can use the CLI to add the tasks but sometimes I find it easier to write the tasks manually in <code>pyproject.toml</code> specially if they are multiline tasks.</p>
+<p>In the <a href="https://github.com/chsafouane/pixi_tut_chsafouane_github_io">repo</a> provided with this tutorial, you’ll find the files needed (<code>src/main.py</code>) to execute the tasks along with the tutorial.</p>
+<section id="creating-tasks" class="level2">
+<h2 class="anchored" data-anchor-id="creating-tasks"><a id="toc3_1_"></a>Creating tasks</h2>
+<p>To create a task, you can use the <code>pixi task add</code> command and you’ll have to specify two things:</p>
+<ul>
+<li>The task name</li>
+<li>The command to run</li>
+</ul>
+<p>Execute <code>pixi task add --help</code> to see the available options, as you can add for example environment variables or isolate the task from the shell when running (not having access to the shell variables for example) among other things.</p>
+<p>Let us create a task to start a uvicorn server with hot reloading. The task will have as a name <strong>start</strong>. The command will add the task to the <code>pyproject.toml</code> file under the <code>[tool.pixi.tasks]</code> section.</p>
+<div class="sourceCode" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> task add start <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span></code></pre></div>
+<p>Let us also add a linting task that uses <code>ruff</code></p>
+<div class="sourceCode" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> task add lint <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ruff check src --fix"</span></span></code></pre></div>
+<p>If you look now at the <code>pyproject.toml</code> file, you’ll see that the tasks are added under the <code>[tool.pixi.tasks]</code> section:</p>
+<div class="sourceCode" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb22-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.tasks]</span></span>
+<span id="cb22-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">start</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span>
+<span id="cb22-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">lint</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">task</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ruff check src --fix"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">environment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi-dev-env"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span></code></pre></div>
+<section id="running-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="running-tasks"><a id="toc3_1_1_"></a>Running tasks</h3>
+<p>To run the linting task in the dev environment, you can run:</p>
+<div class="sourceCode" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> run <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-e</span> fastapi-dev-env lint</span></code></pre></div>
+<p>You’ll get the following output:</p>
+<div class="sourceCode" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">Pixi</span> task <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">(</span><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">lint</span> in fastapi-dev-env<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">:</span> ruff check src <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--fix</span></span>
+<span id="cb24-2"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">All</span> checks passed!</span></code></pre></div>
+<p>Now, you can specify in the pyproject.toml the default environment in which the task should run but I haven’t found a way to do it through the CLI yet.</p>
+<div class="sourceCode" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb25-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.tasks]</span></span>
+<span id="cb25-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">start</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uvicorn my_app.main:app --reload --host 0.0.0.0"</span></span>
+<span id="cb25-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">lint</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">task</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ruff check src --fix"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">environment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fastapi-dev-env"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> }</span></span></code></pre></div>
+<p>As I can’t go through everything you can do with tasks, I’ll just list the things that I find useful but you can find more in the <a href="https://pixi.sh/latest/workspace/advanced_tasks/">pixi documentation</a>:</p>
+<ul>
+<li>You can create a task that is composed of many tasks using the <code>dependes-on</code> field. that for example executes the linting task and then runs the app</li>
+<li>You can create a tasks that runs the same task in multiple environments. If for example you’d like to test your code against multiple python versions, you can create a task that runs the same task in environments with different python versions (instead of using matrices of environments in CI/CD). Here an example from pixi’s documentation:</li>
+</ul>
+<div class="sourceCode" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Task that depends on other tasks in different environments</span></span>
+<span id="cb26-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tasks.test-all]</span></span>
+<span id="cb26-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">depends-on</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span></span>
+<span id="cb26-4">  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">task</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">environment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"py311"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> },</span></span>
+<span id="cb26-5">  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{ </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">task</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">, </span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">environment</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"py312"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> },</span></span>
+<span id="cb26-6"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span></code></pre></div>
+<ul>
+<li>You can add environment variables or isolate the task when running from the shell (and thus not having access to the shell variables).</li>
+<li>If a task depends on another task, you can cache the result of the first task and use it in the second task. Pixi won’t rerun the first task after doing some verifications that can be found in the <a href="https://pixi.sh/latest/workspace/advanced_tasks/#caching">documentation</a>.</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="pixis-configuration" class="level1">
+<h1><a id="toc4_"></a>Pixi’s configuration</h1>
+<section id="why-another-config-file" class="level2">
+<h2 class="anchored" data-anchor-id="why-another-config-file"><a id="toc4_1_"></a>Why another config file ?</h2>
+<p>The <code>pyproject.toml</code> (or the <code>pixi.toml</code>) file reprensents the configuration of the pixi project. It includes the project metadata, the dependencies, the environments, the tasks, etc.</p>
+<p>There is additional configuration that is not required for the project per say but in a way changes the behavior you would place in a <code>config.toml</code> file.</p>
+<p>You can set this config at one of three levels: - locally: in this case, the configuration will be stored <code>your_project/.pixi/config.toml</code> and will impact only the current project. - globally: in this case, the configuration will be stored in <code>$PIXI_HOME/config.toml</code> and will impact all the projects using pixi. - system-wide: in this case, the configuration will be stored in <code>/etc/pixi/config.toml</code> and will impact all the projects using pixi.</p>
+<p>You can also use the <code>pixi config set &lt;some_config_key&gt; &lt;some_config_value&gt;</code> command to set the configuration. While I will show you right away the keys that I find useful, you can find the full list of configuration keys as of version 0.49 that you can set:</p>
+<div class="sourceCode" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span> Supported keys:</span>
+<span id="cb27-2">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     default-channels,</span>
+<span id="cb27-3">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     authentication-override-file,</span>
+<span id="cb27-4">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     tls-no-verify,</span>
+<span id="cb27-5">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     mirrors,</span>
+<span id="cb27-6">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     detached-environments,</span>
+<span id="cb27-7">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     pinning-strategy,</span>
+<span id="cb27-8">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     max-concurrent-solves,</span>
+<span id="cb27-9">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     repodata-config,</span>
+<span id="cb27-10">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     repodata-config.disable-jlap,</span>
+<span id="cb27-11">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     repodata-config.disable-bzip2,</span>
+<span id="cb27-12">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     repodata-config.disable-zstd,</span>
+<span id="cb27-13">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     repodata-config.disable-sharded,</span>
+<span id="cb27-14">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     pypi-config,</span>
+<span id="cb27-15">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     pypi-config.index-url,</span>
+<span id="cb27-16">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     pypi-config.extra-index-urls,</span>
+<span id="cb27-17">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     pypi-config.keyring-provider,</span>
+<span id="cb27-18">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     shell,</span>
+<span id="cb27-19">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     shell.force-activate,</span>
+<span id="cb27-20">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     shell.source-completion-scripts,</span>
+<span id="cb27-21">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     shell.change-ps1,</span>
+<span id="cb27-22">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     s3-options,</span>
+<span id="cb27-23">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     s3-options.<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span>bucket<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span>,</span>
+<span id="cb27-24">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     s3-options.<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span>bucket<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span>.endpoint-url,</span>
+<span id="cb27-25">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     s3-options.<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span>bucket<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span>.region,</span>
+<span id="cb27-26">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     s3-options.<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span>bucket<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span>.force-path-style,</span>
+<span id="cb27-27">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     experimental.use-environment-activation-cache,</span>
+<span id="cb27-28">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     proxy-config,</span>
+<span id="cb27-29">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     proxy-config.https,</span>
+<span id="cb27-30">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     proxy-config.http,</span>
+<span id="cb27-31">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     proxy-config.non-proxy-hosts</span></code></pre></div>
+</section>
+<section id="useful-keys" class="level2">
+<h2 class="anchored" data-anchor-id="useful-keys"><a id="toc4_2_"></a>Useful keys</h2>
+<section id="using-private-conda-pypi-repositories" class="level3">
+<h3 class="anchored" data-anchor-id="using-private-conda-pypi-repositories"><a id="toc4_2_1_"></a>Using private conda &amp; PyPI repositories</h3>
+<p>Some of my very security-oriented customers usually have their own conda and pip repositories (like <code>nexus</code>) and oblige everyone to use them as they only include packages that are approved by the security team.</p>
+<p>For this, I use <code>pypi-config.index-url</code> and <code>pypi-config.extra-index-urls</code> to specify the index URL and the extra index URLs to use for PyPI packages.</p>
+<div class="sourceCode" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> config set pypi-config.index-url https://nexus.some_random_company.com/pypi/simple</span></code></pre></div>
+<p>Looking at the documentation, these can also be added to the <code>pyproject.toml</code> file under the <code>[tool.pixi.pypi-options]</code> section but I’ve never added them here.</p>
+<div class="sourceCode" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb29-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.pypi-options]</span></span>
+<span id="cb29-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Public packages will be sourced from the official PyPI</span></span>
+<span id="cb29-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">index-url</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://nexus.some_random_company.com/pypi/simple"</span></span>
+<span id="cb29-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Internal packages will be searched for here first</span></span>
+<span id="cb29-5"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">extra-index-urls</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://nexus.some_additional_random_company.com/pypi/simple"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span></code></pre></div>
+<p>For conda, I add the channels to the channels entry under the <code>[tool.pixi.workspace]</code> section in the <code>pyproject.toml</code> file:</p>
+<div class="sourceCode" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb30-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">[tool.pixi.workspace]</span></span>
+<span id="cb30-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">channels</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span></span>
+<span id="cb30-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://nexus.some_random_company.com/conda-forge"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">,</span> </span>
+<span id="cb30-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://nexus.some_random_company_second.com/conda-forge"</span></span>
+<span id="cb30-5"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb30-6"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">platforms</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">[</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"win-64"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">]</span></span></code></pre></div>
+<p>If you need to manage credentials for private repositories, you can check <code>pixi auth login</code>.</p>
+</section>
+<section id="pinning-strategy-1" class="level3">
+<h3 class="anchored" data-anchor-id="pinning-strategy-1"><a id="toc4_2_2_"></a>Pinning strategy</h3>
+<p>The other key that I find useful is the <code>pinning-strategy</code> key. As I said before, by default, pixi uses a very strict pinning strategy that can be annoying at times. You can change it to one of the strategies listed in the <a href="https://pixi.sh/dev/reference/pixi_configuration/#pinning-strategy">documentation</a>.</p>
+<p>Personally, I like to pin to the major version using:</p>
+<div class="sourceCode" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">pixi</span> config set pinning-strategy major</span></code></pre></div>
+<p>This might not be a very good practice as you can see <a href="https://prefix.dev/blog/the_python_packaging_debate">here</a> but it works just fine for my needs.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1><a id="toc5_"></a>Conclusion</h1>
+<p>Well, that was quire a ride. I hope you enjoyed it and that you learned something new.</p>
+<p>My advice to you is to start using pixi in your personal projects. At first, there is going to be a slight learning curve but once you get used to it, you’ll find it extremely fast and convenient to use.</p>
+<p>If you have any questions, feel free to reach out to me on <a href="https://www.linkedin.com/in/safouane-chergui/">my linkedin</a>.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>Package management</category>
+  <guid>https://chsafouane.github.io/posts/Pixi intro/Why I ditched conda and pip for Pixi.html</guid>
+  <pubDate>Fri, 04 Jul 2025 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>LLM Evals: What Actually Works</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.</p>
+<p>I’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
+<p>If you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.</p>
+<br><br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/LLM evaluation/assets/front_image.jpg" width="80%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br></p>
+<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
+<p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
+</section>
+<section id="lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
+<h1>Lesson 1: I don’t have any data to test my application, where do I start ?</h1>
+<p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
+<p><strong>Sub-lesson 1: Vibe checks don’t work</strong></p>
+<p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 4: Real data is better than synthetic data</strong></p>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>LLM</category>
+  <category>AI</category>
+  <guid>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</guid>
+  <pubDate>Mon, 18 Nov 2024 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Byte Pair Encoding Tokenization</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.</p>
+<p>We’re not going to go into the gory details of it. If you’d like a great source for the details of tokenization, watch this 2-hour long <a href="https://www.youtube.com/watch?v=zduSFxRajkE">video by the amazing Andrej Karpathy</a>. Everything in this post comes from Andrej’s video or the resources he shared in his video.</p>
+<p><strong>Table of contents</strong><a id="toc0_"></a><br>
+- Hexadecimal representation<br>
+- UTF-8 encoding<br>
+- Some Unicode vocab<br>
+- WTF is UTF-8 ?<br>
+- A sentence example<br>
+- BPE Tokenization<br>
+- BPE in action<br>
+- How does it work<br>
+- Let us build a BPE tokenizer<br>
+- Encoding<br>
+- Decoding<br>
+- One last problem to solve<br>
+- One final example</p>
+<!-- vscode-jupyter-toc-config
+    numbering=false
+    anchor=true
+    flat=false
+    minLevel=1
+    maxLevel=6
+    /vscode-jupyter-toc-config -->
+<!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
+<section id="hexadecimal-representation" class="level2">
+<h2 class="anchored" data-anchor-id="hexadecimal-representation"><a id="toc1_1_"></a>Hexadecimal representation</h2>
+<p>Let go for a quick tour of hexadecimal representation. We, as humans, usually represent numbers in base 10. Computers make use of base 2 representation.</p>
+<p>Hexadecimal representation means representing a number in base 16. Numbers are represented using 0 to 9 and A-F, with A being equivalent to 10, B to 11, …, F to 15.</p>
+<p>The number 125 can be written in hexadecimal as 7D.</p>
+<div id="cell-5" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># d * (16**0) + 7 * (16**1) = 13 + 7 * 16</span></span>
+<span id="cb1-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">125</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>'0x7d'</code></pre>
+</div>
+</div>
+<p>Now, a byte is represented with 8 bits, with a range going from 00000000 to 11111111 &lt;-&gt; 0 to 255 in decimal &lt;-&gt; 00 to FF in hexadecimal</p>
+<div id="cell-7" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0xff</code></pre>
+</div>
+</div>
+<p><em>Note:</em> The prefix <code>0x</code> is used in intergers to tell Python to interpret the number as a hexadecimal. For example:</p>
+<div id="cell-9" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Python understands that this number is represented in hexadecimal</span></span>
+<span id="cb5-2">hex_number <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bn" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0xff</span></span>
+<span id="cb5-3"></span>
+<span id="cb5-4"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(hex_number)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>255</code></pre>
+</div>
+</div>
+</section>
+<section id="utf-8-encoding" class="level2">
+<h2 class="anchored" data-anchor-id="utf-8-encoding"><a id="toc1_2_"></a>UTF-8 encoding</h2>
+<p>Little background about UTF-8 encoding. So, UTF-8 is an encoding that represents Unicode characters using 1 to 4 bytes. So, every string is converted to a series of bytes once encoded using a Unicode encoding (such as UTF-8).</p>
+<section id="some-unicode-vocab" class="level3">
+<h3 class="anchored" data-anchor-id="some-unicode-vocab"><a id="toc1_2_1_"></a>Some Unicode vocab</h3>
+<p>You should know at least these two words when dealing with Unicode: <strong>character</strong> and <strong>code point</strong>: - A character is a textual unit in Unicode. It can be anything ranging from a letter, a digit, an emoji, a mathematical symbol, etc.</p>
+<div id="cell-11" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">character <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span></span>
+<span id="cb7-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Character: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>character<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb7-3"></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># First letter of my name in Arabic</span></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># You might think of it as S</span></span>
+<span id="cb7-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Arabic speakers, don't insult me for this analogy </span></span>
+<span id="cb7-7">arabic_s_character <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ص"</span></span>
+<span id="cb7-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Arabic character: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>arabic_s_character<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Character: A
+Arabic character: ص</code></pre>
+</div>
+</div>
+<ul>
+<li>A code point is a unique number assigned to each character in Unicode. You can obtain it in Python using the <code>ord</code> function.</li>
+</ul>
+<div id="cell-13" class="cell" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">A_code_point <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">ord</span>(character)</span>
+<span id="cb9-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The character </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>character<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> has as a code point </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>A_code_point<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> in decimal, which corresponds to </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(A_code_point)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> in hexadecimal"</span>)</span>
+<span id="cb9-3"></span>
+<span id="cb9-4">arabic_s_code_point <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">ord</span>(arabic_s_character)</span>
+<span id="cb9-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The character </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>arabic_s_character<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> has as a code point </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>arabic_s_code_point<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> in decimal, which corresponds to </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(arabic_s_code_point)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> in hexadecimal"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The character A has as a code point 65 in decimal, which corresponds to 0x41 in hexadecimal
+The character ص has as a code point 1589 in decimal, which corresponds to 0x635 in hexadecimal</code></pre>
+</div>
+</div>
+<p><em>Nice to know:</em> - Use <code>ord</code> to go from a character -&gt; a code point - Use <code>chr</code> to go from a code point -&gt; a character</p>
+<p>At this step, I highly advise you to take a look at the start of the <a href="https://symbl.cc/en/unicode-table/">Unicode Character Table</a>.</p>
+<p>If you look at this table, you’ll see that the character <code>ص</code> doesn’t have <code>1589</code> as a code point, it rather has <code>U+0635</code>. These are the same number, it’s just that Unicode uses the hexadecimal notation for code points instead of the decimal one.</p>
+</section>
+<section id="wtf-is-utf-8" class="level3">
+<h3 class="anchored" data-anchor-id="wtf-is-utf-8"><a id="toc1_2_2_"></a>WTF is UTF-8 ?</h3>
+<p>So, UTF-8 is a Unicode encoding method. It encodes code points in 1 to 4 bytes (it is a variable-length encoding, not all code points are encoded as 4 bytes as this will consume so much memory!).</p>
+<p>Other encoding methods such as UTF-16 and UTF-32 exist but they do things differently than UTF-8. UTF-8 is the most used encoding method in the wild for reasons that I won’t go into in this post.</p>
+<p>Now, the thing is that UTF-8 encoding doesn’t just convert the Unicode code point to its binary presentation. It does it in a specific way. The following table from wikipedia explains very well the conversion from code points to UTF8-encoding.</p>
+<p>This table shows four ranges, the 1st range is encoded using 1 byte only, the second one 2 bytes, etc. Each range has its own norm for encoding code points using UTF-8.</p>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/Byte Pair Encoding Tokenization/assets/utf8_table.png">
+</p>
+<p><strong>Character ص example</strong>:</p>
+<p>The character <code>ص</code> code point is <code>U+0635</code> (1589 in decimal). If you try to represent this using binary presentation, it doesn’t fit into 1 byte, you’ll need to use 2 bytes.</p>
+<p>Using 2 bytes, it yields the following <code>00000110 00110101</code>. Now, UTF-8 doesn’t use conversion to bytes to encode code points. It has its own rules to do the encoding.</p>
+<p>Now, if you look at the table, you see that <code>U+0635</code> falls between the range of <code>U+0080</code> and <code>U+07FF</code>. So, we have to use the rule in the second row to encode it using UTF-8.</p>
+<p>The way to do this is to fill the <code>x</code> with the numbers in the binary representation starting from the right (copy-paste digit from the binary representation starting from the right): - Before filling: [110]xxxxx [10]xxxxxx - After filling: [110]11000 [10]110101. In hexadecimal, this yields <code>d8 b5</code>.</p>
+<div id="cell-21" class="cell" data-execution_count="70">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The byte 11011000 yields in hexadecimal: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(<span class="bn" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0b11011000</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb11-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The byte 10110101 yields in hexadecimal: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hex</span>(<span class="bn" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0b10110101</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The byte 11011000 yields in hexadecimal: 0xd8
+The byte 10110101 yields in hexadecimal: 0xb5</code></pre>
+</div>
+</div>
+<p>Now, this should match the result of the UTF-8 encoding of the character <code>ص</code> using Python</p>
+<div id="cell-23" class="cell" data-execution_count="71">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"ص"</span>.encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"utf-8"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="71">
+<pre><code>b'\xd8\xb5'</code></pre>
+</div>
+</div>
+<p>The same rule can be applied to all the 4 ranges in order to go from a code point to its UTF-8 encoding.</p>
+<p>At this step, I suggest you pick some characters from the unicode table page I’ve given you above and do the encoding manually.</p>
+<p><strong>Note</strong>: There is something that you should note at this step: - Unicode allows us to go from a character to a code point - The UTF-8 encoding (which is one of Unicode available encodings) allows us to go from a code point to a 1 to 4 bytes representation, depending on the character.</p>
+<p>This yields the following trajectory: <code>Unicode character</code> &lt;-&gt; <code>Code point</code> -&gt; <code>1 to 4 bytes representation</code>.</p>
+<p>Now, if you take any 1 to 4 bytes number, it doesn’t always map to a code point as it might not respect the rules specified in the wikipedia table above. For example, <code>11111111</code> (255 in decimal) corresponds to 1 byte but it’s not a valid unicode encoding. This is because the rule specifies that all 1-byte encoded characters should start with a <code>0</code> and not a <code>1</code>.</p>
+</section>
+<section id="a-sentence-example" class="level3">
+<h3 class="anchored" data-anchor-id="a-sentence-example"><a id="toc1_2_3_"></a>A sentence example</h3>
+<p>Let us now encode a whole sentence and see the result: <code>Hello there صفوان</code></p>
+<div id="cell-28" class="cell" data-execution_count="73">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1">ex_sentence <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hello there صفوان"</span></span>
+<span id="cb15-2"></span>
+<span id="cb15-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The UTF-8 encoding of the sentence '</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>ex_sentence<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">' is: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>ex_sentence<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'UTF-8'</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The UTF-8 encoding of the sentence 'Hello there صفوان' is: b'Hello there \xd8\xb5\xd9\x81\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
+</div>
+</div>
+<p>I hope you at least recognize the UTF-8 encoding of the character <code>ص</code>: <code>\xd8\xb5</code></p>
+<p>A question that might come to your mind upong seeing the result is why the hell we have characters like <code>H</code> in a bytes representation. This is something that has to do with the display of bytes in Python.</p>
+<p>Python uses a mixed representation of bytes for readability: - ASCII characters, even when encoded as bytes, are displayed in their readable form - Non-ASCII characters, when encoded as bytes, are displayed in hexadecimal format</p>
+<p>It’s just a displaying matter !</p>
+</section>
+</section>
+<section id="bpe-tokenization" class="level2">
+<h2 class="anchored" data-anchor-id="bpe-tokenization"><a id="toc1_3_"></a>BPE Tokenization</h2>
+<p>In order to feed data to a model, we have to first convert it to numerical data. The process for NLP models looks as follow:</p>
+<p align="center">
+Text —&gt; Tokenizer —&gt; Numerical ids (tokens) —&gt; NLP model —&gt; Prediction
+</p>
+<p>Now, if you look at the definition of <code>str</code> in Python, it’s defined as follows:</p>
+<pre><code>Textual data in Python is handled with str objects, or strings. Strings are immutable sequences of Unicode code points</code></pre>
+<p>From this definition, you can decide to just map every unicode character to its code point. For e.g, <code>ص</code> will be mapped to <code>1589</code>. Using this technique will yield a vocabulary of almost 150 000 tokens.</p>
+<p>The problem with this is: - Your vocabulary will be big. This means that your model will have embedding layers of 150 000 * size_of_your_embeddding - With that many characters, it’s very likely that your model training dataset won’t contain many of them that often, if not at all. If your model gets to see <code>ص</code> very few times, its embedding will be very ill trained. At the end of training, its embedding will be very close to its random initialization state and would be of no use at all. - As your input sentence will be divided in unique characters, a simple sentence will consume lots of tokens in your input context. This means that: - At inference, you’ll have to make predictions for every character - Your sentence will take so much memory because even a simple sentence will be long, many embeddings used and calculations will have to be made over all those embeddings - Simple text will consume so much of the model context size</p>
+<p>Let look at this famous sentence <code>The quick brown fox jumps over the lazy dog</code>. If every character is considered a token, it will consist of 28 different tokens</p>
+<div id="cell-32" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1">example_sentence<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The quick brown fox jumps over the lazy dog"</span></span>
+<span id="cb18-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Number of tokens in </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>example_sentence<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> is: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">set</span>([e <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> e <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> example_sentence]))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of tokens in The quick brown fox jumps over the lazy dog is: 28</code></pre>
+</div>
+</div>
+<p>If we use GPT-4o tokenizer that is a BPE tokenizer itself, let us see how many tokenizer we get:</p>
+<div id="cell-34" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> tiktoken</span>
+<span id="cb20-2"></span>
+<span id="cb20-3">tokenizer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tiktoken.get_encoding(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"o200k_base"</span>)</span>
+<span id="cb20-4">encoded_input <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tokenizer.encode(example_sentence)</span>
+<span id="cb20-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Number of tokens in </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>example_sentence<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> with GPT-4o tokenizer is: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(encoded_input)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of tokens in The quick brown fox jumps over the lazy dog with GPT-4o tokenizer is: 9</code></pre>
+</div>
+</div>
+<p>When we look at the tokens resulting from GPT-4o tokenizer, we get to see that every word is a token in this case.</p>
+<div id="cell-36" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> encoded_input:</span>
+<span id="cb22-2">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The token with id </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>token<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> represents </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>tokenizer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>decode_single_token_bytes(token)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The token with id 976 represents b'The'
+The token with id 4853 represents b' quick'
+The token with id 19705 represents b' brown'
+The token with id 68347 represents b' fox'
+The token with id 65613 represents b' jumps'
+The token with id 1072 represents b' over'
+The token with id 290 represents b' the'
+The token with id 29082 represents b' lazy'
+The token with id 6446 represents b' dog'</code></pre>
+</div>
+</div>
+<p>If you’d like to play with different tokenizers, visit this page: https://tiktokenizer.vercel.app/, select the tokenizer and get going!</p>
+<section id="bpe-in-action" class="level3">
+<h3 class="anchored" data-anchor-id="bpe-in-action"><a id="toc1_3_1_"></a>BPE in action</h3>
+<p>For this, you’ll need to install <code>tiktoken</code> package using <code>pip install tiktoken</code>.</p>
+<div id="cell-39" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> tiktoken</span>
+<span id="cb24-2"></span>
+<span id="cb24-3">tokenizer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tiktoken.get_encoding(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"o200k_base"</span>)</span></code></pre></div>
+</div>
+<div id="cell-40" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1">input_str <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"My name is صفوان"</span></span>
+<span id="cb25-2">encoded_input <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tokenizer.encode(input_str)</span>
+<span id="cb25-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The result of tokenization consists of </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(encoded_input)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> tokens: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>encoded_input<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The result of tokenization consists of 5 tokens: [5444, 1308, 382, 37315, 10878]</code></pre>
+</div>
+</div>
+<p>Let us decode each one of these tokens and see what they consist of:</p>
+<div id="cell-42" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> encoded_input:</span>
+<span id="cb27-2">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The token with id </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>token<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> represents </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>tokenizer<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>decode_single_token_bytes(token)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The token with id 5444 represents b'My'
+The token with id 1308 represents b' name'
+The token with id 382 represents b' is'
+The token with id 37315 represents b' \xd8\xb5\xd9\x81'
+The token with id 10878 represents b'\xd9\x88\xd8\xa7\xd9\x86'</code></pre>
+</div>
+</div>
+<p>I hope you recognize, in the 4th print statement, the hexadecimal representation of the character <code>ص</code> We can see that the fourth</p>
+<div id="cell-44" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1">[tokenizer.decode_single_token_bytes(x) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> encoded_input]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>[b'My', b' name', b' is', b' \xd8\xb5\xd9\x81', b'\xd9\x88\xd8\xa7\xd9\x86']</code></pre>
+</div>
+</div>
+<p>Let us decode that fourth element and see what it consists of:</p>
+<div id="cell-46" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1">tokenizer.decode_single_token_bytes(encoded_input[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]).decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"utf-8"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>' صف'</code></pre>
+</div>
+</div>
+<p>We can see that this token consists of 3 unicode characters: - The space character - <code>ص</code>, the character with the code point <code>U+0635</code>, whose UTF-8 encoding is <code>d8 b5</code> - <code>ف</code>, the character with the code point <code>U</code>, whose UTF-8 encoding is <code>d9 81</code></p>
+</section>
+<section id="how-does-it-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-it-work"><a id="toc1_3_2_"></a>How does it work</h3>
+<p>As you might have guessed from its name, the Byte Pair Encoding mechanism does mainly two things to tokenize your data: - It represents strings as streams of bytes. Now, if you represent your data using only bytes, as a character usually consists of many bytes, that will be worse than using unicode code points as tokenized strings will be very very long. A byte can go only from 0 to 255.</p>
+<ul>
+<li>When some pair of bytes are so common in the corpus, it’s going to merge them going forward and assign a new id to them. So, in the example of the token ’ صف’, GPT-4 tokenizer has decided to merge the bytes that these two arabic characters consist of, meaning these four bytes:
+<ul>
+<li>space character (20 in hex, 32 in decimal)</li>
+<li>d8 (216 in decimal)</li>
+<li>b5 (181 in decimal)</li>
+<li>d9 (217 in decimal)</li>
+<li>81 (129 in decimal)</li>
+</ul></li>
+</ul>
+<p>and assigned to the whole token <code>'  صف'</code> the id <code>37315</code>.</p>
+<p>Of course, the vocabulary identified by tokenizers can’t just grow indefinitly. otherwise, your model embedding table will also be huge and the model will be practically unusable. That’s why BPE tokenizers have a hyperparameter that specifies the number of merges that can be done when training.</p>
+<p><strong>A quick recap:</strong> When training a tokenizer, convert string to bytes. The result will consist of numbers going from 0 to 255. Merge bytes that come-up together so often and assign an id to them.</p>
+</section>
+<section id="let-us-build-a-bpe-tokenizer" class="level3">
+<h3 class="anchored" data-anchor-id="let-us-build-a-bpe-tokenizer"><a id="toc1_3_3_"></a>Let us build a BPE tokenizer</h3>
+<section id="encoding" class="level4">
+<h4 class="anchored" data-anchor-id="encoding"><a id="toc1_3_3_1_"></a>Encoding</h4>
+<p>So, we basically need to do three things to build our tokenizer: - Define our basic vocab that we’ll grow as we merge the most common pair of bytes - Convert our corpus to a stream of bytes (just encoding it using UTF-8) - Do the following <code>number_of_merges</code> times: - Get the most common pair of bytes - Merge the two pairs in a new id. Everytime the tokenizer will see the two pairs together, it will map them to the new ID.</p>
+<p>So, our starting vocab is just the 1 byte interval (0 to 255), and as we merge the most common, we’ll append new ids corresponding to the merged bytes.</p>
+<div id="cell-52" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1">vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {i:i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>)}</span></code></pre></div>
+</div>
+<p>As stated before, the first step is to convert our corpus to a stream of bytes by encoding using UTF-8.</p>
+<p>Let us start with a very basic training corpus, it will make testing our functions very easy. Later, we’ll use a corpus consisting of many languages.</p>
+<div id="cell-55" class="cell" data-execution_count="131">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1">corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hello Hello Hello my name is Safouane and I am the author of this post"</span></span></code></pre></div>
+</div>
+<div id="cell-56" class="cell" data-execution_count="132">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1">encoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> corpus.encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTF-8"</span>)</span></code></pre></div>
+</div>
+<p>As we want to use bytes using the decimal representation (0-255) instead of hexadecimal (0x00 - 0xFF) (the default after encoding with UTF-8) for readability purposes, we’ll do the conversion right away</p>
+<div id="cell-58" class="cell" data-execution_count="133">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1">encoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(x) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> encoded_corpus]</span>
+<span id="cb36-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(encoded_corpus[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[72, 101, 108, 108, 111, 32, 72, 101, 108, 108]</code></pre>
+</div>
+</div>
+<p>Let build a function that returns the most common pair of bytes in the whole corpus</p>
+<div id="cell-60" class="cell" data-execution_count="134">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> collections <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Counter</span>
+<span id="cb38-2"></span>
+<span id="cb38-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> get_most_common_pair(encoded_corpus: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>:</span>
+<span id="cb38-4">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Returns a tuple of the most common pair of bytes in a corpus.</span></span>
+<span id="cb38-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb38-6">    most_common_pair_and_count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Counter(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>(encoded_corpus[:<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>], encoded_corpus[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:])).most_common(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb38-7">    most_common_pair <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> most_common_pair_and_count[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb38-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> most_common_pair</span></code></pre></div>
+</div>
+<p>Let us see what’s the most common pair of bytes in this corpus</p>
+<div id="cell-62" class="cell" data-execution_count="135">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1">most_common_pair <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> get_most_common_pair(encoded_corpus)</span>
+<span id="cb39-2"></span>
+<span id="cb39-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The most common pair is </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>most_common_pair<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">. </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>most_common_pair[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> corresponds to </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">chr</span>(most_common_pair[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> and </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>most_common_pair[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> corresponds to </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">chr</span>(most_common_pair[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The most common pair is (72, 101). 72 corresponds to H and 101 corresponds to e</code></pre>
+</div>
+</div>
+<p>Let us write a function that takes the encoded corpus, the vocabulary, the pair of ids to merge and: - Updates the vocabulary by adding the new id that replaces the occurence of the pair of the ids to merge - Updates the corpus by replacing the occurence of the pair of ids with the new id</p>
+<div id="cell-64" class="cell" data-execution_count="136">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> merge_and_update_corpus_and_vocab(encoded_corpus, vocab, pair_to_merge):</span>
+<span id="cb41-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Updates the vocab with the new pair of ids to merge</span></span>
+<span id="cb41-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    &amp; updates the corpus to use the new id instead of the pair of bytes</span></span>
+<span id="cb41-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb41-5">    updated_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb41-6">    updated_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> vocab.copy()</span>
+<span id="cb41-7"></span>
+<span id="cb41-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add id for merged pair in vocab</span></span>
+<span id="cb41-9">    pair_new_id <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(vocab.keys()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb41-10">    updated_vocab[pair_new_id] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pair_to_merge</span>
+<span id="cb41-11"></span>
+<span id="cb41-12">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Update corpus to use the new id instead of the couple the pair of ids</span></span>
+<span id="cb41-13">    i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb41-14"></span>
+<span id="cb41-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">while</span> i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(encoded_corpus):</span>
+<span id="cb41-16">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> (i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(encoded_corpus) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> encoded_corpus[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> pair_to_merge[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>] <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> encoded_corpus[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> pair_to_merge[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]:</span>
+<span id="cb41-17">            updated_corpus.append(pair_new_id)</span>
+<span id="cb41-18">            i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb41-19">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb41-20">            updated_corpus.append(encoded_corpus[i])</span>
+<span id="cb41-21">            i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb41-22">    </span>
+<span id="cb41-23">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> updated_corpus, updated_vocab</span></code></pre></div>
+</div>
+<p>Let us merge now the most common pair of bytes and create one id out of it. The successive 101,32 will be turned into 256.</p>
+<div id="cell-66" class="cell" data-execution_count="137">
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1">updated_corpus_ex, updated_vocab_example <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> merge_and_update_corpus_and_vocab(</span>
+<span id="cb42-2">    encoded_corpus, </span>
+<span id="cb42-3">    vocab,</span>
+<span id="cb42-4">    get_most_common_pair(encoded_corpus)    </span>
+<span id="cb42-5">)</span></code></pre></div>
+</div>
+<p>We can see the presence of a new token id in the corpus: <code>256</code></p>
+<div id="cell-68" class="cell" data-execution_count="139">
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(updated_corpus_ex[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[256, 108, 108, 111, 32, 256, 108, 108, 111, 32]</code></pre>
+</div>
+</div>
+<p>When we check the vocab to see to what it corresponds, we see that it’s a merge of two ids: <code>72</code> and <code>101</code>.</p>
+<div id="cell-70" class="cell" data-execution_count="140">
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(updated_vocab_example[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(72, 101)</code></pre>
+</div>
+</div>
+<p>We’ve seen how merging works. Now, we have to apply this merging a <code>number_of_merges</code> times. What you should keep in mind is the following: - You vocab will grow with the number of merges you apply. Say you apply 10 merges, your vocab will go from 256 ids to 266 ids. - The bigger your vocab gets, the bigger your embedding table (whose size corresponds to number of tokens in the vocab * size of embedding) will grow. - Merging indefinitly is not a good idea. The different ids in your vocab will not come up often as tokens in the training corpus of your model. Consequently, some tokens will have random embeddings - Having merged tokens allows you to make good use of your context size as your tokens will can even represent complete words at times</p>
+<div id="cell-72" class="cell" data-execution_count="141">
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>):</span>
+<span id="cb47-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(number_of_merges):</span>
+<span id="cb47-3">        most_common_pair <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> get_most_common_pair(corpus)</span>
+<span id="cb47-4">        corpus, vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> merge_and_update_corpus_and_vocab(corpus, vocab, most_common_pair)</span>
+<span id="cb47-5">    </span>
+<span id="cb47-6">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> corpus, vocab</span></code></pre></div>
+</div>
+<div id="cell-73" class="cell" data-execution_count="142">
+<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1">three_merges_corpus, three_merges_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> merge_iteratively(encoded_corpus, vocab, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb48-2"></span>
+<span id="cb48-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"A glimpse at the start of new corpus: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>three_merges_corpus[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb48-4"></span>
+<span id="cb48-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The merged ids: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>[three_merges_vocab[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> x] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A glimpse at the start of new corpus: [258, 111, 32, 258, 111, 32, 258, 111, 32, 109]
+The merged ids: [(72, 101), (256, 108), (257, 108)]</code></pre>
+</div>
+</div>
+<p>Now, the <code>merge_iteratively</code> function if it’s out of pairs that occur more than once, it will start merging pairs that occur only once. This is not a desired behavior.</p>
+<p>This can be handled easily by returning the count of the number of occurences as well in <code>get_most_common_pair</code> and checking that it’s greater than 1 to proceed to merging.</p>
+<div id="cell-75" class="cell" data-execution_count="143">
+<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> get_most_common_pair(encoded_corpus: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">tuple</span>:</span>
+<span id="cb50-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Returns a tuple:</span></span>
+<span id="cb50-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    - A tuple of the most common pair of ids in a corpus</span></span>
+<span id="cb50-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    - The number of occurences of the pair of ids</span></span>
+<span id="cb50-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb50-6">    most_common_pair_and_count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Counter(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>(encoded_corpus[:<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>], encoded_corpus[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:])).most_common(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb50-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> most_common_pair_and_count</span></code></pre></div>
+</div>
+<div id="cell-76" class="cell" data-execution_count="144">
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> merge_iteratively(corpus, vocab, number_of_merges: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>):</span>
+<span id="cb51-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> _ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(number_of_merges):</span>
+<span id="cb51-3">        most_common_pair, count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> get_most_common_pair(corpus)</span>
+<span id="cb51-4">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb51-5">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">break</span></span>
+<span id="cb51-6">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb51-7">            corpus, vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> merge_and_update_corpus_and_vocab(corpus, vocab, most_common_pair)</span>
+<span id="cb51-8">    </span>
+<span id="cb51-9">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> corpus, vocab</span></code></pre></div>
+</div>
+<p>Let put all these functions in one function that should do the encoding of a string</p>
+<div id="cell-78" class="cell" data-execution_count="219">
+<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> encode(corpus: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>, num_merges: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>):</span>
+<span id="cb52-2">    encoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> corpus.encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTF-8"</span>)</span>
+<span id="cb52-3">    base_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {i:i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>)}</span>
+<span id="cb52-4">    updated_corpus, updated_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> merge_iteratively(encoded_corpus, base_vocab, num_merges)</span>
+<span id="cb52-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> updated_corpus, updated_vocab</span></code></pre></div>
+</div>
+<p>Now that we can train a tokenizer and encode a string, all that’s left is decoding.</p>
+</section>
+<section id="decoding" class="level4">
+<h4 class="anchored" data-anchor-id="decoding"><a id="toc1_3_3_2_"></a>Decoding</h4>
+<p>Now, to detokenize tokenized text, it’s not that hard - First, you have to reverse the mapping. You have to unpair the ids. If for example, the id 257=(100,256) and 256=(255, 20), we have to unpair those. But in order for the unpairing to work, we have to unpair the ids starting from the highest id, 257 in this case. 257 will be replaced with (100 and 256) and then 256 can be replaced with (255 and 20). If you don’t do it in the right order, you’ll have some composed ids left and you won’t be able to decode them. - Once the mapping is reversed, you can decode the stream of bytes using UTF-8</p>
+<div id="cell-82" class="cell">
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1">three_merges_corpus, three_merges_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encode(corpus, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+</div>
+<p>Let us first build a function that will help us get the pair of ids that were replaced with a new id</p>
+<div id="cell-84" class="cell" data-execution_count="187">
+<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> unpair_ids(corpus, vocab):</span>
+<span id="cb54-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Reverses new ids in the vocab to their</span></span>
+<span id="cb54-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    orignal pair of ids.</span></span>
+<span id="cb54-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb54-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> token <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sorted</span>(vocab.keys(), reverse<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>):</span>
+<span id="cb54-6">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> token <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span>:</span>
+<span id="cb54-7">            unpaired_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb54-8">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(corpus)):</span>
+<span id="cb54-9">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> corpus[i] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> token:</span>
+<span id="cb54-10">                    unpaired_corpus.append(vocab[token][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb54-11">                    unpaired_corpus.append(vocab[token][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb54-12">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb54-13">                    unpaired_corpus.append(corpus[i])</span>
+<span id="cb54-14">                </span>
+<span id="cb54-15">            corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(unpaired_corpus)</span>
+<span id="cb54-16">    </span>
+<span id="cb54-17">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> unpaired_corpus</span></code></pre></div>
+</div>
+<div id="cell-85" class="cell" data-execution_count="191">
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The first ten tokens of the tokenized corpus looks like: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>three_merges_corpus[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb55-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The first ten tokens of the unpaired corpus looks as follows: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>unpair_ids(three_merges_corpus[:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>], three_merges_vocab)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The first ten tokens of the tokenized corpus looks like: [258, 111, 32, 258, 111, 32, 258, 111, 32, 109]
+The first ten tokens of the unpaired corpus looks like: [72, 101, 108, 108, 111, 32, 72, 101, 108, 108, 111, 32, 72, 101, 108, 108, 111, 32, 109]</code></pre>
+</div>
+</div>
+<p>Now that we recovered the corpus with the bytes ids, we can do the UTF-8 decoding:</p>
+<div id="cell-87" class="cell" data-execution_count="201">
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> decode(tokenized_corpus_with_merges, vocab_with_merges):</span>
+<span id="cb57-2">    unpaired_tokenized_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> unpair_ids(tokenized_corpus_with_merges, vocab_with_merges)</span>
+<span id="cb57-3">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The UTF-8 decoding expects byte objects and not int, we have to convert them to byte first</span></span>
+<span id="cb57-4">    decoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b""</span>.join([x.to_bytes() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> unpaired_tokenized_corpus]).decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTF-8"</span>)</span>
+<span id="cb57-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> decoded_corpus</span></code></pre></div>
+</div>
+<div id="cell-88" class="cell" data-execution_count="206">
+<div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1">decoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> decode(three_merges_corpus, three_merges_vocab)</span>
+<span id="cb58-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"The decoding of the corpus yields: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>decoded_corpus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb58-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Check of equality with the original corpus: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>decoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> corpus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The decoding of the corpus yields: Hello Hello Hello my name is Safouane and I am the author of this post
+Check of equality with the original corpus: True</code></pre>
+</div>
+</div>
+</section>
+<section id="one-last-problem-to-solve" class="level4">
+<h4 class="anchored" data-anchor-id="one-last-problem-to-solve"><a id="toc1_3_3_3_"></a>One last problem to solve</h4>
+<p>When encoding, we get to add new ids as tokens and we just incremented with 1 each time. Now, remember this table from wikipedia:</p>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/Byte Pair Encoding Tokenization/assets/utf8_table.png">
+</p>
+<p>What this table entails is that not all bytes are valid UTF-8 encodings. For example, any 1-byte number starting with 1 its binary representation is not a valid UTF-8 encoding. The number <code>10000000</code> (which corresponds to 128 in the decimal representation) is not a valid UTF-8 encoding.</p>
+<p>Let us check what Python will say if we try to decode it using UTF-8</p>
+<div id="cell-92" class="cell" data-execution_count="215">
+<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert the int to a bytes object</span></span>
+<span id="cb60-2">example_byte <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bn" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0b10000000</span>.to_bytes()</span>
+<span id="cb60-3"></span>
+<span id="cb60-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Decode it using UTF-8</span></span>
+<span id="cb60-5">example_byte.decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTF-8"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">UnicodeDecodeError</span>                        Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[215], line 5</span>
+<span class="ansi-green-fg ansi-bold">      2</span> example_byte <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(98,98,98)">0b10000000</span><span style="color:rgb(98,98,98)">.</span>to_bytes()
+<span class="ansi-green-fg ansi-bold">      4</span> <span style="font-style:italic;color:rgb(95,135,135)"># Decode it using UTF-8</span>
+<span class="ansi-green-fg">----&gt; 5</span> example_byte<span style="color:rgb(98,98,98)">.</span>decode(<span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">UTF-8</span><span style="color:rgb(175,0,0)">"</span>)
+
+<span class="ansi-red-fg">UnicodeDecodeError</span>: 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte</pre>
+</div>
+</div>
+</div>
+<p>The error says <code>invalid start byte</code>, can’t be any clearer !</p>
+<p>Now, what should we do if we encounter such integers in our encoded corpus ? The way this is circumvented in GPT-4 tokenizer for example is by decoding that integer into a specific character <code>�</code>. This is the default value that any invalid integer is decoded into with <code>decode</code> method using UTF-8 encoding in Python.</p>
+<div id="cell-95" class="cell" data-execution_count="217">
+<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1">example_byte.decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTF-8"</span>, errors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"replace"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="217">
+<pre><code>'�'</code></pre>
+</div>
+</div>
+</section>
+<section id="one-final-example" class="level4">
+<h4 class="anchored" data-anchor-id="one-final-example"><a id="toc1_3_3_4_"></a>One final example</h4>
+<p>As an example of our training corpus, we’ll take the description in english, french and arabic of <code>1337</code>, one of the leading IT schools in the world that is located in Morocco. This description will constitute our corpus that we’ll use to train our tokenizer.</p>
+<div id="cell-98" class="cell" data-execution_count="236">
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1">input_string <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"""1337 is the first to provide IT training in Morocco, completely free of charge, open and accessible to anyone between the ages of 18 and 30. No need for an IT degree, or of having undergone extensive IT training. The only criteria for admission in Treize, Trente-Sept is CREATIVITY.</span></span>
+<span id="cb63-2"></span>
+<span id="cb63-3"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">The Treize, Trente-Sept educational approach is based on peer-learning. A participatory operating style allowing students to unleash their creativity through project-based learning. To train the future coders of tomorrow, we had to rethink learning. We had to make IT something fun, exciting and at odds with the restrictive vision that the general public may have about it.</span></span>
+<span id="cb63-4"></span>
+<span id="cb63-5"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">1337 is the coding school par excellence, completely free of charge and accessible to all with no prerequisite of a degree. It offers a full immersion in a universe where the future is already present. Where IT and the lines of code are way more than a vague and off-putting concept…</span></span>
+<span id="cb63-6"></span>
+<span id="cb63-7"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Treize, Trente-Sept, a forward-looking school from the present.</span></span>
+<span id="cb63-8"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">1337, c’est la première formation en informatique par excellence au Maroc, entièrement gratuite, ouverte 24h/24 7j/7 et accessible à tous sans pré-requis de diplôme, ou de connaissance en informatique.. C’est une immersion complète dans un univers où le futur est déjà présent, où l’informatique et les lignes de codes sont plus qu’un concept flou et rébarbatif…</span></span>
+<span id="cb63-9"></span>
+<span id="cb63-10"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">La pédagogie de Treize, Trente-Sept s’articule autour du peer-learning. Un fonctionnement participatif qui permet aux étudiants de libérer leur créativité grâce à l’apprentissage par projet. Pour former les futurs codeurs de demain, il fallait repenser l’apprentissage, faire de l’informatique quelque chose de ludique, de passionnant et aux antipodes de la vision restrictive que le grand public peut en avoir.</span></span>
+<span id="cb63-11"></span>
+<span id="cb63-12"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Treize, Trente-Sept utilise les méthodes techniques et pédagogiques de 42 Paris, élue meilleure école de code au monde par CodinGame.</span></span>
+<span id="cb63-13"></span>
+<span id="cb63-14"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Treize, Trente-Sept, une école du présent tournée vers le futur.</span></span>
+<span id="cb63-15"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">1337 هي أول تكوين معلوماتي فالمغرب، كلو بالمجان، مفتوح للجميع اللي تيتراوح عمرهم بين 18 و30 سنة. ما محتاجش يكون عندك دبلوم فالمعلوميات، أو تكون درتي شي تكوين أو تخصص فالمعلوميات. المفتاح الوحيد اللي كيتيح لك باب الدخول ل 1337 هو الإبداع.</span></span>
+<span id="cb63-16"></span>
+<span id="cb63-17"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">البيداغوجية ديال 1337 كتعتمد على peer-learning اللي هو نوع من التعلم التعاوني اللي كيساعد الطلبة على تحرير الإبداع ديالهم بفضل التعلم بإنجاز المشاريع. وباش نكوّنو مبرمجي الغد، اللي كيكوديو، كان لازم نراجعو طريقة التعلم، ونجعلو تعلم المعلوميات عملية ترفيهية، فيها الرغبة والشغف، ماشي كيف كيتخيلوها الناس.</span></span>
+<span id="cb63-18"></span>
+<span id="cb63-19"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">1337 هي مدرسة الكود بامتياز، مجانية وفمتناول الجميع, وما تتطلبش منك تكون حائز على دبلوم. وتعتبر اندماج كامل، فعالم مستقبلي اللي ما بقاش فيه الكود مفهوم غامض.</span></span>
+<span id="cb63-20"></span>
+<span id="cb63-21"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">1337 مدرسة الحاضر المتطلعة للمستقبل.</span></span>
+<span id="cb63-22"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"""</span></span></code></pre></div>
+</div>
+<div id="cell-99" class="cell" data-execution_count="237">
+<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1">encoded_merged_input, updated_vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encode(input_string, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>)</span></code></pre></div>
+</div>
+<p>The added ids to the corpus are the following:</p>
+<div id="cell-101" class="cell" data-execution_count="238">
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>({x:updated_vocab.get(x) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(updated_vocab.keys()) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)})</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{256: (101, 32), 257: (217, 132), 258: (216, 167), 259: (217, 133), 260: (217, 138), 261: (217, 136), 262: (32, 216), 263: (258, 257), 264: (114, 101), 265: (115, 32), 266: (105, 110), 267: (116, 32), 268: (32, 263), 269: (216, 170), 270: (44, 32), 271: (217, 134), 272: (216, 185), 273: (116, 105), 274: (217, 131), 275: (101, 114)}</code></pre>
+</div>
+</div>
+<div id="cell-102" class="cell" data-execution_count="239">
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1">decoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> decode(encoded_merged_input, updated_vocab)</span></code></pre></div>
+</div>
+<p>Let us check the decoded corpus against the original corpus:</p>
+<div id="cell-104" class="cell" data-execution_count="240">
+<div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1">decoded_corpus <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> corpus</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="240">
+<pre><code>True</code></pre>
+</div>
+</div>
+<p>While in this case the result of the decoding process yields the same result as the original, you shouldn’t always expect it to be the case. If during the decoding process, we encounter an id (like 128) that we can’t decode using UTF-8, it will get replaced with <code>�</code> in the current implementation. The comparison of the decoding result with the original text won’t yield equality.</p>
+
+
+</section>
+</section>
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>NLP</category>
+  <guid>https://chsafouane.github.io/posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html</guid>
+  <pubDate>Sat, 06 Jul 2024 22:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>

@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Safouane Chergui">
-<meta name="dcterms.date" content="2025-08-29">
+<meta name="dcterms.date" content="2024-11-19">
 
-<title>PDF parsing is hard – Safouane Chergui</title>
+<title>LLM Evals: What Actually Works – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -130,10 +130,11 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">PDF parsing is hard</h1>
+      <h1 class="title">LLM Evals: What Actually Works</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Python</div>
-                <div class="quarto-category">PDF</div>
+                <div class="quarto-category">LLM</div>
+                <div class="quarto-category">AI</div>
               </div>
                   </div>
   </div>
@@ -151,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 29, 2025</p>
+        <p class="date">November 19, 2024</p>
       </div>
     </div>
     
@@ -174,224 +175,32 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#what-the-hell-is-a-pdf-document" id="toc-what-the-hell-is-a-pdf-document">What the hell is a PDF document ?</a>
-  <ul>
-  <li><a href="#a-first-glimpse-at-a-pdf-file-internal-structure" id="toc-a-first-glimpse-at-a-pdf-file-internal-structure">A first glimpse at a PDF file internal structure</a></li>
-  <li><a href="#pdf-page-description-language" id="toc-pdf-page-description-language">PDF Page Description Language</a></li>
-  <li><a href="#the-internal-structure-of-a-pdf" id="toc-the-internal-structure-of-a-pdf">The internal structure of a PDF</a>
-  <ul>
-  <li><a href="#the-header" id="toc-the-header">The header</a></li>
-  <li><a href="#the-body" id="toc-the-body">The body</a></li>
-  <li><a href="#the-cross-reference-table" id="toc-the-cross-reference-table">The cross-reference table</a></li>
-  <li><a href="#the-trailer" id="toc-the-trailer">The trailer</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#docling-v2" id="toc-docling-v2">Docling V2</a>
-  <ul>
-  <li><a href="#project-context" id="toc-project-context">Project context</a></li>
-  <li><a href="#why-i-went-for-docling" id="toc-why-i-went-for-docling">Why I went for Docling ?</a>
-  <ul>
-  <li><a href="#the-fast-good-enough-didnt-cut-it" id="toc-the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</a></li>
-  <li><a href="#ml-focused-parsing" id="toc-ml-focused-parsing">ML-focused parsing</a></li>
-  </ul></li>
-  <li><a href="#how-does-docling-work" id="toc-how-does-docling-work">How does Docling work ?</a></li>
-  <li><a href="#parsing-output" id="toc-parsing-output">Parsing output</a></li>
-  <li><a href="#docling-in-practice" id="toc-docling-in-practice">Docling in practice</a></li>
-  <li><a href="#explore-more-with-docling" id="toc-explore-more-with-docling">Explore more with Docling!</a></li>
-  <li><a href="#some-final-feedback" id="toc-some-final-feedback">Some final feedback</a></li>
-  </ul></li>
+  <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+  <li><a href="#lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" id="toc-lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start">Lesson 1: I don’t have any data to test my application, where do I start ?</a></li>
   </ul>
 </nav>
-<p>The goal of this blogpost is to explain what a PDF is internally and why parsing PDF files is not that easy.</p>
-<p>Lately, I’ve been working on a project with a customer where the goal is to extract some specific information from PDF documents. To my big surprise, this task has proven to be quite challenging.</p>
-<p>The main challenges stem from the following elements:</p>
-<ul>
-<li><strong>Privacy concerns:</strong> using an external API to parse the PDFs was a no-go as the PDFs contained sensitive information.</li>
-<li><strong>Complexity of the documents:</strong> the PDFs at hand contained a mix of text, complex tables, math formulas, all of which needed to be processed and understood in context.</li>
-<li><strong>Absence of a clear structure:</strong> the lack of consistent formatting and structure across the documents made it difficult to apply standard parsing across the board.</li>
-</ul>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.</p>
+<p>I’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
+<p>If you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.</p>
 <br><br>
 <div data-align="center">
-<p><img src="./assets/pdf-icon.png" alt="PDF icon" width="25%" style="display: block; margin: 0 auto;"></p>
+<p><img src="./assets/front_image.jpg" width="80%" style="display: block; margin: 0 auto;"></p>
 </div>
 <p><br></p>
-<section id="what-the-hell-is-a-pdf-document" class="level2">
-<h2 class="anchored" data-anchor-id="what-the-hell-is-a-pdf-document">What the hell is a PDF document ?</h2>
-<section id="a-first-glimpse-at-a-pdf-file-internal-structure" class="level3">
-<h3 class="anchored" data-anchor-id="a-first-glimpse-at-a-pdf-file-internal-structure">A first glimpse at a PDF file internal structure</h3>
-<p>Have you ever opened a PDF document with notepad or vscode instead of your preferred PDF reader ? If you do so , you’ll stumble upon something that looks like this :</p>
-<div data-align="center">
-<p><img src="./assets/example_pdf_start.png" alt="PDF Internal Structure" style="display: block; margin: 0 auto;"></p>
-<p align="center">
-<em>Figure 1: Internal structure of a PDF document when viewed as raw text</em>
-</p>
-</div>
-<p>If you’d like to see the full PDF internal structure, you can find the example PDF <a href="https://gist.github.com/chsafouane/0079eb20531a0effb632e9aea7ddfabe?short_path=b320036">here</a>.</p>
+<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
+<p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
-<section id="pdf-page-description-language" class="level3">
-<h3 class="anchored" data-anchor-id="pdf-page-description-language">PDF Page Description Language</h3>
-<p>To understand why PDFs are hard to parse, one must understand how a PDF file is built.</p>
-<p>A PDF file is based on Page Description Language (PDL), which is a language used to describe the layout and appearance of a printed page. PDF PDL provides a standardized set of commands to reconstruct a page with perfect fidelity.</p>
-<p>As a result, a PDF file is essentially a collection of instructions for rendering a page, rather than a linear sequence of text and images. If you look at the example pdf available in the github gist, you’ll see starting line 34 the following commands:</p>
-<pre class="pdf"><code>/F1 18 Tf
-100 700 Td
-(This is a PDF tutorial) Tj</code></pre>
-<p>What the following instructions do is:</p>
-<ul>
-<li><code>/F1 18 Tf</code> : set the font to F1 with size 18</li>
-<li><code>100 700 Td</code> : move the text position to (100, 700)</li>
-<li><code>(This is a PDF tutorial) Tj</code> : show the text string</li>
-</ul>
-<p>Every PDF looks just like this; a precise sequence of commands that specify what to draw and exactly at what coordinates. It does not contain a semantic representation of its content. It does not state, “This is a paragraph that flows through two columns” or “this is a table”.</p>
-<p>A table, for example, is just a grid of lines and text positioned at specific coordinates. There are no inherent relationships between the cells, no indication of headers or footers, and no understanding of the data contained within.</p>
-<p>So when a parser sees what’s supposed to be a table, it sees just a bunch of lines and text. Its task (rather difficult task) is to infer the structure and relationships between these elements.</p>
-<p>This lack of semantic structure makes it challenging to parse complex PDF documents.</p>
-</section>
-<section id="the-internal-structure-of-a-pdf" class="level3">
-<h3 class="anchored" data-anchor-id="the-internal-structure-of-a-pdf">The internal structure of a PDF</h3>
-<p>This is an optional part and will not help you in understanding the difficulty of parsing PDFs. So you can skip if you want to focus on the practical aspects of PDF parsing.</p>
-<p>What you see in Figure 1 or in the gist file is the internal structure of a PDF document. Let us dive into the key components that make up this structure.</p>
-<p>A PDF is composed internally of four sections:</p>
-<div data-align="center">
-<p><img src="./assets/pdf_internal_structure.png" alt="PDF Internal Structure Components" style="display: block; margin: 0 auto;"></p>
-<p align="center">
-<em>Figure 2: Internal structure of a PDF document</em>
-</p>
-<p align="center">
-<small>Source: <a href="https://www.researchgate.net/figure/An-example-of-the-PDF-file-structure_fig1_360275035">ResearchGate - An example of the PDF file structure</a></small>
-</p>
-</div>
-<section id="the-header" class="level4">
-<h4 class="anchored" data-anchor-id="the-header">The header</h4>
-<p>The header of a PDF file tells you about the PDF specifications version used to generate it. It is always the first line of the file and starts with the <code>%PDF-</code> marker. In Figure 1, it corresponds to <code>%PDF-1.7</code>.</p>
-</section>
-<section id="the-body" class="level4">
-<h4 class="anchored" data-anchor-id="the-body">The body</h4>
-<p>Now, the body is where you define the content of the PDF. Everything that you see when you open a PDF - the text you read, the images you view, the fonts that make the text look pretty - all of this is generated from the “objects” defined in the body.</p>
-<p>Think about when you open a PDF and scroll through it. You might see different pages, each with its own layout, fonts, and content. Behind the scenes, each of these elements is stored as a separate object in the PDF body.</p>
-<p>If you look at the PDF file in the gist, you’ll see that it contains 5 objects. Each object in a PDF is identified by a unique object number and a generation number (usually 0 for new objects).</p>
-</section>
-<section id="the-cross-reference-table" class="level4">
-<h4 class="anchored" data-anchor-id="the-cross-reference-table">The cross-reference table</h4>
-<p>Now, here’s where the magic happens that makes PDFs so fast to navigate. You know how you can instantly jump to page 50 of a 200-page PDF, or how quickly a PDF opens even when it’s a large file? That’s thanks to the cross-reference table (or “xref table”).</p>
-<p>The xref table maps object numbers to their byte positions in the file. Here’s the one from our sample PDF:</p>
-<pre class="pdf"><code>xref
-0 6
-0000000000 65535 f 
-0000000017 00000 n 
-0000000070 00000 n 
-0000000126 00000 n 
-0000000281 00000 n 
-0000000385 00000 n </code></pre>
-<p>Let me break this down:</p>
-<ul>
-<li><code>xref</code> marks the start of the cross-reference table</li>
-<li><code>0 6</code> means this section covers 6 objects starting from object 0</li>
-<li>Each line has three parts: <code>byte_offset generation_number n/f</code>
-<ul>
-<li><strong>Byte offset</strong>: The exact position in the file where the object starts (like a street address)</li>
-<li><strong>Generation number</strong>: Usually 0 for active objects</li>
-<li><strong>n/f flag</strong>: <code>n</code> means the object is in use, <code>f</code> means it’s free (deleted)</li>
-</ul></li>
-</ul>
-<p>The generation number and the n/f flag are useful when the PDF is modified.</p>
-<p>For example, when you want to see the page content, the PDF reader looks up object 4 (content stream) in this table, sees it at byte position 281, jumps directly there, and gets the drawing commands. No searching, no scanning, just instant access.</p>
-<p>This is why PDFs load so quickly even when they’re huge files. Your PDF viewer doesn’t have to read the whole document.</p>
-</section>
-<section id="the-trailer" class="level4">
-<h4 class="anchored" data-anchor-id="the-trailer">The trailer</h4>
-<p>Finally, we have the trailer - think of it as the PDF’s “instruction manual” that tells your PDF viewer how to get started. When you double-click a PDF file to open it, your PDF reader doesn’t start reading from the beginning. Instead, it jumps to the end of the file and reads the trailer first.</p>
-<p>Here’s the trailer from our sample PDF:</p>
-<pre class="pdf"><code>trailer
-&lt;&lt; /Size 6
-/Root 1 0 R
-&gt;&gt;
-startxref
-449
-%%EOF</code></pre>
-<p>Here’s what happens when you open a PDF:</p>
-<ul>
-<li><strong><code>/Size 6</code></strong>: The PDF reader learns there are 6 objects total in the cross-reference table</li>
-<li><strong><code>/Root 1 0 R</code></strong>: “Start reading from the catalog object (object 1) to understand the document structure”</li>
-<li><strong><code>startxref 449</code></strong>: “The cross-reference table starts at byte position 449”</li>
-<li><strong><code>%%EOF</code></strong>: “This is truly the end of the file”</li>
-</ul>
-<p>So when you open a PDF, here’s the process: 1. Your PDF reader jumps to the end and reads the trailer 2. From the trailer, it gets to know that the xref table is at position 449 and reads it to understand where all objects are 3. When you scroll or jump to a page, it uses the xref table to instantly find the right objects</p>
-<p>This four-part structure (header, body, xref, trailer) is what makes PDFs very fast to read no matter their size.</p>
-</section>
-</section>
-</section>
-<section id="docling-v2" class="level2">
-<h2 class="anchored" data-anchor-id="docling-v2">Docling V2</h2>
-<div data-align="center">
-<p><img src="./assets/docling_logo.png" alt="Docling Logo" width="50%" style="display: block; margin: 0 auto;"></p>
-</div>
-<section id="project-context" class="level3">
-<h3 class="anchored" data-anchor-id="project-context">Project context</h3>
-<p>So, here are the main constraints of the project: - It had some high privacy concerns. This means that using an external API for PDF parsing was not an option. - The PDFs were very complex. They contained a mix of text and really complex tables, math formulas, etc. - The customer preferred to run the workload of PDF parsing on their on-premise infrastructure that didn’t provide any GPU.</p>
-<p>The point that was to our advantage is that the incoming documents didn’t need to be processed online. Batch processing of documents was sufficient, and I could afford to take our time with the parsing.</p>
-</section>
-<section id="why-i-went-for-docling" class="level3">
-<h3 class="anchored" data-anchor-id="why-i-went-for-docling">Why I went for Docling ?</h3>
-<section id="the-fast-good-enough-didnt-cut-it" class="level4">
-<h4 class="anchored" data-anchor-id="the-fast-good-enough-didnt-cut-it">The fast &amp; good enough didn’t cut it!</h4>
-<p>While I used to go with <code>PyMuPDF</code> for PDF parsing because it’s easy to use, fast, and good enough for PDF with text and simple tables, it did a really bad job on the documents that I had to handle. The tables were very badly parsed.</p>
-<p>To preserve the speed advantage, I decided to use a combination of <code>PyMuPDF</code> for the initial text extraction and a library dedicated to table extraction like <code>tabula</code> or <code>camelot</code>. Not only did this approach add more dependencies and more complexity, <code>tabula</code> and <code>camelot</code> both did a very bad job at extracting most tables.</p>
-<p>Now, these packages look at the PDF instructions (like the ones shown in the PDL section) and try to reverse-engineer the layout of the document. While this makes for fast parsing, they have a hard time parsing a two-column layout accurately or a complex table. A good way to put it is that they have a hard time looking at things a human does.</p>
-<p><code>camelot</code> and <code>tabula</code> both rely on heuristics and rules that work well for simple well-structured tables.</p>
-</section>
-<section id="ml-focused-parsing" class="level4">
-<h4 class="anchored" data-anchor-id="ml-focused-parsing">ML-focused parsing</h4>
-<p>ML-focused parsing usually make use of: - a parsing engine to parse text - Some layout detection model to detect the different object in the page (e.g.&nbsp;headers, text blocks, images, tables, etc.) - Some table analysis model - Some post-processing steps to combine all the results together</p>
-<p>I benchmarked <code>unstructured</code> and <code>docling</code> and found that <code>docling</code> was doing a better job at parsing the documents I had to handle.</p>
-<p><strong>Note:</strong> I didn’t test unstructured API which seems to offer more functionalities than the open-source package.</p>
-</section>
-</section>
-<section id="how-does-docling-work" class="level3">
-<h3 class="anchored" data-anchor-id="how-does-docling-work">How does Docling work ?</h3>
-<p>Docling uses a combination of techniques to parse PDF documents effectively:</p>
-<ol type="1">
-<li><p><strong>Text Extraction</strong>: Initially, it extracts text from the PDF using a fast and efficient text extraction engine.</p></li>
-<li><p><strong>Layout Detection</strong>: It employs a layout detection model to identify different elements on the page, such as titles, text, images, tables, etc.</p></li>
-<li><p><strong>Table Analysis</strong>: For detected tables, Docling uses a specialized table analysis model to understand the structure and content of the table cells.</p></li>
-<li><p><strong>OCR</strong>: Optionally, one can activate OCR if handling scanned documents.</p></li>
-<li><p><strong>Assembly</strong>: Finally, it applies post-processing steps to combine all the extracted information and present it in a structured format in <code>DoclingDocument</code>.</p></li>
-</ol>
-<p>The resulting object <code>DoclingDocument</code> is not a simple text string. It is a hierarchical representation of the original document, containing organized lists of items defined in Docling (<code>TextItem</code>, <code>PictureItem</code>, etc.). Each of these objects holds its content, coordinates, type, and relationships to other elements.</p>
-<p>Please refer to the <a href="https://docling-project.github.io/docling/concepts/docling_document/">Docling documentation</a> for more details on the structure and usage of <code>DoclingDocument</code>.</p>
-</section>
-<section id="parsing-output" class="level3">
-<h3 class="anchored" data-anchor-id="parsing-output">Parsing output</h3>
-<p>On top of the docling document that contains anything you can imagine, you can convert the docling document to a a simple string or to a markdown. You can also extract tables as pandas dataframes wich is really very handy.</p>
-</section>
-<section id="docling-in-practice" class="level3">
-<h3 class="anchored" data-anchor-id="docling-in-practice">Docling in practice</h3>
-<p>I used docling on french documents. A document made of more or less 60 pages, between 5 or 10 tables takes between 60 and 90 seconds using Docling.</p>
-<p>The things that didn’t work that well include: - tables that roll over two pages. In my experience, Docling considers them as separate tables - multicolumn text is rarely but sometimes is considered a table</p>
-</section>
-<section id="explore-more-with-docling" class="level3">
-<h3 class="anchored" data-anchor-id="explore-more-with-docling">Explore more with Docling!</h3>
-<ul>
-<li>Docling can be used to parse many types of documents like powerpoint docs, word docs, html docs, PDFs and more.</li>
-</ul>
-<div data-align="center">
-<p><img src="./assets/docling_processing.png" alt="Docling Processing" width="60%" style="display: block; margin: 0 auto;"></p>
-</div>
-<p><br><br> - Docling is also designed to be used seamlessly with RAG and supports functionalities like chunking documents. - More recent packages in the docling family of packages are:</p>
-<ul>
-<li><a href="https://github.com/docling-project/docling-serve"><code>docling-serve</code></a>: The FastAPI wrappers for running Docling as REST API and distribute large jobs.</li>
-<li><a href="https://github.com/docling-project/docling-sdg"><code>docling-sdg</code></a>: Synthetic data generation (SDG) on documents for dataset generation for RAG, finetuning, etc.</li>
-<li><a href="https://github.com/docling-project/docling-mcp"><code>docling-mcp</code></a>: The definition of tools with the Model Context Protocol for document conversion, manipulation and generation agents.</li>
-</ul>
-<p>While I didn’t try these three packages, I’m looking forward to it.</p>
-</section>
-<section id="some-final-feedback" class="level3">
-<h3 class="anchored" data-anchor-id="some-final-feedback">Some final feedback</h3>
-<p>While <code>docling</code> is an amazing framework, it still has some limitations and areas for improvement. - If you’re just looking for speed and good enough result, go for PyMuPDF - If you’re looking for excellent parsing quality and are ready to trade speed for it, go for Docling</p>
-<p><br><br> <strong>Happy parsing with DOCLING&nbsp;!</strong></p>
+<section id="lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
+<h1>Lesson 1: I don’t have any data to test my application, where do I start ?</h1>
+<p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
+<p><strong>Sub-lesson 1: Vibe checks don’t work</strong></p>
+<p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 4: Real data is better than synthetic data</strong></p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
