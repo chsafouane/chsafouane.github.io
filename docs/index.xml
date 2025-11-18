@@ -42,7 +42,7 @@
 <p>This is a terrible way to evaluate your LLM applications for multiple reasons:</p>
 <ul>
 <li><p>The queries you’re going to ask are biased towards what you think the system should be able to do or towards a specific range of queries that you expect the final user to enter. You will likely miss most of the cases and failure modes that you didn’t think about. From first-hand experience, the users usually will surprise you with the way they write their queries and the types of queries they will enter. You should expect them to write them as if they are in a rush 😅</p></li>
-<li><p>Not having evaluating your app in a systematic and/or scalable way will lead to have to deal with “whack-a-mole” situation (as Hamel so beautifully puts it) where you fix one by changing some prompt only to have another one pop up somewhere else. This will lead to frustration from your stakeholders, frustration from the team working on the app, and maybe even to a a lack of trust in LLMs whithin your organization.</p></li>
+<li><p>Not having evaluated your app in a systematic and/or scalable way will lead to have to deal with “whack-a-mole” situation (as Hamel so beautifully puts it) where you fix one by changing some prompt only to have another one pop up somewhere else. This will lead to frustration from your stakeholders, frustration from the team working on the app, and maybe even to a a lack of trust in LLMs whithin your organization.</p></li>
 </ul>
 <div data-align="center">
 <p><img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm55dDYxNHd5eHdmYzlnZmJnMTg4OHRvb2x4ZWQ4bHVnZzQ2am9waiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ebITvSXYKNvRm/giphy.gif" width="20%" style="display: block; margin: 0 auto;"></p>
@@ -51,9 +51,30 @@
 </section>
 <section id="lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
 <h1>Lesson 2: I don’t have any data to test my application, where do I start ?</h1>
+<p>Once you develop your LLM-powered app, you are faced with <strong>“Which comes first, the chicken or the egg?”</strong> dilemma:</p>
+<ul>
+<li>You don’t have real user queries data because you haven’t deployed you app yet</li>
+<li>You can’t deploy your app yet because you haven’t tested it with real user queries yet</li>
+</ul>
 <p><strong>Sub-lesson 1: Real data is better than synthetic data</strong></p>
+<p>You can almost always get some pseudo-real data. If you can’t have access to some beta users, ask your teammates to test the system. They will have very probably some biases of their own, but at least you will get some data that is not completely synthetic and that has different characteristics because it’s coming from different people.</p>
 <p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
+<p>Real data is always better than synthetic data. But hey, if you really can’t have some real data, then synthetic data is the way to go.</p>
+<p>The mistake most people do when creating synthetic data is to ask an LLM to generate queries that are similar to what they expect the users to enter. This is a also a bad idea as the generated queries will be biased towards what you think the users will enter and will likely miss many failure modes. Most importantly, the generated queries will likely be “too good” and not representative of real user queries (messy, mispellings, incomplete…).</p>
+<p>I’ve trained a retriever in the past on synthetic data generated this way. While the performance on synthetic-queries-like was really good, the performance on real user queries was really bad. The gap between synthetic data and real user data was just too big.</p>
 <p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
+<p>An approach that I have learnt from Hamel Husain &amp; Shreya Shankar is to first think about the different dimensions of variability in user queries for your specific application. For example, if you’re building a RAG over a technical product documentation, you can think about the following dimensions of variability:</p>
+<ul>
+<li>User type (user, admin, developer, etc.)</li>
+<li>User expertise level (beginner, intermediate, expert)</li>
+<li>Query length (short queries, long queries, etc.)</li>
+<li>Query complexity (simple queries, complex queries with multiple sub-questions)</li>
+<li>Query style (formal, informal, typos, slang)</li>
+<li>Intent (seeking information, troubleshooting, feature requests)</li>
+<li>etc.</li>
+</ul>
+<p>Dimensions should be really specific to your application and not some general dimensions that someone else has used in another context.</p>
+<p>Then, for each dimension, you can brainstorm different values that the dimension can take (or delegate the task of brainstorming values of some dimensions to an LLM)</p>
 </section>
 <section id="lesson-3-have-a-systematic-way-to-identify-failure-modes" class="level1">
 <h1>Lesson 3: Have a systematic way to identify failure modes</h1>
