@@ -10,7 +10,47 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Thu, 28 Aug 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 18 Nov 2025 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>LLM Evals: What Actually Works</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.</p>
+<p>I’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
+<p>If you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.</p>
+<br><br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/LLM evaluation/assets/front_image.jpg" width="80%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br></p>
+<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
+<p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
+</section>
+<section id="lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
+<h1>Lesson 1: I don’t have any data to test my application, where do I start ?</h1>
+<p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
+<p><strong>Sub-lesson 1: Vibe checks don’t work</strong></p>
+<p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 4: Real data is better than synthetic data</strong></p>
+
+
+</section>
+
+ ]]></description>
+  <category>LLM</category>
+  <category>Evaluation</category>
+  <guid>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</guid>
+  <pubDate>Tue, 18 Nov 2025 23:00:00 GMT</pubDate>
+</item>
 <item>
   <title>PDF parsing is hard</title>
   <dc:creator>Safouane Chergui</dc:creator>

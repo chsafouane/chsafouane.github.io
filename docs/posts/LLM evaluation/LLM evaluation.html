@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Safouane Chergui">
+<meta name="dcterms.date" content="2025-11-19">
 
-<title>Resume – Safouane Chergui</title>
+<title>LLM Evals: What Actually Works – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,23 +25,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -79,7 +81,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Safouane Chergui</span>
     </a>
   </div>
@@ -90,11 +92,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./resume.html" aria-current="page"> 
+    <a class="nav-link" href="../../resume.html"> 
 <span class="menu-text">Resume</span></a>
   </li>  
   <li class="nav-item compact">
@@ -113,7 +115,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./sitemap.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../sitemap.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -127,117 +129,77 @@ ul.task-list li input[type="checkbox"] {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page">
-      <h1 class="title">Resume</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">LLM Evals: What Actually Works</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">LLM</div>
+                <div class="quarto-category">Evaluation</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Safouane Chergui </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">November 19, 2025</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
-
-<section id="safouane-chergui" class="level1">
-<h1>Safouane Chergui</h1>
-<p><strong>Lead Data Scientist</strong> | Paris, France</p>
-<p><a href="mailto:chsafouane@gmail.com">chsafouane@gmail.com</a> | <a href="https://www.linkedin.com/in/safouane-chergui/">LinkedIn</a> | <a href="https://github.com/chsafouane">GitHub</a></p>
-<hr>
-<section id="technical-expertise" class="level2">
-<h2 class="anchored" data-anchor-id="technical-expertise">Technical Expertise</h2>
-<p><strong>ML/AI Domains:</strong> NLP/LLMs, RAG Systems, Search &amp; Recommendation Engines, Computer Vision<br>
-<strong>Cloud &amp; Infrastructure:</strong> Docker, Kubernetes, AWS, GCP, MLflow, Airflow<br>
-<strong>Specialized:</strong> LLM Evaluation, Production ML Monitoring, Model Drift Detection</p>
-<hr>
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+  <li><a href="#lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" id="toc-lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start">Lesson 1: I don’t have any data to test my application, where do I start ?</a></li>
+  </ul>
+</nav>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.</p>
+<p>I’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
+<p>If you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.</p>
+<br><br>
+<div data-align="center">
+<p><img src="./assets/front_image.jpg" width="80%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br></p>
+<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
+<p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
-<section id="professional-experience" class="level2">
-<h2 class="anchored" data-anchor-id="professional-experience">Professional Experience</h2>
-<section id="lead-data-scientist-edf-april-2025---current" class="level3">
-<h3 class="anchored" data-anchor-id="lead-data-scientist-edf-april-2025---current"><strong>Lead Data Scientist</strong> | EDF | <em>April 2025 - Current</em></h3>
-<ul>
-<li>Architected and deployed a pipeline for document parsing and question answering using <strong>RAG systems</strong> over internal knowledge bases</li>
-<li>Led the development of an <strong>LLM evaluation framework</strong> to benchmark and monitor model performance on key business tasks</li>
-</ul>
-</section>
-<section id="senior-data-scientist-doctolib-sep-2024---april-2025" class="level3">
-<h3 class="anchored" data-anchor-id="senior-data-scientist-doctolib-sep-2024---april-2025"><strong>Senior Data Scientist</strong> | Doctolib | <em>Sep 2024 - April 2025</em></h3>
-<ul>
-<li>Architected and deployed a <strong>RAG system</strong> reducing customer support costs by <strong>20%</strong></li>
-<li>Enhanced phone assistant system that allows patients to make a medical appointment using a fast <strong>search system</strong> and <strong>agents</strong></li>
-</ul>
-</section>
-<section id="senior-data-scientist-mirakl-oct-2023---aug-2024" class="level3">
-<h3 class="anchored" data-anchor-id="senior-data-scientist-mirakl-oct-2023---aug-2024"><strong>Senior Data Scientist</strong> | Mirakl | <em>Oct 2023 - Aug 2024</em></h3>
-<ul>
-<li>Built &amp; deployed an <strong>LLM-powered catalog integration system</strong> reducing products onboarding time from <strong>20+ days to hours</strong></li>
-<li>Implemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow</li>
-<li>Trained &amp; Deployed small LLMs for domain-specific tasks to <strong>reduce costs of third-party API usage by 10X</strong></li>
-</ul>
-</section>
-<section id="senior-data-scientist-thefork-tripadvisor-may-2022---oct-2023" class="level3">
-<h3 class="anchored" data-anchor-id="senior-data-scientist-thefork-tripadvisor-may-2022---oct-2023"><strong>Senior Data Scientist</strong> | TheFork (TripAdvisor) | <em>May 2022 - Oct 2023</em></h3>
-<ul>
-<li>Designed <strong>recommendation algorithms</strong> driving <strong>35% increase</strong> in page visits across web, mobile, and email channels</li>
-<li>Pioneered <strong>LLM-based review summarization</strong> system processing 500K+ reviews monthly</li>
-<li>Optimized search functionality using semantic embeddings (Elasticsearch, pgvector)</li>
-<li>Built collaborative filtering and content-based recommendation models serving 20M+ users</li>
-</ul>
-</section>
-<section id="data-scientist-edf-dec-2018---may-2022" class="level3">
-<h3 class="anchored" data-anchor-id="data-scientist-edf-dec-2018---may-2022"><strong>Data Scientist</strong> | EDF | <em>Dec 2018 - May 2022</em></h3>
-<ul>
-<li>Deployed <strong>production ML models</strong> for customer segmentation, churn prediction (AUC 0.92), and LTV modeling</li>
-<li>Designed <strong>real-time drift detection system</strong> monitoring 15+ models in production environment</li>
-<li>Built A/B testing framework and interactive dashboard reducing experiment analysis time by 60%</li>
-<li>Developed predictive maintenance models using <strong>signal processing and deep learning</strong> (CNN/RNN architectures)</li>
-</ul>
-<hr>
-</section>
-</section>
-<section id="key-achievements-leadership" class="level2">
-<h2 class="anchored" data-anchor-id="key-achievements-leadership">Key Achievements &amp; Leadership</h2>
-<ul>
-<li><strong>Production Impact:</strong> Deployed 20+ ML models to production with measurable business and costs impact</li>
-<li><strong>Technical Leadership:</strong> Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF</li>
-<li><strong>Cross-functional Collaboration:</strong> Led projects spanning engineering, product, and business teams</li>
-</ul>
-<hr>
-</section>
-<section id="education-certifications" class="level2">
-<h2 class="anchored" data-anchor-id="education-certifications">Education &amp; Certifications</h2>
-<ul>
-<li><strong>MSc Engineering</strong> - INSA Lyon (2013-2018)</li>
-<li><strong>Deep Learning Specialization</strong> - Coursera</li>
-<li><strong>Statistical Learning</strong> - Stanford Online</li>
-</ul>
-<hr>
-</section>
-<section id="languages" class="level2">
-<h2 class="anchored" data-anchor-id="languages">Languages</h2>
-<ul>
-<li>English (Native)</li>
-<li>French (Professional)</li>
-<li>Arabic (Native)</li>
-<li>Spanish (Fluent)</li>
-<li>Mandarin (In the learning process)</li>
-</ul>
+<section id="lesson-1-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
+<h1>Lesson 1: I don’t have any data to test my application, where do I start ?</h1>
+<p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
+<p><strong>Sub-lesson 1: Vibe checks don’t work</strong></p>
+<p><strong>Sub-lesson 2: The bad way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 3: The good way to create synthetic data</strong></p>
+<p><strong>Sub-lesson 4: Real data is better than synthetic data</strong></p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/LLM evaluation/LLM evaluation.html",
       "/posts/PDF parsing is hard/PDF parsing is hard.html",
       "/posts/Pixi intro/Why I ditched conda and pip for Pixi.html",
       "/posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html"

@@ -7,7 +7,7 @@ title-block-banner: true
 # Safouane Chergui
 **Lead Data Scientist** | Paris, France
 
-[chsafouane@gmail.com](mailto:chsafouane@gmail.com) | [LinkedIn](https://www.linkedin.com/in/safouanechergui) | [GitHub](https://github.com/chsafouane)
+[chsafouane@gmail.com](mailto:chsafouane@gmail.com) | [LinkedIn](https://www.linkedin.com/in/safouane-chergui/) | [GitHub](https://github.com/chsafouane)
 
 ---
 
