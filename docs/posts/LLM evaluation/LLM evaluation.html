@@ -133,6 +133,7 @@ ul.task-list li input[type="checkbox"] {
       <h1 class="title">Stop Vibe-Checking: Real-World Lessons on LLM Evals</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">LLM</div>
+                <div class="quarto-category">Agent</div>
                 <div class="quarto-category">Evaluation</div>
               </div>
                   </div>
@@ -183,7 +184,11 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#sub-lesson-2-the-bad-way-to-create-synthetic-data" id="toc-sub-lesson-2-the-bad-way-to-create-synthetic-data">Sub-lesson 2: The bad way to create synthetic data</a></li>
   <li><a href="#sub-lesson-3-the-good-way-to-create-synthetic-data" id="toc-sub-lesson-3-the-good-way-to-create-synthetic-data">Sub-lesson 3: The good way to create synthetic data</a></li>
   </ul></li>
-  <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a></li>
+  <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a>
+  <ul>
+  <li><a href="#sub-lesson-1-the-three-steps-to-identify-failure-modes" id="toc-sub-lesson-1-the-three-steps-to-identify-failure-modes">Sub-lesson 1: The three steps to identify failure modes</a></li>
+  <li><a href="#sub-lesson-1-clustering-production-queries-didnt-work-for-me" id="toc-sub-lesson-1-clustering-production-queries-didnt-work-for-me">Sub-lesson 1: Clustering production queries didn’t work for me</a></li>
+  </ul></li>
   <li><a href="#lesson-4-off-the-shelf-evals-dont-work" id="toc-lesson-4-off-the-shelf-evals-dont-work">Lesson 4: Off-the-shelf evals don’t work</a></li>
   <li><a href="#lesson-5-the-evaluation-interface-matters" id="toc-lesson-5-the-evaluation-interface-matters">Lesson 5: The evaluation interface matters</a></li>
   </ul>
@@ -199,7 +204,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <p><br></p>
 <p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts.</p>
-<p>Apart from my personal experience, <a href="https://www.linkedin.com/in/hamelhusain/">Hamel Husain</a> &amp; <a href="https://www.linkedin.com/in/shrshnk/">Shreya Shankar</a> both <a href="https://maven.com/parlance-labs/evals">course</a> &amp; blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are inspired by their work.</p>
+<p>Apart from my personal experience, <a href="https://www.linkedin.com/in/hamelhusain/">Hamel Husain</a> &amp; <a href="https://www.linkedin.com/in/shrshnk/">Shreya Shankar</a> both <a href="https://maven.com/parlance-labs/evals">course</a> &amp; blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are either directly quoted from their work or highly inspired by it.</p>
 <p>Each of the lessons below will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
 <section id="pre-lesson" class="level1">
@@ -270,7 +275,21 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="lesson-3-have-a-systematic-way-to-identify-failure-modes" class="level1">
 <h1>Lesson 3: Have a systematic way to identify failure modes</h1>
-<p>When you start evaluating your LLM applications, you need to have a systematic way to identify failure modes.</p>
+<p>When you start evaluating your LLM applications, you need to have a systematic way to identify failure modes. Not having a systematic way to identify failure modes will lead you to the same “whack-a-mole” situation mentioned earlier where you fix one failure mode only to have another one pop up somewhere else.</p>
+<p>You can identify failure modes using synthetic data (created as explained in Lesson 2) or real user queries (if you have access to them) even before deploying your app in production.</p>
+<section id="sub-lesson-1-the-three-steps-to-identify-failure-modes" class="level2">
+<h2 class="anchored" data-anchor-id="sub-lesson-1-the-three-steps-to-identify-failure-modes">Sub-lesson 1: The three steps to identify failure modes</h2>
+<p><strong>Traces are king:</strong> Now that you have a set of user queries (either real or synthetic), input each query through your LLM application and generate the whole trace of the execution. The trace should include all the intermediate steps, LLM calls, tool calls, and final output.</p>
+<p>This trace will be your best friend when it comes to identifying failure modes. By looking at the trace, you can see exactly where things went wrong.</p>
+<p><strong>Axial coding:</strong></p>
+<p>Once you go through a good number of traces</p>
+</section>
+<section id="sub-lesson-1-clustering-production-queries-didnt-work-for-me" class="level2">
+<h2 class="anchored" data-anchor-id="sub-lesson-1-clustering-production-queries-didnt-work-for-me">Sub-lesson 1: Clustering production queries didn’t work for me</h2>
+<p>One approach that I’ve test in the past is to identify a set of classes that I expect user queries in my app to fall into.</p>
+<p>On top of the identified classes, I would create a category for “other” queries that don’t fall into any of the identified classes.</p>
+<p>Then, I would cluster the user queries into the identified classes and the “other” category.</p>
+</section>
 </section>
 <section id="lesson-4-off-the-shelf-evals-dont-work" class="level1">
 <h1>Lesson 4: Off-the-shelf evals don’t work</h1>
