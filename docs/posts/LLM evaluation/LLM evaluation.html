@@ -175,10 +175,11 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
-  <li><a href="#pre-lesson-ill-vibe-check-my-app" id="toc-pre-lesson-ill-vibe-check-my-app">Pre-Lesson: I’ll vibe-check my app</a></li>
+  <li><a href="#pre-lesson" id="toc-pre-lesson">Pre-lesson</a></li>
+  <li><a href="#lesson-1-ill-vibe-check-my-app" id="toc-lesson-1-ill-vibe-check-my-app">Lesson 1: I’ll vibe-check my app</a></li>
   <li><a href="#lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start" id="toc-lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start">Lesson 2: I don’t have any data to test my application, where do I start ?</a>
   <ul>
-  <li><a href="#sub-lesson-1-real-data-is-better-than-synthetic-data" id="toc-sub-lesson-1-real-data-is-better-than-synthetic-data">Sub-lesson 1: Real data is better than synthetic data**</a></li>
+  <li><a href="#sub-lesson-1-real-data-is-better-than-synthetic-data" id="toc-sub-lesson-1-real-data-is-better-than-synthetic-data">Sub-lesson 1: Real data is better than synthetic data</a></li>
   <li><a href="#sub-lesson-2-the-bad-way-to-create-synthetic-data" id="toc-sub-lesson-2-the-bad-way-to-create-synthetic-data">Sub-lesson 2: The bad way to create synthetic data</a></li>
   <li><a href="#sub-lesson-3-the-good-way-to-create-synthetic-data" id="toc-sub-lesson-3-the-good-way-to-create-synthetic-data">Sub-lesson 3: The good way to create synthetic data</a></li>
   </ul></li>
@@ -201,8 +202,14 @@ ul.task-list li input[type="checkbox"] {
 <p>Apart from my personal experience, <a href="https://www.linkedin.com/in/hamelhusain/">Hamel Husain</a> &amp; <a href="https://www.linkedin.com/in/shrshnk/">Shreya Shankar</a> both <a href="https://maven.com/parlance-labs/evals">course</a> &amp; blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are inspired by their work.</p>
 <p>Each of the lessons below will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
-<section id="pre-lesson-ill-vibe-check-my-app" class="level1">
-<h1>Pre-Lesson: I’ll vibe-check my app</h1>
+<section id="pre-lesson" class="level1">
+<h1>Pre-lesson</h1>
+<p>I can’t emphasize this enough and even though you’ve probably heard it a million times before, I’ll have to say it: <strong>KNOW YOUR PRODUCT AND YOUR USERS</strong>.</p>
+<p>If you don’t know your users and your product well, you won’t be able to understand the different ways they’ll interact with your system, the different types of queries they’ll make, and the different ways they can express the same intent. This is going to be a major obstacle whether you want to create synthetic data, to create evaluation metrics, or to interpret the results of your evaluations.</p>
+<p>Now that this is said, let’s dive into the lessons!</p>
+</section>
+<section id="lesson-1-ill-vibe-check-my-app" class="level1">
+<h1>Lesson 1: I’ll vibe-check my app</h1>
 <p>Here’s a common scenario I’ve encountered many times: a company builds a RAG system over their product documentation, and naturally wants to evaluate and improve it. But there’s a pattern I keep seeing so often, companies expecting AI to “just work” out of the box.</p>
 <p>This expectation shows up most clearly in evaluation practices. Companies often use “vibe checks” by manually asking a dozen of questions and eyeballing whether the system answers seem reasonable.</p>
 <p>This is a terrible way to evaluate your LLM applications for multiple reasons:</p>
@@ -223,7 +230,7 @@ ul.task-list li input[type="checkbox"] {
 <li>You can’t deploy your app yet because you haven’t tested it with real user queries yet</li>
 </ul>
 <section id="sub-lesson-1-real-data-is-better-than-synthetic-data" class="level2">
-<h2 class="anchored" data-anchor-id="sub-lesson-1-real-data-is-better-than-synthetic-data">Sub-lesson 1: Real data is better than synthetic data**</h2>
+<h2 class="anchored" data-anchor-id="sub-lesson-1-real-data-is-better-than-synthetic-data">Sub-lesson 1: Real data is better than synthetic data</h2>
 <p>You can almost always get some pseudo-real data. If you can’t have access to some beta users, ask your teammates to test the system. They will have very probably some biases of their own, but at least you will get some data that is not completely synthetic and that has different characteristics because it’s coming from different people.</p>
 </section>
 <section id="sub-lesson-2-the-bad-way-to-create-synthetic-data" class="level2">

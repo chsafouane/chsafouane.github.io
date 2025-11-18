@@ -185,8 +185,8 @@
     "objectID": "posts/LLM evaluation/LLM evaluation.html#sub-lesson-1-real-data-is-better-than-synthetic-data",
     "href": "posts/LLM evaluation/LLM evaluation.html#sub-lesson-1-real-data-is-better-than-synthetic-data",
     "title": "Stop Vibe-Checking: Real-World Lessons on LLM Evals",
-    "section": "Sub-lesson 1: Real data is better than synthetic data**",
-    "text": "Sub-lesson 1: Real data is better than synthetic data**\nYou can almost always get some pseudo-real data. If you can’t have access to some beta users, ask your teammates to test the system. They will have very probably some biases of their own, but at least you will get some data that is not completely synthetic and that has different characteristics because it’s coming from different people."
+    "section": "Sub-lesson 1: Real data is better than synthetic data",
+    "text": "Sub-lesson 1: Real data is better than synthetic data\nYou can almost always get some pseudo-real data. If you can’t have access to some beta users, ask your teammates to test the system. They will have very probably some biases of their own, but at least you will get some data that is not completely synthetic and that has different characteristics because it’s coming from different people."
   },
   {
     "objectID": "posts/LLM evaluation/LLM evaluation.html#sub-lesson-2-the-bad-way-to-create-synthetic-data",
