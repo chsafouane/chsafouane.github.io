@@ -135,16 +135,16 @@
   {
     "objectID": "posts/LLM evaluation/LLM evaluation.html",
     "href": "posts/LLM evaluation/LLM evaluation.html",
-    "title": "LLM Evals: 5 lessons of what actually works",
+    "title": "Stop Vibe-Checking: 5 Battle-Tested Lessons for LLM Evals",
     "section": "",
-    "text": "Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.\nI’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?\nIf you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.\n\n\n\n\n\nThis blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).\nEach lesson will tackle a specific part of building and evaluating real LLM applications."
+    "text": "Deploying LLM-powered systems in production is the easy part. The hard part? Making sure they’re actually working.\nI’ve been deploying LLM-powered systems in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?\nIf you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.\n\n\n\n\n\nThis blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts.\nApart from my personal experience, Hamel Husain & Shreya Shankar both course & blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are inspired by their work.\nEach of the lessons below will tackle a specific part of building and evaluating real LLM applications."
   },
   {
     "objectID": "posts/LLM evaluation/LLM evaluation.html#introduction",
     "href": "posts/LLM evaluation/LLM evaluation.html#introduction",
-    "title": "LLM Evals: 5 lessons of what actually works",
+    "title": "Stop Vibe-Checking: 5 Battle-Tested Lessons for LLM Evals",
     "section": "",
-    "text": "Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.\nI’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?\nIf you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.\n\n\n\n\n\nThis blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).\nEach lesson will tackle a specific part of building and evaluating real LLM applications."
+    "text": "Deploying LLM-powered systems in production is the easy part. The hard part? Making sure they’re actually working.\nI’ve been deploying LLM-powered systems in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?\nIf you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.\n\n\n\n\n\nThis blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts.\nApart from my personal experience, Hamel Husain & Shreya Shankar both course & blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are inspired by their work.\nEach of the lessons below will tackle a specific part of building and evaluating real LLM applications."
   },
   {
     "objectID": "posts/PDF parsing is hard/PDF parsing is hard.html",
@@ -172,6 +172,13 @@
     "href": "index.html",
     "title": "Weekends Eureka",
     "section": "",
-    "text": "LLM Evals: 5 lessons of what actually works\n\n\n\nLLM\n\nEvaluation\n\n\n\n\n\n\n\n\n\nNov 19, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nPDF parsing is hard\n\n\n\nPython\n\nPDF\n\n\n\n\n\n\n\n\n\nAug 29, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nWhy I ditched pip and conda for Pixi\n\n\n\nPython\n\nPackage management\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
+    "text": "Stop Vibe-Checking: 5 Battle-Tested Lessons for LLM Evals\n\n\n\nLLM\n\nEvaluation\n\n\n\n\n\n\n\n\n\nNov 19, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nPDF parsing is hard\n\n\n\nPython\n\nPDF\n\n\n\n\n\n\n\n\n\nAug 29, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nWhy I ditched pip and conda for Pixi\n\n\n\nPython\n\nPackage management\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/LLM evaluation/LLM evaluation.html#this-is-a-terrible-way-to-evaluate-your-llm-applications-for-multiple-reasons",
+    "href": "posts/LLM evaluation/LLM evaluation.html#this-is-a-terrible-way-to-evaluate-your-llm-applications-for-multiple-reasons",
+    "title": "Stop Vibe-Checking: 5 Battle-Tested Lessons for LLM Evals",
+    "section": "This is a terrible way to evaluate your LLM applications for multiple reasons:",
+    "text": "This is a terrible way to evaluate your LLM applications for multiple reasons:"
   }
 ]

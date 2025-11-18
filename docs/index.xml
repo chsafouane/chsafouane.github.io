@@ -12,7 +12,7 @@
 <generator>quarto-1.7.33</generator>
 <lastBuildDate>Tue, 18 Nov 2025 23:00:00 GMT</lastBuildDate>
 <item>
-  <title>LLM Evals: 5 lessons of what actually works</title>
+  <title>Stop Vibe-Checking: 5 Battle-Tested Lessons for LLM Evals</title>
   <dc:creator>Safouane Chergui</dc:creator>
   <link>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</link>
   <description><![CDATA[ 
@@ -23,23 +23,27 @@
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Deploying LLMs in production is the easy part. The hard part? Making sure they’re actually working.</p>
-<p>I’ve been deploying LLMs in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
+<p>Deploying LLM-powered systems in production is the easy part. The hard part? Making sure they’re actually working.</p>
+<p>I’ve been deploying LLM-powered systems in production in many companies and across different industries for almost 3 years now. Each time, I encountered the same critical challenge: <strong>how do you truly evaluate whether your LLM is performing well and not only rely on vibe checks ?</strong></p>
 <p>If you’re struggling to move beyond “it looks good to me” when evaluating your LLM applications, this blog post is for you.</p>
 <br><br>
 <div data-align="center">
 <p><img src="https://chsafouane.github.io/posts/LLM evaluation/assets/front_image.jpg" width="80%" style="display: block; margin: 0 auto;"></p>
 </div>
 <p><br></p>
-<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts (I’ll link to these resources as we go along).</p>
-<p>Each lesson will tackle a specific part of building and evaluating real LLM applications.</p>
+<p>This blog post contains lessons learnt through hands-on experience. These lessons come mostly from my experience testing what I have learnt in deploying real-life LLM applications, talking with peers, doing courses, and reading blog posts.</p>
+<p>Apart from my personal experience, <a href="https://www.linkedin.com/in/hamelhusain/">Hamel Husain</a> &amp; <a href="https://www.linkedin.com/in/shrshnk/">Shreya Shankar</a> both <a href="https://maven.com/parlance-labs/evals">course</a> &amp; blogs on LLM evaluation have been of a great help to me and many of the techniques I discuss here are inspired by their work.</p>
+<p>Each of the lessons below will tackle a specific part of building and evaluating real LLM applications.</p>
 </section>
 <section id="lesson-1-ill-vibe-check-my-app" class="level1">
 <h1>Lesson 1: I’ll vibe-check my app</h1>
-<p>A classic usecase that I’ve seen is a customer that wants to build a RAG over products documentation. Once a vanilla RAG is built over the internal documentation, the customer wants to evaluate it and to iterate over it.</p>
-<p>People expects anything related to AI these days to go fast and to “just work”. This can be seen in the way most people do evals.</p>
-<p>While working with so many customers, I’ve seen them promote this idea of doing “vibe checks” to test the app where you ask a few questions to the app and see if the answers look good to you.</p>
-<p>This is a terrible way to evaluate your LLM applications for multiple reasons:</p>
+<p>Here’s a common scenario I’ve encountered many times: a company builds a RAG system over their product documentation, and naturally wants to evaluate and improve it. But there’s a pattern I keep seeing so often, companies expecting AI to “just work” out of the box.</p>
+<p>This expectation shows up most clearly in evaluation practices. Companies often use “vibe checks” by manually asking a dozen of questions and eyeballing whether the system answers seem reasonable.</p>
+<p>This is a terrible way to evaluate your LLM applications for multiple reasons: - The queries you’re going to ask are biased towards what you think the system should be able to do or towards a specific range of queries that you expect the final user to enter. You will likely miss most of the cases and failure modes that you didn’t think about. From first-hand experience, the users usually will surprise you with the way they write their queries and the types of queries they will enter. You should expect them to write them as if they are in a rush 😅 - Not having evaluating your app in a systematic and/or scalable way will lead to have to deal with “whack-a-mole” situation (as Hamel so beautifully puts it) where you fix one by changing some prompt only to have another one pop up somewhere else.</p>
+<div data-align="center">
+<p><img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm55dDYxNHd5eHdmYzlnZmJnMTg4OHRvb2x4ZWQ4bHVnZzQ2am9waiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ebITvSXYKNvRm/giphy.gif" width="20%" style="display: block; margin: 0 auto;"></p>
+</div>
+<p><br></p>
 </section>
 <section id="lesson-2-i-dont-have-any-data-to-test-my-application-where-do-i-start" class="level1">
 <h1>Lesson 2: I don’t have any data to test my application, where do I start ?</h1>

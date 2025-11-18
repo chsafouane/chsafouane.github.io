@@ -1,0 +1,111 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+% Remove page numbers
+\pagenumbering{gobble}
+
+% Hyperlink setup (black and white)
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    filecolor=black
+}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
+\titleformat{\subsection}[runin]{\bfseries}{}{0em}{}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt}{0pt}
+
+% Custom commands
+\newcommand{\experience}[4]{
+    \noindent\textbf{#1} | #2 | \textit{#3}
+    \vspace{-2pt}
+    #4
+    \vspace{4pt}
+}
+
+\begin{document}
+
+% Header
+\begin{center}
+    {\LARGE\bfseries SAFOUANE CHERGUI}\\[4pt]
+    {\large Lead Data Scientist}\\[6pt]
+    Paris, France\\[4pt]
+    \href{mailto:chsafouane@gmail.com}{chsafouane@gmail.com} |
+    \href{https://www.linkedin.com/in/safouanechergui}{LinkedIn} |
+    \href{https://github.com/chsafouane}{GitHub}
+\end{center}
+
+\vspace{-6pt}
+
+\section*{Technical Expertise}
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=2pt]
+    \item \textbf{ML/AI Domains:} NLP/LLMs, RAG Systems, Search \& Recommendation Engines, Computer Vision
+    \item \textbf{Cloud \& Infrastructure:} Docker, Kubernetes, AWS, GCP, MLflow, Airflow
+    \item \textbf{Specialized:} LLM Evaluation, Production ML Monitoring, Model Drift Detection
+\end{itemize}
+
+\section*{Professional Experience}
+
+\experience{Lead Data Scientist}{EDF}{April 2025 - Current}{
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt]
+    \item Architected and deployed a pipeline for document parsing and question answering using \textbf{RAG systems} over internal knowledge bases
+    \item Led the development of an \textbf{LLM evaluation framework} to benchmark and monitor model performance on key business tasks
+\end{itemize}
+}
+
+\experience{Senior Data Scientist}{Doctolib}{Sep 2024 - April 2025}{
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt]
+    \item Architected and deployed a \textbf{RAG system} reducing customer support costs by \textbf{20\%}
+    \item Enhanced phone assistant system that allows patients to make a medical appointment using a fast \textbf{search system} and \textbf{agents}
+\end{itemize}
+}
+
+\experience{Senior Data Scientist}{Mirakl}{Oct 2023 - Aug 2024}{
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt]
+    \item Built \& deployed an \textbf{LLM-powered catalog integration system} reducing products onboarding time from \textbf{20+ days to hours}
+    \item Implemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow
+    \item Trained \& Deployed small LLMs for domain-specific tasks to \textbf{reduce costs of third-party API usage by 10X}
+\end{itemize}
+}
+
+\experience{Senior Data Scientist}{TheFork (TripAdvisor)}{May 2022 - Oct 2023}{
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt]
+    \item Designed \textbf{recommendation algorithms} driving \textbf{35\% increase} in page visits across web, mobile, and email channels
+    \item Pioneered \textbf{LLM-based review summarization} system processing 500K+ reviews monthly
+    \item Optimized search functionality using semantic embeddings (Elasticsearch, pgvector)
+    \item Built collaborative filtering and content-based recommendation models serving 20M+ users
+\end{itemize}
+}
+
+\experience{Data Scientist}{EDF}{Dec 2018 - May 2022}{
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=0pt]
+    \item Deployed \textbf{production ML models} for customer segmentation, churn prediction (AUC 0.92), and LTV modeling
+    \item Designed \textbf{real-time drift detection system} monitoring 15+ models in production environment
+    \item Built A/B testing framework and interactive dashboard reducing experiment analysis time by 60\%
+    \item Developed predictive maintenance models using \textbf{signal processing and deep learning} (CNN/RNN architectures)
+\end{itemize}
+}
+
+\section*{Key Achievements \& Leadership}
+\begin{itemize}[leftmargin=*, itemsep=0pt, parsep=2pt]
+    \item \textbf{Production Impact:} Deployed 20+ ML models to production with measurable business and costs impact
+    \item \textbf{Technical Leadership:} Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF
+    \item \textbf{Cross-functional Collaboration:} Led projects spanning engineering, product, and business teams
+\end{itemize}
+
+\section*{Education \& Certifications}
+\textbf{MSc Engineering} - INSA Lyon (2013-2018) $\cdot$ \textbf{Deep Learning Specialization} - Coursera $\cdot$ \textbf{Statistical Learning} - Stanford Online
+
+\section*{Languages}
+English (Native) $\cdot$ French (Professional) $\cdot$ Arabic (Native) $\cdot$ Spanish (Fluent) $\cdot$ Mandarin (Learning)
+
+\end{document}
