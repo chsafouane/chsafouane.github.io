@@ -186,10 +186,10 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a>
   <ul>
-  <li><a href="#sub-lesson-1-the-three-steps-to-identify-failure-modes" id="toc-sub-lesson-1-the-three-steps-to-identify-failure-modes">Sub-lesson 1: The three steps to identify failure modes</a></li>
+  <li><a href="#sub-lesson-1-the-three-steps-for-error-analysis" id="toc-sub-lesson-1-the-three-steps-for-error-analysis">Sub-lesson 1: The three steps for error analysis</a></li>
   <li><a href="#sub-lesson-2-clustering-production-queries-didnt-work-for-me" id="toc-sub-lesson-2-clustering-production-queries-didnt-work-for-me">Sub-lesson 2: Clustering production queries didn’t work for me</a></li>
   </ul></li>
-  <li><a href="#lesson-4-off-the-shelf-evals-dont-work" id="toc-lesson-4-off-the-shelf-evals-dont-work">Lesson 4: Off-the-shelf evals don’t work</a></li>
+  <li><a href="#lesson-4-off-the-shelf-evals-dont-work-that-well" id="toc-lesson-4-off-the-shelf-evals-dont-work-that-well">Lesson 4: Off-the-shelf evals don’t work that well</a></li>
   <li><a href="#lesson-5-the-evaluation-interface-matters" id="toc-lesson-5-the-evaluation-interface-matters">Lesson 5: The evaluation interface matters</a></li>
   </ul>
 </nav>
@@ -277,10 +277,15 @@ ul.task-list li input[type="checkbox"] {
 <h1>Lesson 3: Have a systematic way to identify failure modes</h1>
 <p>When you start evaluating your LLM applications, you need to have a systematic way to identify failure modes. Not having a systematic way to identify failure modes will lead you to the same “whack-a-mole” situation mentioned earlier where you fix one failure mode only to have another one pop up somewhere else.</p>
 <p>You can identify failure modes using synthetic data (created as explained in Lesson 2) or real user queries (if you have access to them) even before deploying your app in production.</p>
-<section id="sub-lesson-1-the-three-steps-to-identify-failure-modes" class="level2">
-<h2 class="anchored" data-anchor-id="sub-lesson-1-the-three-steps-to-identify-failure-modes">Sub-lesson 1: The three steps to identify failure modes</h2>
-<p><strong>Traces are king:</strong> Now that you have a set of user queries (either real or synthetic), input each query through your LLM application and generate the whole trace of the execution. The trace should include all the intermediate steps, LLM calls, tool calls, and final output.</p>
-<p>This trace will be your best friend when it comes to identifying failure modes. By looking at the trace, you can see exactly where things went wrong.</p>
+<section id="sub-lesson-1-the-three-steps-for-error-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="sub-lesson-1-the-three-steps-for-error-analysis">Sub-lesson 1: The three steps for error analysis</h2>
+<p>In short, the steps are: - Generate your system’s anwsers for the queries that you have (real or synthetic). Gather the traces of the execution for each query. - Open-coding: Note down the first failure that appears in the trace for each query (if present) - Axial coding: Cluster the failures into families of failure modes.</p>
+<p>This three steps are the key to a successful error analysis. Since I’ve discovered this approach in Hamel &amp; Shreya’s course, it has become my go-to approach for identifying failure modes in LLM applications in a systematic way.</p>
+<p><strong>Traces are king:</strong></p>
+<p>A trace is a detailed log of the execution of your LLM application for a query. It includes all the intermediate steps, LLM calls, tool calls, and final output.</p>
+<p>Well, now that you have a set of user queries (either real or synthetic), input each query through your LLM application and generate the whole trace of the execution. The trace should include all the intermediate steps, LLM calls, tool calls, and final output.</p>
+<p>You should go through a good number of queries to cover the diversity of your queries (usually around a 100 but really depends on the complexity of your application and the diversity of your user queries, could be more or could be less than a 100).</p>
+<p><strong>Open-coding:</strong> Once you have the traces, go through each trace one by one and note down the first failure that appears in the trace for each query (if present). The description of the failure should be a bit specific. For example, you can say “Didn’t call the <code>call_customer_tool</code> even though the customer asked the system to do so”.</p>
 <p><strong>Axial coding:</strong></p>
 <p>Once you go through a good number of traces</p>
 </section>
@@ -404,8 +409,15 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </section>
 </section>
-<section id="lesson-4-off-the-shelf-evals-dont-work" class="level1">
-<h1>Lesson 4: Off-the-shelf evals don’t work</h1>
+<section id="lesson-4-off-the-shelf-evals-dont-work-that-well" class="level1">
+<h1>Lesson 4: Off-the-shelf evals don’t work that well</h1>
+<p>Off-the shelf evals don’t work that well. In the different frameworks/vendors interfaces for LLM applications evaluation, you’ll stumble upon two kinds of metrics:</p>
+<ul>
+<li><p><strong>LLM-based metrics:</strong> These metrics use an LLM to evaluate the quality of the output based on some criteria (e.g., relevance, coherence, etc.). While these metrics can be useful, the prompt used in them is generic and not at all tailored to your specific application and its requirements. Think of LLM-as-a-judge for a second. Usually, you would want the judge to have ample context about your application and the specific criterion you want to evaluate. A generic prompt won’t cut it at all. The same goes for the metrics that are LLM-based.</p></li>
+<li><p><strong>Non-LLM-based metrics:</strong> These metrics are usually quite generic (e.g., BLEU, ROUGE, etc.) and don’t capture how well your application is performing on a business standpoint.</p></li>
+</ul>
+<p>In this <a href="https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/#agents-or-tool-use-cases">page</a>, you can find many examples of both families of metrics.</p>
+<p>Now, all the vendors I’ve worked with allow you to create custom metrics (usually called <code>scorer</code>). So, you can use some vendor API to create your own custom metric in code and have it integrated in their evaluation interface.</p>
 </section>
 <section id="lesson-5-the-evaluation-interface-matters" class="level1">
 <h1>Lesson 5: The evaluation interface matters</h1>
