@@ -186,11 +186,19 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a>
   <ul>
-  <li><a href="#sub-lesson-1-the-three-steps-for-error-analysis" id="toc-sub-lesson-1-the-three-steps-for-error-analysis">Sub-lesson 1: The three steps for error analysis</a></li>
+  <li><a href="#sub-lesson-1-the-three-steps-for-error-analysis" id="toc-sub-lesson-1-the-three-steps-for-error-analysis">Sub-lesson 1: The three steps for error analysis</a>
+  <ul>
+  <li><a href="#traces-are-king" id="toc-traces-are-king">Traces are king</a></li>
+  <li><a href="#open-coding" id="toc-open-coding">Open-coding</a></li>
+  <li><a href="#axial-coding" id="toc-axial-coding">Axial coding</a></li>
+  <li><a href="#what-comes-next" id="toc-what-comes-next">What comes next ?</a></li>
+  <li><a href="#scale-your-evals-in-production" id="toc-scale-your-evals-in-production">Scale your evals in production</a></li>
+  </ul></li>
   <li><a href="#sub-lesson-2-clustering-production-queries-didnt-work-for-me" id="toc-sub-lesson-2-clustering-production-queries-didnt-work-for-me">Sub-lesson 2: Clustering production queries didn’t work for me</a></li>
   </ul></li>
   <li><a href="#lesson-4-off-the-shelf-evals-dont-work-that-well" id="toc-lesson-4-off-the-shelf-evals-dont-work-that-well">Lesson 4: Off-the-shelf evals don’t work that well</a></li>
   <li><a href="#lesson-5-the-evaluation-interface-matters" id="toc-lesson-5-the-evaluation-interface-matters">Lesson 5: The evaluation interface matters</a></li>
+  <li><a href="#final-notes" id="toc-final-notes">Final notes</a></li>
   </ul>
 </nav>
 <section id="introduction" class="level2">
@@ -281,13 +289,114 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="sub-lesson-1-the-three-steps-for-error-analysis">Sub-lesson 1: The three steps for error analysis</h2>
 <p>In short, the steps are: - Generate your system’s anwsers for the queries that you have (real or synthetic). Gather the traces of the execution for each query. - Open-coding: Note down the first failure that appears in the trace for each query (if present) - Axial coding: Cluster the failures into families of failure modes.</p>
 <p>This three steps are the key to a successful error analysis. Since I’ve discovered this approach in Hamel &amp; Shreya’s course, it has become my go-to approach for identifying failure modes in LLM applications in a systematic way.</p>
-<p><strong>Traces are king:</strong></p>
+<section id="traces-are-king" class="level3">
+<h3 class="anchored" data-anchor-id="traces-are-king">Traces are king</h3>
 <p>A trace is a detailed log of the execution of your LLM application for a query. It includes all the intermediate steps, LLM calls, tool calls, and final output.</p>
 <p>Well, now that you have a set of user queries (either real or synthetic), input each query through your LLM application and generate the whole trace of the execution. The trace should include all the intermediate steps, LLM calls, tool calls, and final output.</p>
 <p>You should go through a good number of queries to cover the diversity of your queries (usually around a 100 but really depends on the complexity of your application and the diversity of your user queries, could be more or could be less than a 100).</p>
-<p><strong>Open-coding:</strong> Once you have the traces, go through each trace one by one and note down the first failure that appears in the trace for each query (if present). The description of the failure should be a bit specific. For example, you can say “Didn’t call the <code>call_customer_tool</code> even though the customer asked the system to do so”.</p>
-<p><strong>Axial coding:</strong></p>
-<p>Once you go through a good number of traces</p>
+</section>
+<section id="open-coding" class="level3">
+<h3 class="anchored" data-anchor-id="open-coding">Open-coding</h3>
+<p>Once you have the traces, go through each trace one by one and note down the first failure that appears in the trace for each query (if present). The description of the failure should be a bit specific. For example, you can say “Didn’t call the <code>call_customer_tool</code> even though the customer asked the system to do so”.</p>
+</section>
+<section id="axial-coding" class="level3">
+<h3 class="anchored" data-anchor-id="axial-coding">Axial coding</h3>
+<p>Now that you have annoatated the failures in your dataset, the next step is to put them into clusters of failure modes. You can do: - this manually by going through the list of failures and grouping them into families of failure modes - using an LLM to help you with the clustering. You can provide the LLM with the list of failures and ask it to group them into families of failure modes. This is usually my starting point as it saves a lot of time. Then, I go through the clusters and refine them if needed.</p>
+<p>Now, here’s a diagram that summarizes this 3-step process:</p>
+<div class="cell" data-fig-width="6" data-fig-height="5" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<svg width="576" height="480" viewbox="0.00 0.00 212.51 338.92" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 334.92)">
+<title>ErrorAnalysis</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-334.92 208.51,-334.92 208.51,4 -4,4"></polygon>
+<!-- Start -->
+<g id="node1" class="node">
+<title>Start</title>
+<ellipse fill="#e6f3ff" stroke="#0066cc" stroke-width="2" cx="128.78" cy="-297.26" rx="75.95" ry="33.82"></ellipse>
+<text text-anchor="middle" x="128.78" y="-307.16" font-family="Arial" font-size="11.00">Start:</text>
+<text text-anchor="middle" x="128.78" y="-293.96" font-family="Arial" font-size="11.00">Collect Queries</text>
+<text text-anchor="middle" x="128.78" y="-280.76" font-family="Arial" font-size="11.00">(Real or Synthetic)</text>
+</g>
+<!-- Step1 -->
+<g id="node2" class="node">
+<title>Step1</title>
+<path fill="#fff9e6" stroke="black" d="M141.36,-226.4C141.36,-226.4 12.21,-226.4 12.21,-226.4 6.21,-226.4 0.21,-220.4 0.21,-214.4 0.21,-214.4 0.21,-191.2 0.21,-191.2 0.21,-185.2 6.21,-179.2 12.21,-179.2 12.21,-179.2 141.36,-179.2 141.36,-179.2 147.36,-179.2 153.36,-185.2 153.36,-191.2 153.36,-191.2 153.36,-214.4 153.36,-214.4 153.36,-220.4 147.36,-226.4 141.36,-226.4"></path>
+<text text-anchor="middle" x="76.78" y="-212.7" font-family="Arial" font-size="11.00">1. Generate Traces</text>
+<text text-anchor="middle" x="76.78" y="-199.5" font-family="Arial" font-size="11.00">Run queries through system</text>
+<text text-anchor="middle" x="76.78" y="-186.3" font-family="Arial" font-size="11.00">Capture execution steps</text>
+</g>
+<!-- Start&#45;&gt;Step1 -->
+<g id="edge1" class="edge">
+<title>Start-&gt;Step1</title>
+<path fill="none" stroke="black" d="M110.89,-264.44C105.65,-255.12 99.91,-244.92 94.67,-235.6"></path>
+<polygon fill="black" stroke="black" points="97.58,-233.63 89.63,-226.63 91.48,-237.06 97.58,-233.63"></polygon>
+</g>
+<!-- Step2 -->
+<g id="node3" class="node">
+<title>Step2</title>
+<path fill="#e6ffe6" stroke="black" d="M136.61,-132C136.61,-132 46.96,-132 46.96,-132 40.96,-132 34.96,-126 34.96,-120 34.96,-120 34.96,-96.8 34.96,-96.8 34.96,-90.8 40.96,-84.8 46.96,-84.8 46.96,-84.8 136.61,-84.8 136.61,-84.8 142.61,-84.8 148.61,-90.8 148.61,-96.8 148.61,-96.8 148.61,-120 148.61,-120 148.61,-126 142.61,-132 136.61,-132"></path>
+<text text-anchor="middle" x="91.78" y="-118.3" font-family="Arial" font-size="11.00">2. Open-Coding</text>
+<text text-anchor="middle" x="91.78" y="-105.1" font-family="Arial" font-size="11.00">Annotate first failure</text>
+<text text-anchor="middle" x="91.78" y="-91.9" font-family="Arial" font-size="11.00">in each trace</text>
+</g>
+<!-- Step1&#45;&gt;Step2 -->
+<g id="edge2" class="edge">
+<title>Step1-&gt;Step2</title>
+<path fill="none" stroke="black" d="M80.49,-178.96C82.28,-167.96 84.45,-154.57 86.41,-142.49"></path>
+<polygon fill="black" stroke="black" points="89.92,-142.73 88.07,-132.3 83.01,-141.61 89.92,-142.73"></polygon>
+</g>
+<!-- Step3 -->
+<g id="node4" class="node">
+<title>Step3</title>
+<path fill="#ffe6f0" stroke="black" d="M183.16,-47.4C183.16,-47.4 90.41,-47.4 90.41,-47.4 84.41,-47.4 78.41,-41.4 78.41,-35.4 78.41,-35.4 78.41,-12.2 78.41,-12.2 78.41,-6.2 84.41,-0.2 90.41,-0.2 90.41,-0.2 183.16,-0.2 183.16,-0.2 189.16,-0.2 195.16,-6.2 195.16,-12.2 195.16,-12.2 195.16,-35.4 195.16,-35.4 195.16,-41.4 189.16,-47.4 183.16,-47.4"></path>
+<text text-anchor="middle" x="136.78" y="-33.7" font-family="Arial" font-size="11.00">3. Axial Coding</text>
+<text text-anchor="middle" x="136.78" y="-20.5" font-family="Arial" font-size="11.00">Cluster failures into</text>
+<text text-anchor="middle" x="136.78" y="-7.3" font-family="Arial" font-size="11.00">failure mode families</text>
+</g>
+<!-- Step2&#45;&gt;Step3 -->
+<g id="edge3" class="edge">
+<title>Step2-&gt;Step3</title>
+<path fill="none" stroke="black" d="M104.32,-84.39C109,-75.8 114.4,-65.88 119.44,-56.64"></path>
+<polygon fill="black" stroke="black" points="122.61,-58.14 124.32,-47.69 116.46,-54.79 122.61,-58.14"></polygon>
+</g>
+<!-- Step3&#45;&gt;Start -->
+<g id="edge4" class="edge">
+<title>Step3-&gt;Start</title>
+<path fill="none" stroke="#0066cc" stroke-width="2" d="M146.53,-47.66C150.76,-58.63 155.31,-72.08 157.78,-84.6 160.85,-100.11 168.25,-202.94 162.78,-226.6 160.56,-236.23 156.81,-246.08 152.6,-255.21"></path>
+<polygon fill="#0066cc" stroke="#0066cc" stroke-width="2" points="149.33,-253.92 148.08,-264.44 155.62,-257 149.33,-253.92"></polygon>
+<text text-anchor="middle" x="177.54" y="-152.9" font-family="Arial" font-size="9.00">Iterate</text>
+</g>
+</g>
+</svg>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-comes-next" class="level3">
+<h3 class="anchored" data-anchor-id="what-comes-next">What comes next ?</h3>
+<p><strong>Prioritization:</strong> Now having these clusters of failure modes will help you identify which exact parts of your system are responsible for failures and will help quantify how many failures are due to each failure mode.</p>
+<p><strong>Iteration:</strong> Once you have identified the failure modes and prioritized them, you can start working on fixing them. After fixing them, you can go through the same process again to identify new failure modes that are still there. It’s very important to know that error analysis is an iterative process. You need to do it two or three times at first.</p>
+</section>
+<section id="scale-your-evals-in-production" class="level3">
+<h3 class="anchored" data-anchor-id="scale-your-evals-in-production">Scale your evals in production</h3>
+<p>You might ask yourself if you’ll be doing this manually over production data to verify if th? The answer is that once you have a good understanding of the failure modes and have fixed the most critical ones, you can scale your evaluation by running a custom LLM-as-a-judge for large samples of queries that you have in prod.</p>
+<p>Here’s how to do it: - Get the traces that you’ve labeled previously with successful and failed queries &amp; split them into a train, a dev and a test set.</p>
+<ul>
+<li>Create a custom LLM-as-a-judge for each failure mode:
+<ul>
+<li>For each failure mode, create a prompt that describes the failure mode in a very specific way. Don’t be broad in your description and don’t use vague word (like good, etc). and provides examples of successful and failed queries from your labeled dataset.</li>
+<li>Provide the LLM with example of both successful and failed queries from your train dataset to help it understand the failure mode better.</li>
+<li>Eval the performance of the LLM-as-a-judge on your dev set and iterate on the prompt until you reach a satisfactory performance</li>
+<li>Once you’re satisfied with the performance on the dev set, test the LLM-as-a-judge on your test set to get an estimate of its performance on unseen data. This should give you a good idea of how well the LLM-as-a-judge will perform on production data.</li>
+</ul></li>
+</ul>
+<p>Now, this LLM-as-a-judge can be used to evaluate large samples of production queries and identify the failure modes that are still present in your system.</p>
+</section>
 </section>
 <section id="sub-lesson-2-clustering-production-queries-didnt-work-for-me" class="level2">
 <h2 class="anchored" data-anchor-id="sub-lesson-2-clustering-production-queries-didnt-work-for-me">Sub-lesson 2: Clustering production queries didn’t work for me</h2>
@@ -417,6 +526,7 @@ ul.task-list li input[type="checkbox"] {
 <li><p><strong>Non-LLM-based metrics:</strong> These metrics are usually quite generic (e.g., BLEU, ROUGE, etc.) and don’t capture how well your application is performing on a business standpoint.</p></li>
 </ul>
 <p>In this <a href="https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/#agents-or-tool-use-cases">page</a>, you can find many examples of both families of metrics.</p>
+<p>Thse non-custom metrics will tell you if your system is so bad but can’t be used that much for <strong>incremental improvements</strong>. Many times, I’ve seen that incremental improvements have as much impact on the LLM-based metrics as just rerunning your code with the same prompt and the same settings.</p>
 <p>Now, all the vendors I’ve worked with allow you to create custom metrics (usually called <code>scorer</code>). So, you can use some vendor API to create your own custom metric in code and have it integrated in their evaluation interface.</p>
 </section>
 <section id="lesson-5-the-evaluation-interface-matters" class="level1">
@@ -425,7 +535,16 @@ ul.task-list li input[type="checkbox"] {
 <p>I’ve worked with many vendors providing LLM evaluation interfaces for LLM applications. Their interfaces are quite similar and are actually pretty good to hit the ground running. They will allow you to go through the traces of your LLM applications, see the inputs and outputs, and annotate them with a few clicks. However, what I usually find lacking is the following:</p>
 <ul>
 <li><p>One pattern that slows me most is not having a specific field for failure mode annotation. The slowing down appears most when for example some failure modes have already appeared in the data but I’ll have to write them down again and again for each new trace that I see. Having a specific field for failure mode annotation or just the most recurrent failure modes as options to select from would speed up the annotation process a lot.</p></li>
-<li><p>Formatting 💄 is not customizable: Imagine you have an app for writing emails. When doing your error analysis, you want to see the email formatted as it would appear in an email client (with subject, greeting, body, signature, etc.). This will allow you to easily spot the failure modes instead of having to look at a JSON or a plain blob of text (which is the case of all the interfaces I know). The absence of appropriate formatting slows down the error analysis process a lot. If you want to know more about this topic, I recommend you read <a href="https://chrislovejoy.me/llm-native-expert-system">this talk</a> I wrote by Christopher Lovejoy on building LLM-native apps in vertical industries.</p></li>
+<li><p>Formatting 💄 is not customizable: Imagine you have an app for writing emails. When doing your error analysis, you want to see the email formatted as it would appear in an email client (with subject, greeting, body, signature, etc.). This will allow you to easily spot the failure modes instead of having to look at a JSON or a plain blob of text (which is the case of all the interfaces I know). The absence of appropriate formatting slows down the error analysis process a lot.</p></li>
+</ul>
+<p>If you want to know more about this topic, I recommend you read <a href="https://chrislovejoy.me/llm-native-expert-system">this talk</a> I wrote by Christopher Lovejoy on building LLM-native apps in vertical industries.</p>
+</section>
+<section id="final-notes" class="level1">
+<h1>Final notes</h1>
+<ul>
+<li><p>Don’t hesitate to reach out to me on <a href="https://www.linkedin.com/in/chsafouane/">LinkedIn</a> or via email (chsafouane@gmail.com) if you’d like to talk about this topic or if you have any questions. My company <a href="https://www.linkedin.com/company/lumiereai/">Lumiereai</a> also offers consulting services on this topic.</p></li>
+<li><p>This blog post is not exhaustive. Just before publishing it, I’ve noticed that Hamel Husain has published a very extensive <a href="https://hamel.dev/blog/posts/evals-faq/">blog post</a> on the same topic with many more lessons learnt. I highly recommend you read it as well. He’s the most knowledgeable person I know on this topic and I’ve learnt a lot from his work.</p></li>
+<li><p>I wasn’t paid at all to say this and this is a really a personal advice: If you have the money or your company can pay for it, I really advise you to take Hamel &amp; Shreya’s <a href="https://maven.com/parlance-labs/evals">course</a> on LLM evals. It’s worth every penny and will save you a lot of time and effort in the long run. Otherwise, there is an upcoming book on the same topic that they are writing with Oreilly. Keep an eye on it.</p></li>
 </ul>
 
 
