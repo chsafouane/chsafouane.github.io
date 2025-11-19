@@ -187,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#lesson-3-have-a-systematic-way-to-identify-failure-modes" id="toc-lesson-3-have-a-systematic-way-to-identify-failure-modes">Lesson 3: Have a systematic way to identify failure modes</a>
   <ul>
   <li><a href="#sub-lesson-1-the-three-steps-to-identify-failure-modes" id="toc-sub-lesson-1-the-three-steps-to-identify-failure-modes">Sub-lesson 1: The three steps to identify failure modes</a></li>
-  <li><a href="#sub-lesson-1-clustering-production-queries-didnt-work-for-me" id="toc-sub-lesson-1-clustering-production-queries-didnt-work-for-me">Sub-lesson 1: Clustering production queries didn’t work for me</a></li>
+  <li><a href="#sub-lesson-2-clustering-production-queries-didnt-work-for-me" id="toc-sub-lesson-2-clustering-production-queries-didnt-work-for-me">Sub-lesson 2: Clustering production queries didn’t work for me</a></li>
   </ul></li>
   <li><a href="#lesson-4-off-the-shelf-evals-dont-work" id="toc-lesson-4-off-the-shelf-evals-dont-work">Lesson 4: Off-the-shelf evals don’t work</a></li>
   <li><a href="#lesson-5-the-evaluation-interface-matters" id="toc-lesson-5-the-evaluation-interface-matters">Lesson 5: The evaluation interface matters</a></li>
@@ -284,11 +284,124 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Axial coding:</strong></p>
 <p>Once you go through a good number of traces</p>
 </section>
-<section id="sub-lesson-1-clustering-production-queries-didnt-work-for-me" class="level2">
-<h2 class="anchored" data-anchor-id="sub-lesson-1-clustering-production-queries-didnt-work-for-me">Sub-lesson 1: Clustering production queries didn’t work for me</h2>
-<p>One approach that I’ve test in the past is to identify a set of classes that I expect user queries in my app to fall into.</p>
-<p>On top of the identified classes, I would create a category for “other” queries that don’t fall into any of the identified classes.</p>
-<p>Then, I would cluster the user queries into the identified classes and the “other” category.</p>
+<section id="sub-lesson-2-clustering-production-queries-didnt-work-for-me" class="level2">
+<h2 class="anchored" data-anchor-id="sub-lesson-2-clustering-production-queries-didnt-work-for-me">Sub-lesson 2: Clustering production queries didn’t work for me</h2>
+<p>One approach that I’ve tested in the past (amounts to 1 year) and that didn’t work that well for me is to identify a set of classes that I expect user queries in my app to fall into. Identifying the classes helps in knowing which queries the model is not handling well and which classes of queries need more attention.</p>
+<p>On top of the identified classes, I would create a category for “other” queries that don’t fall into any of the identified classes. an analysis of the queries that have fallen into the “other” category helped me identify new classes that I hadn’t thought about initially and better pinpoint the analysis of the performance of the model on different types of queries.</p>
+<p>At the time, I used GPT-4 to do the classification. What didn’t work well for me was most queries ended up in the “other” category, defeating the purpose of the classification. This pattern showed up with a couple of other decoder LLMs.</p>
+<p>While I thought about finetuning a Bert-like model to do the classification, having to finetune a new model whenever a new class is identified seemed like an overkill and a maintenance nightmare.</p>
+<div class="cell" data-fig-width="6" data-fig-height="8" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<svg width="576" height="768" viewbox="0.00 0.00 217.75 488.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 484)">
+<title>G</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-484 213.75,-484 213.75,4 -4,4"></polygon>
+<!-- Start -->
+<g id="node1" class="node">
+<title>Start</title>
+<path fill="#e6f3ff" stroke="#0066cc" stroke-width="2" d="M154.53,-480C154.53,-480 55.56,-480 55.56,-480 49.56,-480 43.56,-474 43.56,-468 43.56,-468 43.56,-456 43.56,-456 43.56,-450 49.56,-444 55.56,-444 55.56,-444 154.53,-444 154.53,-444 160.53,-444 166.53,-450 166.53,-456 166.53,-456 166.53,-468 166.53,-468 166.53,-474 160.53,-480 154.53,-480"></path>
+<text text-anchor="middle" x="105.05" y="-465.3" font-family="Arial" font-size="11.00">Define Query Classes</text>
+<text text-anchor="middle" x="105.05" y="-452.1" font-family="Arial" font-size="11.00">+ 'Other' Category</text>
+</g>
+<!-- Classify -->
+<g id="node2" class="node">
+<title>Classify</title>
+<polygon fill="#fff9e6" stroke="black" points="105.05,-406.9 24.44,-372.6 105.05,-338.3 185.65,-372.6 105.05,-406.9"></polygon>
+<text text-anchor="middle" x="105.05" y="-375.9" font-family="Arial" font-size="11.00">GPT-4</text>
+<text text-anchor="middle" x="105.05" y="-362.7" font-family="Arial" font-size="11.00">Classification</text>
+</g>
+<!-- Start&#45;&gt;Classify -->
+<g id="edge1" class="edge">
+<title>Start-&gt;Classify</title>
+<path fill="none" stroke="black" d="M105.05,-443.73C105.05,-436.06 105.05,-426.65 105.05,-417.24"></path>
+<polygon fill="black" stroke="black" points="108.55,-417.11 105.05,-407.11 101.55,-417.11 108.55,-417.11"></polygon>
+</g>
+<!-- ToClass -->
+<g id="node3" class="node">
+<title>ToClass</title>
+<path fill="none" stroke="black" d="M84.14,-291.4C84.14,-291.4 11.95,-291.4 11.95,-291.4 5.95,-291.4 -0.05,-285.4 -0.05,-279.4 -0.05,-279.4 -0.05,-267.4 -0.05,-267.4 -0.05,-261.4 5.95,-255.4 11.95,-255.4 11.95,-255.4 84.14,-255.4 84.14,-255.4 90.14,-255.4 96.14,-261.4 96.14,-267.4 96.14,-267.4 96.14,-279.4 96.14,-279.4 96.14,-285.4 90.14,-291.4 84.14,-291.4"></path>
+<text text-anchor="middle" x="48.05" y="-276.7" font-family="Arial" font-size="11.00">Few Queries:</text>
+<text text-anchor="middle" x="48.05" y="-263.5" font-family="Arial" font-size="11.00">Defined Classes</text>
+</g>
+<!-- Classify&#45;&gt;ToClass -->
+<g id="edge2" class="edge">
+<title>Classify-&gt;ToClass</title>
+<path fill="none" stroke="black" d="M89.32,-344.78C81.23,-330.99 71.42,-314.26 63.39,-300.56"></path>
+<polygon fill="black" stroke="black" points="66.24,-298.5 58.16,-291.64 60.2,-302.04 66.24,-298.5"></polygon>
+<text text-anchor="middle" x="83.55" y="-312.1" font-family="Arial" font-size="9.00">Few</text>
+</g>
+<!-- ToOther -->
+<g id="node4" class="node">
+<title>ToOther</title>
+<path fill="#ffe6e6" stroke="#ff6666" stroke-width="2" d="M197.95,-291.4C197.95,-291.4 126.15,-291.4 126.15,-291.4 120.15,-291.4 114.15,-285.4 114.15,-279.4 114.15,-279.4 114.15,-267.4 114.15,-267.4 114.15,-261.4 120.15,-255.4 126.15,-255.4 126.15,-255.4 197.95,-255.4 197.95,-255.4 203.95,-255.4 209.95,-261.4 209.95,-267.4 209.95,-267.4 209.95,-279.4 209.95,-279.4 209.95,-285.4 203.95,-291.4 197.95,-291.4"></path>
+<text text-anchor="middle" x="162.05" y="-276.7" font-family="Arial" font-size="11.00">Most Queries:</text>
+<text text-anchor="middle" x="162.05" y="-263.5" font-family="Arial" font-size="11.00">'Other' Category</text>
+</g>
+<!-- Classify&#45;&gt;ToOther -->
+<g id="edge3" class="edge">
+<title>Classify-&gt;ToOther</title>
+<path fill="none" stroke="black" stroke-width="2" d="M120.77,-344.78C128.86,-330.99 138.67,-314.26 146.7,-300.56"></path>
+<polygon fill="black" stroke="black" stroke-width="2" points="149.9,-302.04 151.93,-291.64 143.86,-298.5 149.9,-302.04"></polygon>
+<text text-anchor="middle" x="149.8" y="-312.1" font-family="Arial" font-size="9.00">Most</text>
+</g>
+<!-- Problem -->
+<g id="node5" class="node">
+<title>Problem</title>
+<polygon fill="#ffcccc" stroke="#ff0000" stroke-width="3" points="166.9,-218.2 41.19,-218.2 41.19,-171 166.9,-171 166.9,-218.2"></polygon>
+<text text-anchor="middle" x="104.05" y="-204.5" font-family="Arial" font-size="11.00">⚠️ PROBLEM:</text>
+<text text-anchor="middle" x="104.05" y="-191.3" font-family="Arial" font-size="11.00">Most queries in 'Other'</text>
+<text text-anchor="middle" x="104.05" y="-178.1" font-family="Arial" font-size="11.00">Defeats Purpose!</text>
+</g>
+<!-- ToClass&#45;&gt;Problem -->
+<g id="edge4" class="edge">
+<title>ToClass-&gt;Problem</title>
+<path fill="none" stroke="black" d="M60.48,-255.36C66.61,-246.95 74.2,-236.54 81.32,-226.77"></path>
+<polygon fill="black" stroke="black" points="84.34,-228.57 87.4,-218.42 78.68,-224.44 84.34,-228.57"></polygon>
+</g>
+<!-- ToOther&#45;&gt;Problem -->
+<g id="edge5" class="edge">
+<title>ToOther-&gt;Problem</title>
+<path fill="none" stroke="black" stroke-width="2" d="M149.17,-255.36C142.76,-246.86 134.8,-236.33 127.37,-226.48"></path>
+<polygon fill="black" stroke="black" stroke-width="2" points="130.1,-224.3 121.28,-218.42 124.52,-228.51 130.1,-224.3"></polygon>
+</g>
+<!-- ConsiderBERT -->
+<g id="node6" class="node">
+<title>ConsiderBERT</title>
+<path fill="none" stroke="black" d="M129.04,-133.8C129.04,-133.8 79.06,-133.8 79.06,-133.8 73.06,-133.8 67.06,-127.8 67.06,-121.8 67.06,-121.8 67.06,-109.8 67.06,-109.8 67.06,-103.8 73.06,-97.8 79.06,-97.8 79.06,-97.8 129.04,-97.8 129.04,-97.8 135.04,-97.8 141.04,-103.8 141.04,-109.8 141.04,-109.8 141.04,-121.8 141.04,-121.8 141.04,-127.8 135.04,-133.8 129.04,-133.8"></path>
+<text text-anchor="middle" x="104.05" y="-119.1" font-family="Arial" font-size="11.00">Try BERT</text>
+<text text-anchor="middle" x="104.05" y="-105.9" font-family="Arial" font-size="11.00">Finetuning?</text>
+</g>
+<!-- Problem&#45;&gt;ConsiderBERT -->
+<g id="edge6" class="edge">
+<title>Problem-&gt;ConsiderBERT</title>
+<path fill="none" stroke="black" d="M104.05,-170.97C104.05,-162.54 104.05,-152.88 104.05,-144.08"></path>
+<polygon fill="black" stroke="black" points="107.55,-143.9 104.05,-133.9 100.55,-143.9 107.55,-143.9"></polygon>
+</g>
+<!-- Problem2 -->
+<g id="node7" class="node">
+<title>Problem2</title>
+<polygon fill="#ffcccc" stroke="#ff0000" stroke-width="3" points="171.89,-60.7 36.21,-60.7 36.21,-0.1 171.89,-0.1 171.89,-60.7"></polygon>
+<text text-anchor="middle" x="104.05" y="-46.9" font-family="Arial" font-size="11.00">⚠️ PROBLEM:</text>
+<text text-anchor="middle" x="104.05" y="-33.7" font-family="Arial" font-size="11.00">Must retrain for</text>
+<text text-anchor="middle" x="104.05" y="-20.5" font-family="Arial" font-size="11.00">each new class</text>
+<text text-anchor="middle" x="104.05" y="-7.3" font-family="Arial" font-size="11.00">Maintenance Nightmare!</text>
+</g>
+<!-- ConsiderBERT&#45;&gt;Problem2 -->
+<g id="edge7" class="edge">
+<title>ConsiderBERT-&gt;Problem2</title>
+<path fill="none" stroke="black" d="M104.05,-97.52C104.05,-89.74 104.05,-80.21 104.05,-70.84"></path>
+<polygon fill="black" stroke="black" points="107.55,-70.81 104.05,-60.81 100.55,-70.81 107.55,-70.81"></polygon>
+</g>
+</g>
+</svg>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="lesson-4-off-the-shelf-evals-dont-work" class="level1">
@@ -296,6 +409,12 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="lesson-5-the-evaluation-interface-matters" class="level1">
 <h1>Lesson 5: The evaluation interface matters</h1>
+<p>When using an interface to evaluate your LLM applications, the interface matters a lot. A good interface should in general empower you to spot the failure modes and annotate your data easily.</p>
+<p>I’ve worked with many vendors providing LLM evaluation interfaces for LLM applications. Their interfaces are quite similar and are actually pretty good to hit the ground running. They will allow you to go through the traces of your LLM applications, see the inputs and outputs, and annotate them with a few clicks. However, what I usually find lacking is the following:</p>
+<ul>
+<li><p>One pattern that slows me most is not having a specific field for failure mode annotation. The slowing down appears most when for example some failure modes have already appeared in the data but I’ll have to write them down again and again for each new trace that I see. Having a specific field for failure mode annotation or just the most recurrent failure modes as options to select from would speed up the annotation process a lot.</p></li>
+<li><p>Formatting 💄 is not customizable: Imagine you have an app for writing emails. When doing your error analysis, you want to see the email formatted as it would appear in an email client (with subject, greeting, body, signature, etc.). This will allow you to easily spot the failure modes instead of having to look at a JSON or a plain blob of text (which is the case of all the interfaces I know). The absence of appropriate formatting slows down the error analysis process a lot. If you want to know more about this topic, I recommend you read <a href="https://chrislovejoy.me/llm-native-expert-system">this talk</a> I wrote by Christopher Lovejoy on building LLM-native apps in vertical industries.</p></li>
+</ul>
 
 
 </section>
