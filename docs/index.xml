@@ -10,7 +10,7 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Tue, 18 Nov 2025 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 18 Nov 2025 22:00:00 GMT</lastBuildDate>
 <item>
   <title>Stop Vibe-Checking: Real-World Lessons on LLM Evals</title>
   <dc:creator>Safouane Chergui</dc:creator>
@@ -375,7 +375,7 @@
   <category>Agent</category>
   <category>Evaluation</category>
   <guid>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</guid>
-  <pubDate>Tue, 18 Nov 2025 23:00:00 GMT</pubDate>
+  <pubDate>Tue, 18 Nov 2025 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>PDF parsing is hard</title>
@@ -595,7 +595,6 @@ startxref
 
 
 
-<p>—title: “Why I ditched pip and conda for Pixi”author: “Safouane Chergui”date: “2025-07-05”format: htmltoc: truetoc-location: bodytoc-depth: 4categories: [Python, Package management]—</p>
 <p>I’ve been using pip and then conda for as long as I can remember. Last year, I did a double-switch. First, I moved to <code>uv</code> and then not long after it I moved to <code>pixi</code>.</p>
 <p>I discovered <code>pixi</code> thanks to Eric Ma <a href="https://ericmjl.github.io/blog/2024/8/16/its-time-to-try-out-pixi/">blog post</a>. At the time, the thing that caught my attention the most is how easy it is to manage the installation of the same environment but one with CUDA support and the other without.</p>
 <p>After months of using <code>pixi</code> now, I can say that the 3 things I like the most about <code>pixi</code> are: - The features concept that allows to mix and match packages to create environments - Being able to run tasks - How fast it is!</p>
