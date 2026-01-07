@@ -21,6 +21,9 @@
 
 
 
+<p align="center">
+<img src="https://chsafouane.github.io/posts/RoPE/assets/thumbnail.png" alt="Post thumbnail (Generated with Gemini)">
+</p>
 <p>I’ve discovered RoPE through tutorials and I wanted to read the paper for quite a while. I’ve finally gotten to it. Even though I understood the general idea and how it works, some questions kept buzzing in my mind. So, in this blog post, I’ll try to start from 0 and take you to a full understanding of RoPE.</p>
 <p>This post will have a question-answer format.</p>
 <section id="q1-why-do-we-need-position-encoding-at-all" class="level1">
