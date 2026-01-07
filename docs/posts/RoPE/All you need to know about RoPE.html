@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Safouane Chergui">
-<meta name="dcterms.date" content="2026-01-08">
+<meta name="dcterms.date" content="2026-01-12">
 
 <title>All you need to know about RoPE – Safouane Chergui</title>
 <style>
@@ -180,7 +180,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 8, 2026</p>
+        <p class="date">January 12, 2026</p>
       </div>
     </div>
     
@@ -219,6 +219,17 @@ window.Quarto = {
 <p>Since queries and keys are computed as <span class="math inline">\(Q = W_Q \cdot X\)</span> and <span class="math inline">\(K = W_K \cdot X\)</span> where <span class="math inline">\(X\)</span> is just the token embedding (no position info in X), the same token always produces the same query/key vector regardless of its position.</p>
 <p>Consequently, attention cannot distinguish who is chasing whom and the two sentences will have the exact attention matrix.</p>
 <p>The conclusion is that we must inject the position information into the attention mechanism. Otherwise, we’re really just weighting a bag of words.</p>
+</section>
+<section id="q2attention-is-all-you-need-solution" class="level1">
+<h1>Q2:“Attention is All You Need” solution</h1>
+<p>Now, the `Attention is All You Need” paper came up with solution for encoding the position information into word embeddings.</p>
+<p>The idea is instead of just having as an input the embedding of the word <code>cat</code> (semantic embedding), they add a vector that encodes the position (an embedding for the position).</p>
+<p><span class="math display">\[\text{input}_i = \text{word\_embedding}_i + \text{position\_embedding}_i\]</span></p>
+<p>So, in sentence 1 &amp; sentence 2, the word <code>cat</code> would have two different representations because the position embedding differs between the two.</p>
+<p>Intuitively, they just add a vector that conveys information about the position to each embedding. The vector nudges the semantic vector in space a bit but not that much as to not put very far from its initial meaning in the space. You can gain more intuition about this from <a href="https://www.youtube.com/watch?v=IHu3QehUmrQ">Luis Serrano video on the topic</a></p>
+<p align="center">
+<img src="./assets/transformer_architecture.png" alt="Transformer Architecture">
+</p>
 
 
 </section>

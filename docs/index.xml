@@ -10,7 +10,7 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Wed, 07 Jan 2026 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 11 Jan 2026 23:00:00 GMT</lastBuildDate>
 <item>
   <title>All you need to know about RoPE</title>
   <dc:creator>Safouane Chergui</dc:creator>
@@ -41,6 +41,17 @@
 <p>Since queries and keys are computed as <img src="https://latex.codecogs.com/png.latex?Q%20=%20W_Q%20%5Ccdot%20X"> and <img src="https://latex.codecogs.com/png.latex?K%20=%20W_K%20%5Ccdot%20X"> where <img src="https://latex.codecogs.com/png.latex?X"> is just the token embedding (no position info in X), the same token always produces the same query/key vector regardless of its position.</p>
 <p>Consequently, attention cannot distinguish who is chasing whom and the two sentences will have the exact attention matrix.</p>
 <p>The conclusion is that we must inject the position information into the attention mechanism. Otherwise, we’re really just weighting a bag of words.</p>
+</section>
+<section id="q2attention-is-all-you-need-solution" class="level1">
+<h1>Q2:“Attention is All You Need” solution</h1>
+<p>Now, the `Attention is All You Need” paper came up with solution for encoding the position information into word embeddings.</p>
+<p>The idea is instead of just having as an input the embedding of the word <code>cat</code> (semantic embedding), they add a vector that encodes the position (an embedding for the position).</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7Binput%7D_i%20=%20%5Ctext%7Bword%5C_embedding%7D_i%20+%20%5Ctext%7Bposition%5C_embedding%7D_i"></p>
+<p>So, in sentence 1 &amp; sentence 2, the word <code>cat</code> would have two different representations because the position embedding differs between the two.</p>
+<p>Intuitively, they just add a vector that conveys information about the position to each embedding. The vector nudges the semantic vector in space a bit but not that much as to not put very far from its initial meaning in the space. You can gain more intuition about this from <a href="https://www.youtube.com/watch?v=IHu3QehUmrQ">Luis Serrano video on the topic</a></p>
+<p align="center">
+<img src="https://chsafouane.github.io/posts/RoPE/assets/transformer_architecture.png" alt="Transformer Architecture">
+</p>
 
 
 </section>
@@ -49,7 +60,7 @@
   <category>Python</category>
   <category>NLP</category>
   <guid>https://chsafouane.github.io/posts/RoPE/All you need to know about RoPE.html</guid>
-  <pubDate>Wed, 07 Jan 2026 23:00:00 GMT</pubDate>
+  <pubDate>Sun, 11 Jan 2026 23:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Stop Vibe-Checking: Real-World Lessons on LLM Evals</title>
