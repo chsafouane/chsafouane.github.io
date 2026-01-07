@@ -203,8 +203,12 @@ window.Quarto = {
 <p>This post will have a question-answer format.</p>
 <section id="q1-why-do-we-need-position-encoding-at-all" class="level1">
 <h1>Q1: Why do we need position encoding at all ?</h1>
-<p>Consider these two sentences: - Sentence 1: <code>The cat chased the mouse</code> - Sentence 2: <code>The mouse chased the cat</code></p>
-<p>These sentences have a different meaning but they are the same for vanilla attention. This is because attention is <code>permutation invariant</code>.</p>
+<p>Consider these two sentences:</p>
+<ul>
+<li>Sentence 1: <code>The cat chased the mouse</code></li>
+<li>Sentence 2: <code>The mouse chased the cat</code></li>
+</ul>
+<p>These sentences have a different meaning but they are the same for vanilla attention. This is because attention is <strong>permutation invariant</strong>.</p>
 <p>To understand this property, let us look at the attention formula:</p>
 <p><span class="math display">\[\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V\]</span></p>
 <p>Let us see if the swapping of <code>cat</code> and <code>mouse</code> positions changes anything when it comes to the vanilla attention mechanism.</p>
