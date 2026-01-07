@@ -91,48 +91,6 @@
     "text": "Useful keys\n\nUsing private conda & PyPI repositories\nSome of my very security-oriented customers usually have their own conda and pip repositories (like nexus) and oblige everyone to use them as they only include packages that are approved by the security team.\nFor this, I use pypi-config.index-url and pypi-config.extra-index-urls to specify the index URL and the extra index URLs to use for PyPI packages.\npixi config set pypi-config.index-url https://nexus.some_random_company.com/pypi/simple\nLooking at the documentation, these can also be added to the pyproject.toml file under the [tool.pixi.pypi-options] section but I’ve never added them here.\n[tool.pixi.pypi-options]\n# Public packages will be sourced from the official PyPI\nindex-url = \"https://nexus.some_random_company.com/pypi/simple\"\n# Internal packages will be searched for here first\nextra-index-urls = [\"https://nexus.some_additional_random_company.com/pypi/simple\"]\nFor conda, I add the channels to the channels entry under the [tool.pixi.workspace] section in the pyproject.toml file:\n[tool.pixi.workspace]\nchannels = [\n    \"https://nexus.some_random_company.com/conda-forge\", \n    \"https://nexus.some_random_company_second.com/conda-forge\"\n]\nplatforms = [\"win-64\"]\nIf you need to manage credentials for private repositories, you can check pixi auth login.\n\n\nPinning strategy\nThe other key that I find useful is the pinning-strategy key. As I said before, by default, pixi uses a very strict pinning strategy that can be annoying at times. You can change it to one of the strategies listed in the documentation.\nPersonally, I like to pin to the major version using:\npixi config set pinning-strategy major\nThis might not be a very good practice as you can see here but it works just fine for my needs."
   },
   {
-    "objectID": "resume.html",
-    "href": "resume.html",
-    "title": "Resume",
-    "section": "",
-    "text": "Lead Data Scientist | Paris, France\nchsafouane@gmail.com | LinkedIn | GitHub\n\n\n\nML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection\n\n\n\n\n\n\n\nArchitected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings (Elasticsearch, pgvector)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)\n\n\n\n\n\n\n\nProduction Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams\n\n\n\n\n\n\nMSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online\n\n\n\n\n\n\nEnglish (Native)\nFrench (Professional)\nArabic (Native)\nSpanish (Fluent)\nMandarin (In the learning process)"
-  },
-  {
-    "objectID": "resume.html#technical-expertise",
-    "href": "resume.html#technical-expertise",
-    "title": "Resume",
-    "section": "",
-    "text": "ML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection"
-  },
-  {
-    "objectID": "resume.html#professional-experience",
-    "href": "resume.html#professional-experience",
-    "title": "Resume",
-    "section": "",
-    "text": "Architected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings (Elasticsearch, pgvector)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)"
-  },
-  {
-    "objectID": "resume.html#key-achievements-leadership",
-    "href": "resume.html#key-achievements-leadership",
-    "title": "Resume",
-    "section": "",
-    "text": "Production Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams"
-  },
-  {
-    "objectID": "resume.html#education-certifications",
-    "href": "resume.html#education-certifications",
-    "title": "Resume",
-    "section": "",
-    "text": "MSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online"
-  },
-  {
-    "objectID": "resume.html#languages",
-    "href": "resume.html#languages",
-    "title": "Resume",
-    "section": "",
-    "text": "English (Native)\nFrench (Professional)\nArabic (Native)\nSpanish (Fluent)\nMandarin (In the learning process)"
-  },
-  {
     "objectID": "posts/LLM evaluation/LLM evaluation.html",
     "href": "posts/LLM evaluation/LLM evaluation.html",
     "title": "Stop Vibe-Checking: Real-World Lessons on LLM Evals",
@@ -182,6 +140,55 @@
     "text": "Sub-lesson 2: Clustering production queries didn’t work for me\nOne approach that I’ve tested in the past (amounts to 1 year) and that didn’t work that well for me is to identify a set of classes that I expect user queries in my app to fall into. Identifying the classes helps in knowing which queries the model is not handling well and which classes of queries need more attention.\nOn top of the identified classes, I would create a category for “other” queries that don’t fall into any of the identified classes. an analysis of the queries that have fallen into the “other” category helped me identify new classes that I hadn’t thought about initially and better pinpoint the analysis of the performance of the model on different types of queries.\nAt the time, I used GPT-4 to do the classification. What didn’t work well for me was most queries ended up in the “other” category, defeating the purpose of the classification. This pattern showed up with a couple of other decoder LLMs.\nWhile I thought about finetuning a Bert-like model to do the classification, having to finetune a new model whenever a new class is identified seemed like an overkill and a maintenance nightmare.\n\n\n\n\n\n\n\nG\n\n\n\nStart\n\nDefine Query Classes\n+ 'Other' Category\n\n\n\nClassify\n\nGPT-4\nClassification\n\n\n\nStart-&gt;Classify\n\n\n\n\n\nToClass\n\nFew Queries:\nDefined Classes\n\n\n\nClassify-&gt;ToClass\n\n\nFew\n\n\n\nToOther\n\nMost Queries:\n'Other' Category\n\n\n\nClassify-&gt;ToOther\n\n\nMost\n\n\n\nProblem\n\n⚠️ PROBLEM:\nMost queries in 'Other'\nDefeats Purpose!\n\n\n\nToClass-&gt;Problem\n\n\n\n\n\nToOther-&gt;Problem\n\n\n\n\n\nConsiderBERT\n\nTry BERT\nFinetuning?\n\n\n\nProblem-&gt;ConsiderBERT\n\n\n\n\n\nProblem2\n\n⚠️ PROBLEM:\nMust retrain for\neach new class\nMaintenance Nightmare!\n\n\n\nConsiderBERT-&gt;Problem2"
   },
   {
+    "objectID": "resume.html",
+    "href": "resume.html",
+    "title": "Resume",
+    "section": "",
+    "text": "Lead Data Scientist | Paris, France\nchsafouane@gmail.com | LinkedIn | GitHub\n\n\n\nML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection\n\n\n\n\n\n\n\nArchitected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings (Elasticsearch, pgvector)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)\n\n\n\n\n\n\n\nProduction Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams\n\n\n\n\n\n\nMSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online\n\n\n\n\n\n\nEnglish (Native)\nFrench (Professional)\nArabic (Native)\nSpanish (Fluent)\nMandarin (In the learning process)"
+  },
+  {
+    "objectID": "resume.html#technical-expertise",
+    "href": "resume.html#technical-expertise",
+    "title": "Resume",
+    "section": "",
+    "text": "ML/AI Domains: NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision\nCloud & Infrastructure: Docker, Kubernetes, AWS, GCP, MLflow, Airflow\nSpecialized: LLM Evaluation, Production ML Monitoring, Model Drift Detection"
+  },
+  {
+    "objectID": "resume.html#professional-experience",
+    "href": "resume.html#professional-experience",
+    "title": "Resume",
+    "section": "",
+    "text": "Architected and deployed a pipeline for document parsing and question answering using RAG systems over internal knowledge bases\nLed the development of an LLM evaluation framework to benchmark and monitor model performance on key business tasks\n\n\n\n\n\nArchitected and deployed a RAG system reducing customer support costs by 20%\nEnhanced phone assistant system that allows patients to make a medical appointment using a fast search system and agents\n\n\n\n\n\nBuilt & deployed an LLM-powered catalog integration system reducing products onboarding time from 20+ days to hours\nImplemented end-to-end MLOps pipeline for model versioning and automated retraining using MLflow\nTrained & Deployed small LLMs for domain-specific tasks to reduce costs of third-party API usage by 10X\n\n\n\n\n\nDesigned recommendation algorithms driving 35% increase in page visits across web, mobile, and email channels\nPioneered LLM-based review summarization system processing 500K+ reviews monthly\nOptimized search functionality using semantic embeddings (Elasticsearch, pgvector)\nBuilt collaborative filtering and content-based recommendation models serving 20M+ users\n\n\n\n\n\nDeployed production ML models for customer segmentation, churn prediction (AUC 0.92), and LTV modeling\nDesigned real-time drift detection system monitoring 15+ models in production environment\nBuilt A/B testing framework and interactive dashboard reducing experiment analysis time by 60%\nDeveloped predictive maintenance models using signal processing and deep learning (CNN/RNN architectures)"
+  },
+  {
+    "objectID": "resume.html#key-achievements-leadership",
+    "href": "resume.html#key-achievements-leadership",
+    "title": "Resume",
+    "section": "",
+    "text": "Production Impact: Deployed 20+ ML models to production with measurable business and costs impact\nTechnical Leadership: Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF\nCross-functional Collaboration: Led projects spanning engineering, product, and business teams"
+  },
+  {
+    "objectID": "resume.html#education-certifications",
+    "href": "resume.html#education-certifications",
+    "title": "Resume",
+    "section": "",
+    "text": "MSc Engineering - INSA Lyon (2013-2018)\nDeep Learning Specialization - Coursera\nStatistical Learning - Stanford Online"
+  },
+  {
+    "objectID": "resume.html#languages",
+    "href": "resume.html#languages",
+    "title": "Resume",
+    "section": "",
+    "text": "English (Native)\nFrench (Professional)\nArabic (Native)\nSpanish (Fluent)\nMandarin (In the learning process)"
+  },
+  {
+    "objectID": "posts/RoPE/All you need to know about RoPE.html",
+    "href": "posts/RoPE/All you need to know about RoPE.html",
+    "title": "All you need to know about RoPE",
+    "section": "",
+    "text": "I’ve discovered RoPE through tutorials and I wanted to read the paper for quite a while. I’ve finally gotten to it. Even though I understood the general idea and how it works, some questions kept buzzing in my mind. So, in this blog post, I’ll try to start from 0 and take you to a full understanding of RoPE.\nThis post will have a question-answer format.\n\nQ1: Why do we need position encoding at all ?\nConsider these two sentences: - Sentence 1: The cat chased the mouse - Sentence 2: The mouse chased the cat\nThese sentences have a different meaning but they are the same for vanilla attention. This is because attention is permutation invariant.\nTo understand this property, let us look at the attention formula:\n\\[\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V\\]\nLet us see if the swapping of cat and mouse positions changes anything when it comes to the vanilla attention mechanism.\nIn sentence 1, the attention score between cat at position 1 and mouse at position 4 is:\n\\[\\text{score}_{1,4} = \\text{softmax}\\left(\\frac{q_{\\text{cat}} \\cdot k_{\\text{mouse}}}{\\sqrt{d_k}}\\right)\\]\nIn sentence 2, the attention score between mouse at position 1 and cat at position 4 is:\n\\[\\text{score}_{1,4} = \\text{softmax}\\left(\\frac{q_{\\text{mouse}} \\cdot k_{\\text{cat}}}{\\sqrt{d_k}}\\right)\\]\nSince queries and keys are computed as \\(Q = W_Q \\cdot X\\) and \\(K = W_K \\cdot X\\) where \\(X\\) is just the token embedding (no position info in X), the same token always produces the same query/key vector regardless of its position.\nConsequently, attention cannot distinguish who is chasing whom and the two sentences will have the exact attention matrix.\nThe conclusion is that we must inject the position information into the attention mechanism. Otherwise, we’re really just weighting a bag of words."
+  },
+  {
     "objectID": "posts/PDF parsing is hard/PDF parsing is hard.html",
     "href": "posts/PDF parsing is hard/PDF parsing is hard.html",
     "title": "PDF parsing is hard",
@@ -207,6 +214,6 @@
     "href": "index.html",
     "title": "Weekends Eureka",
     "section": "",
-    "text": "Stop Vibe-Checking: Real-World Lessons on LLM Evals\n\n\n\nLLM\n\nAgent\n\nEvaluation\n\n\n\n\n\n\n\n\n\nNov 19, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nPDF parsing is hard\n\n\n\nPython\n\nPDF\n\n\n\n\n\n\n\n\n\nAug 29, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nWhy I ditched pip and conda for Pixi\n\n\n\nPython\n\nPackage management\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
+    "text": "All you need to know about RoPE\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJan 8, 2026\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nStop Vibe-Checking: Real-World Lessons on LLM Evals\n\n\n\nLLM\n\nAgent\n\nEvaluation\n\n\n\n\n\n\n\n\n\nNov 19, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nPDF parsing is hard\n\n\n\nPython\n\nPDF\n\n\n\n\n\n\n\n\n\nAug 29, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nWhy I ditched pip and conda for Pixi\n\n\n\nPython\n\nPackage management\n\n\n\n\n\n\n\n\n\nJul 5, 2025\n\n\nSafouane Chergui\n\n\n\n\n\n\n\n\n\n\n\n\nByte Pair Encoding Tokenization\n\n\n\nPython\n\nNLP\n\n\n\n\n\n\n\n\n\nJul 7, 2024\n\n\nSafouane Chergui\n\n\n\n\n\nNo matching items"
   }
 ]

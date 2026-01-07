@@ -10,7 +10,43 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Tue, 18 Nov 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 07 Jan 2026 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>All you need to know about RoPE</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/RoPE/All you need to know about RoPE.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I’ve discovered RoPE through tutorials and I wanted to read the paper for quite a while. I’ve finally gotten to it. Even though I understood the general idea and how it works, some questions kept buzzing in my mind. So, in this blog post, I’ll try to start from 0 and take you to a full understanding of RoPE.</p>
+<p>This post will have a question-answer format.</p>
+<section id="q1-why-do-we-need-position-encoding-at-all" class="level1">
+<h1>Q1: Why do we need position encoding at all ?</h1>
+<p>Consider these two sentences: - Sentence 1: <code>The cat chased the mouse</code> - Sentence 2: <code>The mouse chased the cat</code></p>
+<p>These sentences have a different meaning but they are the same for vanilla attention. This is because attention is <code>permutation invariant</code>.</p>
+<p>To understand this property, let us look at the attention formula:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BAttention%7D(Q,%20K,%20V)%20=%20%5Ctext%7Bsoftmax%7D%5Cleft(%5Cfrac%7BQK%5ET%7D%7B%5Csqrt%7Bd_k%7D%7D%5Cright)V"></p>
+<p>Let us see if the swapping of <code>cat</code> and <code>mouse</code> positions changes anything when it comes to the vanilla attention mechanism.</p>
+<p>In sentence 1, the attention score between <code>cat</code> at position 1 and <code>mouse</code> at position 4 is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bscore%7D_%7B1,4%7D%20=%20%5Ctext%7Bsoftmax%7D%5Cleft(%5Cfrac%7Bq_%7B%5Ctext%7Bcat%7D%7D%20%5Ccdot%20k_%7B%5Ctext%7Bmouse%7D%7D%7D%7B%5Csqrt%7Bd_k%7D%7D%5Cright)"></p>
+<p>In sentence 2, the attention score between <code>mouse</code> at position 1 and <code>cat</code> at position 4 is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bscore%7D_%7B1,4%7D%20=%20%5Ctext%7Bsoftmax%7D%5Cleft(%5Cfrac%7Bq_%7B%5Ctext%7Bmouse%7D%7D%20%5Ccdot%20k_%7B%5Ctext%7Bcat%7D%7D%7D%7B%5Csqrt%7Bd_k%7D%7D%5Cright)"></p>
+<p>Since queries and keys are computed as <img src="https://latex.codecogs.com/png.latex?Q%20=%20W_Q%20%5Ccdot%20X"> and <img src="https://latex.codecogs.com/png.latex?K%20=%20W_K%20%5Ccdot%20X"> where <img src="https://latex.codecogs.com/png.latex?X"> is just the token embedding (no position info in X), the same token always produces the same query/key vector regardless of its position.</p>
+<p>Consequently, attention cannot distinguish who is chasing whom and the two sentences will have the exact attention matrix.</p>
+<p>The conclusion is that we must inject the position information into the attention mechanism. Otherwise, we’re really just weighting a bag of words.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>NLP</category>
+  <guid>https://chsafouane.github.io/posts/RoPE/All you need to know about RoPE.html</guid>
+  <pubDate>Wed, 07 Jan 2026 23:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Stop Vibe-Checking: Real-World Lessons on LLM Evals</title>
   <dc:creator>Safouane Chergui</dc:creator>
@@ -375,7 +411,7 @@
   <category>Agent</category>
   <category>Evaluation</category>
   <guid>https://chsafouane.github.io/posts/LLM evaluation/LLM evaluation.html</guid>
-  <pubDate>Tue, 18 Nov 2025 22:00:00 GMT</pubDate>
+  <pubDate>Tue, 18 Nov 2025 23:00:00 GMT</pubDate>
 </item>
 <item>
   <title>PDF parsing is hard</title>
