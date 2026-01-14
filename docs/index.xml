@@ -26,12 +26,8 @@
 - Q1: Why do we need activation functions at all?<br>
 - Q2: What’s wrong with ReLU?<br>
 - Q3: What is the Swish activation function?<br>
-- Is Swish better than ReLU?<br>
 - Q4: What are Gated Linear Units (GLU)?<br>
-- Why is multiplicative gating powerful?<br>
-- Concrete example of gating<br>
 - Q5: What is SwiGLU then?<br>
-- Why does SwiGLU work so well?<br>
 - Final note</p>
 <!-- vscode-jupyter-toc-config
     numbering=false
