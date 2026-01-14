@@ -2,7 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/RoPE/All you need to know about RoPE.html",
+      "/posts/SwiGLU/All you need to know about SwiGLU.html",
       "/posts/LLM evaluation/LLM evaluation.html",
       "/posts/PDF parsing is hard/PDF parsing is hard.html",
       "/posts/Pixi intro/Why I ditched conda and pip for Pixi.html",

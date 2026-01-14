@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Safouane Chergui">
-<meta name="dcterms.date" content="2026-01-12">
+<meta name="dcterms.date" content="2026-01-14">
 
-<title>All you need to know about RoPE – Safouane Chergui</title>
+<title>Why does SwiGLU work ? – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -159,10 +159,11 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">All you need to know about RoPE</h1>
+      <h1 class="title">Why does SwiGLU work ?</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Python</div>
                 <div class="quarto-category">NLP</div>
+                <div class="quarto-category">Deep Learning</div>
               </div>
                   </div>
   </div>
@@ -180,7 +181,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 12, 2026</p>
+        <p class="date">January 14, 2026</p>
       </div>
     </div>
     
@@ -199,40 +200,170 @@ window.Quarto = {
 
 
 
-<p>I’ve discovered RoPE through tutorials and I wanted to read the paper for quite a while. I’ve finally gotten to it. Even though I understood the general idea and how it works, some questions kept buzzing in my mind. So, in this blog post, I’ll try to start from 0 and take you to a full understanding of RoPE.</p>
-<p>This post will have a question-answer format.</p>
-<p align="center">
-<img src="./assets/thumbnail.png" alt="Post thumbnail (Generated with Gemini)" width="60%">
-</p>
-<section id="q1-why-do-we-need-position-encoding-at-all" class="level1">
-<h1>Q1: Why do we need position encoding at all ?</h1>
-<p>Consider these two sentences:</p>
-<ul>
-<li>Sentence 1: <code>The cat chased the mouse</code></li>
-<li>Sentence 2: <code>The mouse chased the cat</code></li>
-</ul>
-<p>These sentences have a different meaning but they are the same for vanilla attention. This is because attention is <strong>permutation invariant</strong>.</p>
-<p>To understand this property, let us look at the attention formula:</p>
-<p><span class="math display">\[\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V\]</span></p>
-<p>Let us see if the swapping of <code>cat</code> and <code>mouse</code> positions changes anything when it comes to the vanilla attention mechanism.</p>
-<p>In sentence 1, the attention score between <code>cat</code> at position 1 and <code>mouse</code> at position 4 is:</p>
-<p><span class="math display">\[\text{score}_{1,4} = \text{softmax}\left(\frac{q_{\text{cat}} \cdot k_{\text{mouse}}}{\sqrt{d_k}}\right)\]</span></p>
-<p>In sentence 2, the attention score between <code>mouse</code> at position 1 and <code>cat</code> at position 4 is:</p>
-<p><span class="math display">\[\text{score}_{1,4} = \text{softmax}\left(\frac{q_{\text{mouse}} \cdot k_{\text{cat}}}{\sqrt{d_k}}\right)\]</span></p>
-<p>Since queries and keys are computed as <span class="math inline">\(Q = W_Q \cdot X\)</span> and <span class="math inline">\(K = W_K \cdot X\)</span> where <span class="math inline">\(X\)</span> is just the token embedding (no position info in X), the same token always produces the same query/key vector regardless of its position.</p>
-<p>Consequently, attention cannot distinguish who is chasing whom and the two sentences will have the exact attention matrix.</p>
-<p>The conclusion is that we must inject the position information into the attention mechanism. Otherwise, we’re really just weighting a bag of words.</p>
+<p>The goal of this blog post is to explain why modern LLM architectures use <code>SwiGLU</code> as the activation function for the feed-forward part and have moved away from <code>ReLU</code>.</p>
+<p><strong>Table of contents</strong><a id="toc0_"></a><br>
+- <a href="#toc1_">Q1: Why do we need activation functions at all?</a><br>
+- <a href="#toc2_">Q2: What’s wrong with ReLU?</a><br>
+- <a href="#toc3_">Q3: What is the Swish activation function?</a><br>
+- <a href="#toc3_1_1_">Is Swish better than ReLU?</a><br>
+- <a href="#toc4_">Q4: What are Gated Linear Units (GLU)?</a><br>
+- <a href="#toc4_1_1_">Why is multiplicative gating powerful?</a><br>
+- <a href="#toc4_1_2_">Concrete example of gating</a><br>
+- <a href="#toc5_">Q5: What is SwiGLU then?</a><br>
+- <a href="#toc5_1_1_">Why does SwiGLU work so well?</a><br>
+- <a href="#toc6_">Final note</a></p>
+<!-- vscode-jupyter-toc-config
+    numbering=false
+    anchor=true
+    flat=false
+    minLevel=1
+    maxLevel=6
+    /vscode-jupyter-toc-config -->
+<!-- THIS CELL WILL BE REPLACED ON TOC UPDATE. DO NOT WRITE YOUR TEXT IN THIS CELL -->
+<section id="q1-why-do-we-need-activation-functions-at-all" class="level1">
+<h1><a id="toc1_"></a><a href="#toc0_">Q1: Why do we need activation functions at all?</a></h1>
+<p>Consider this: a neural network is essentially a series of matrix multiplications. If we stack linear layers without any activation function:</p>
+<p><span class="math display">\[y = W_3(W_2(W_1 x))\]</span></p>
+<p>This simplifies to:</p>
+<p><span class="math display">\[y = (W_3 W_2 W_1) x = W_{combined} x\]</span></p>
+<p>No matter how many layers you stack, it’s still just a linear transformation. The network can only learn linear relationships.</p>
+<p>Activation functions introduce <strong>non-linearity</strong>, allowing the network to approximate complex, non-linear functions. This is the foundation of deep learning’s expressive power.</p>
+<p>Now, if you have a hard time mentally visualizing the impact of applying activation functions, I highly advise you to watch <a href="https://youtu.be/5_qrxVq1kvc?list=PL80I41oVxglKcAHllsU0txr3OuTTaWX2v&amp;t=1693">the section 3 of this video</a> from Alfredo Canziani’s Deep Learning course. It will help you build a great intuition!</p>
 </section>
-<section id="q2attention-is-all-you-need-solution" class="level1">
-<h1>Q2:“Attention is All You Need” solution</h1>
-<p>Now, the `Attention is All You Need” paper came up with solution for encoding the position information into word embeddings.</p>
-<p>The idea is instead of just having as an input the embedding of the word <code>cat</code> (semantic embedding), they add a vector that encodes the position (an embedding for the position).</p>
-<p><span class="math display">\[\text{input}_i = \text{word\_embedding}_i + \text{position\_embedding}_i\]</span></p>
-<p>So, in sentence 1 &amp; sentence 2, the word <code>cat</code> would have two different representations because the position embedding differs between the two.</p>
-<p>Intuitively, they just add a vector that conveys information about the position to each embedding. The vector nudges the semantic vector in space a bit but not that much as to not put very far from its initial meaning in the space. You can gain more intuition about this from <a href="https://www.youtube.com/watch?v=IHu3QehUmrQ">Luis Serrano video on the topic</a></p>
-<p align="center">
-<img src="./assets/transformer_architecture.png" alt="Transformer Architecture">
-</p>
+<section id="q2-whats-wrong-with-relu" class="level1">
+<h1><a id="toc2_"></a><a href="#toc0_">Q2: What’s wrong with ReLU?</a></h1>
+<p><code>ReLU</code> literally revolutionized deep learning:</p>
+<p><span class="math display">\[\text{ReLU}(x) = \max(0, x)\]</span></p>
+<p>It’s simple, fast, and solves the vanishing gradient problem that is a problem with functions like <code>sigmoid</code> or <code>tanh</code>.</p>
+<p>While people usually list problems that might be encountered when <code>ReLU</code> is used like the <em>dying neuron problem</em>, these problems are either theoritical or can be well managed most of the time with techniques used in neural networks nowadays (batch normalization, adaptive learning weights, etc)</p>
+</section>
+<section id="q3-what-is-the-swish-activation-function" class="level1">
+<h1><a id="toc3_"></a><a href="#toc0_">Q3: What is the Swish activation function?</a></h1>
+<p>Now, before moving to SwiGLU, we’ll look at an activation function <strong>Swish</strong> that is part of <strong>SwiGLU</strong></p>
+<p><span class="math display">\[\text{Swish}(x) = x \cdot \sigma(x) = \frac{x}{1 + e^{-x}}\]</span></p>
+<p>Swish is a ‘self-gated’ activation function: the input <span class="math inline">\(x\)</span> is multiplied by its own sigmoid <span class="math inline">\(\sigma(x)\)</span>, which acts as a <strong>gate</strong> that controls how much of the input passes through.</p>
+<p>Looking at how the gate behaves: - When <span class="math inline">\(x\)</span> is very negative: <span class="math inline">\(\sigma(x) \approx 0\)</span>, so the gate is <strong>closed</strong> (suppresses the output) - When <span class="math inline">\(x\)</span> is very positive: <span class="math inline">\(\sigma(x) \approx 1\)</span>, so the gate is <strong>fully open</strong> (passes the input through almost unchanged)</p>
+<p>Despite the bit more complicated formula, <code>Swish</code> has a very similar behavior to <code>ReLU</code>.</p>
+<div id="cell-9" class="cell" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="All you need to know about SwiGLU_files/figure-html/cell-2-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="is-swish-better-than-relu" class="level3">
+<h3 class="anchored" data-anchor-id="is-swish-better-than-relu"><a id="toc3_1_1_"></a><a href="#toc0_">Is Swish better than ReLU?</a></h3>
+<p>Empirically, <code>Swish</code> is found to work better than <code>ReLU</code> but like many things in deep learning, we don’t know for sure why <code>Swish</code> works better, but here are the key differences:</p>
+<p><strong>1. No hard gradient cutoff</strong></p>
+<p>Looking at the plot above, the key difference is how they handle negative inputs:</p>
+<ul>
+<li><strong>ReLU</strong>: Hard cutoff at zero
+<ul>
+<li>When <span class="math inline">\(x &lt; 0\)</span>: output = 0 &amp; gradient = 0 (exactly)</li>
+<li>This is the dying neuron problem (though as mentioned in Q2, it’s often manageable with modern techniques like BatchNorm)</li>
+</ul></li>
+<li><strong>Swish</strong>: Smooth, gradual approach to zero
+<ul>
+<li>For negative <span class="math inline">\(x\)</span>: gradient approaches zero asymptotically but never exactly hits zero for finite values</li>
+<li>Neurons can theoretically always receive updates (though updates may be negligible for very negative inputs)</li>
+</ul></li>
+</ul>
+<p><strong>2. Smoothness</strong></p>
+<p><code>ReLU</code> has a discontinuity at <span class="math inline">\(x = 0\)</span> (derivative jumps from 0 to 1). <code>Swish</code> is infinitely differentiable everywhere, which means that the gradient landscape is smooth. Whether this smoothness contributes to the performance of <code>Swish</code> is not 100% clear but it’s plausible that this helps with optimization</p>
+<div id="cell-11" class="cell" data-execution_count="28">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="All you need to know about SwiGLU_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="q4-what-are-gated-linear-units-glu" class="level1">
+<h1><a id="toc4_"></a><a href="#toc0_">Q4: What are Gated Linear Units (GLU)?</a></h1>
+<p>Now, this is our last component before getting to <code>SwiGLU</code>. Let’s talk about <strong>GLU</strong>.</p>
+<p><span class="math display">\[\text{GLU}(x, W, V, b, c) = (xW + b) \odot \sigma(xV + c)\]</span></p>
+<p>Where: - <span class="math inline">\(x\)</span> is the input - <span class="math inline">\(W, V\)</span> are weight matrices - <span class="math inline">\(b, c\)</span> are bias vectors - <span class="math inline">\(\odot\)</span> is element-wise multiplication - <span class="math inline">\(\sigma\)</span> is the sigmoid function</p>
+<p>The first thing that you should note is that <code>GLU</code> uses a gating mechanism and is somehow similar to <code>Swish</code> in that manner. The difference is that instead of applying the same transformation (identity) to all features and then gating with a fixed function (sigmoid), GLU uses two separate linear projections:</p>
+<ol type="1">
+<li><span class="math inline">\(xW + b\)</span>: this just takes the input &amp; transforms it. It is usually called the <em>content path</em></li>
+<li><span class="math inline">\(\sigma(xV + c)\)</span>: this second part says how much of the content of each feature should pass through and for that, it’s called the <em>gate path</em></li>
+</ol>
+<p>So, <code>GLU</code> can really be thought of as a generalization fo <code>Swish</code></p>
+<section id="why-is-multiplicative-gating-powerful" class="level3">
+<h3 class="anchored" data-anchor-id="why-is-multiplicative-gating-powerful"><a id="toc4_1_1_"></a><a href="#toc0_">Why is multiplicative gating powerful?</a></h3>
+<p>The element-wise multiplication <span class="math inline">\(\odot\)</span> allows <em>the gate</em> to select which element of <em>the content</em> to let pass through. The gate can completely suppress certain features (when <span class="math inline">\(\sigma(xV + c) \approx 0\)</span>) while fully passing through others (when <span class="math inline">\(\sigma(xV + c) \approx 1\)</span>).</p>
+</section>
+<section id="concrete-example-of-gating" class="level3">
+<h3 class="anchored" data-anchor-id="concrete-example-of-gating"><a id="toc4_1_2_"></a><a href="#toc0_">Concrete example of gating</a></h3>
+<p>let suppose we have a 4-dim vector <span class="math inline">\(x\)</span></p>
+<p><span class="math display">\[x = [1.0, -0.5, 2.0, 0.3]\]</span></p>
+<p>GLU applies 2 transformations to this same input:</p>
+<ol type="1">
+<li>A transformation to the content through the content path: <span class="math inline">\(xW + b\)</span>. Let us say that it produces <span class="math inline">\([2.0, -1.5, 3.0, 0.5]\)</span></li>
+<li>A 2nd transformation that’s supposed to play the role of the gate: <span class="math inline">\(\sigma(xV + c)\)</span>. Let us say that it produces <span class="math inline">\([0.9, 0.1, 0.95, 0.05]\)</span></li>
+</ol>
+<p>The GLU output is their element-wise product:</p>
+<p><span class="math display">\[\text{GLU output} = [2.0 \times 0.9, \;\; -1.5 \times 0.1, \;\; 3.0 \times 0.95, \;\; 0.5 \times 0.05]\]</span> <span class="math display">\[= [1.8, \;\; -0.15, \;\; 2.85, \;\; 0.025]\]</span></p>
+<p>This means that: - <strong>Feature 1</strong>: Content is positive (2.0), gate is high (0.9) → passes through strongly (1.8) - <strong>Feature 2</strong>: Content is negative (-1.5), gate is low (0.1) → blocked (-0.15) - <strong>Feature 3</strong>: Content is positive (3.0), gate is very high (0.95) → fully passes (2.85) - <strong>Feature 4</strong>: Content is small (0.5), gate is very low (0.05) → suppressed (0.025)</p>
+<p>This allows the network to learn complex decision rules: “for inputs like <span class="math inline">\(x\)</span>, amplify feature 1 and 3, but suppress features 2 and 4.”</p>
+<div id="cell-15" class="cell" data-execution_count="29">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="All you need to know about SwiGLU_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="q5-what-is-swiglu-then" class="level1">
+<h1><a id="toc5_"></a><a href="#toc0_">Q5: What is SwiGLU then?</a></h1>
+<p>Now we have all the pieces. <code>SwiGLU</code> (Swish-Gated Linear Unit) simply combines Swish and GLU:</p>
+<p><span class="math display">\[\text{SwiGLU}(x, W, V) = \text{Swish}(xW) \odot xV\]</span></p>
+<p>That’s it. Instead of using sigmoid for the gate (like in GLU), it uses Swish. That’s why it’s called <strong>Swi</strong>sh + <strong>GLU</strong>.</p>
+<p>So what does each part of the formula do ? Well, it’s exactly the same logic as GLU as what changes is just the gating function.</p>
+<ul>
+<li><span class="math inline">\(\text{Swish}(xW)\)</span>: The <strong>gate</strong> - decides how much of each feature passes through</li>
+<li><span class="math inline">\(xV\)</span>: The <strong>content</strong> - the actual information being transmitted</li>
+<li><span class="math inline">\(\odot\)</span>: Element-wise multiplication - applies the gate to the content</li>
+</ul>
+<div id="cell-18" class="cell" data-execution_count="36">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="All you need to know about SwiGLU_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="why-does-swiglu-work-so-well" class="level3">
+<h3 class="anchored" data-anchor-id="why-does-swiglu-work-so-well"><a id="toc5_1_1_"></a><a href="#toc0_">Why does SwiGLU work so well?</a></h3>
+<p>Empirically, SwiGLU outperforms other activation functions in LLMs (even though not sure about VLMs for now). But why? Here’s the intuition:</p>
+<p><strong>1. Multiplicative interactions create feature combinations</strong></p>
+<p>This is the key insight. Consider what each architecture computes:</p>
+<p><strong>Standard FFN</strong> (ReLU/GELU): <code>output = activation(xW₁) @ W₂</code></p>
+<p>Each output dimension is a weighted sum of activated features. The activation is applied <em>element-wise</em>—features don’t interact with each other inside the activation.</p>
+<p><strong>SwiGLU FFN</strong>: <code>output = (Swish(xW) ⊙ xV) @ W₂</code></p>
+<p>The element-wise multiplication <span class="math inline">\(\odot\)</span> creates <strong>products between the two paths</strong>. If we denote <span class="math inline">\(g = \text{Swish}(xW)\)</span> and <span class="math inline">\(c = xV\)</span>, then output dimension <span class="math inline">\(i\)</span> before the final projection is <span class="math inline">\(g_i \times c_i\)</span>.</p>
+<p>Here’s why this matters: both <span class="math inline">\(g_i\)</span> and <span class="math inline">\(c_i\)</span> are linear combinations of input features (before the Swish). Their product contains <strong>cross-terms</strong> like <span class="math inline">\(x_j \times x_k\)</span>. The network can learn <span class="math inline">\(W\)</span> and <span class="math inline">\(V\)</span> such that certain input feature combinations are amplified or suppressed.</p>
+<p><strong>Analogy</strong>: This is similar to why attention is powerful. Attention computes <span class="math inline">\(\text{softmax}(QK^T)V\)</span>, where the <span class="math inline">\(QK^T\)</span> product captures interactions between query and key features. SwiGLU brings a similar multiplicative expressiveness to the FFN.</p>
+<p><strong>2. Why not use sigmoid in the gate instead of Swish?</strong></p>
+<p>GLU uses sigmoid: <span class="math inline">\(\sigma(xW) \odot xV\)</span>. The problem with the <code>sigmoid</code> is that it saturate saturates. For large positive or negative inputs, <span class="math inline">\(\sigma(x) \approx 1\)</span> or <span class="math inline">\(\sigma(x) \approx 0\)</span>, and the gradient <span class="math inline">\(\frac{\partial \sigma}{\partial x} \approx 0\)</span>. The gate becomes “frozen.”</p>
+<p>Swish doesn’t saturate for positive inputs—it grows approximately linearly (just like <code>ReLU</code>). This implies that: - Gradients flow better through the gate path - The gate can modulate rather than just switch on/off</p>
+<p><strong>3. smoothness</strong></p>
+<p>Another thing is that SwiGLU is infinitely differentiable &amp; this smoothness likely helps optimization stability.</p>
+</section>
+</section>
+<section id="final-note" class="level1">
+<h1><a id="toc6_"></a><a href="#toc0_">Final note</a></h1>
+<p>SwiGLU’s power comes from its <strong>gating mechanism</strong> &amp; <strong>multiplicative interactions</strong>. By splitting the input into two paths and multiplying them, the network can learn which feature combinations matter—similar to how attention captures interactions through <span class="math inline">\(QK^T\)</span>.</p>
+<p>Combined with Swish’s non-saturating gradients, this makes SwiGLU particularly effective for large models.</p>
 
 
 </section>

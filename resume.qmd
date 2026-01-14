@@ -13,17 +13,23 @@ title-block-banner: true
 
 ## Technical Expertise
 
-**ML/AI Domains:** NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision  
-**Cloud & Infrastructure:** Docker, Kubernetes, AWS, GCP, MLflow, Airflow  
-**Specialized:** LLM Evaluation, Production ML Monitoring, Model Drift Detection
+**ML/AI Domains:** NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision
+**Cloud & Infrastructure:** GCP (Vertex AI, BigQuery), AWS, Docker, Kubernetes, MLflow, Airflow
+**Specialized:** LLM Evaluation, Production ML Monitoring, Model Drift Detection, Agentic Systems
 
 ---
 
 ## Professional Experience
 
+### **Founder & AI Engineer** | LumiereAI | *April 2025 - Current*
+- Built production **agentic system** for insurance companies using **Google ADK framework** and **Vertex AI Gemini API**
+- Designed multi-modal pipeline integrating **ElevenLabs** voice synthesis with Gemini-powered insurer case analysis
+- Architected end-to-end solution on GCP: **Cloud Run** for serving, **BigQuery** for analytics, **Cloud Storage** for document ingestion
+
 ### **Lead Data Scientist** | EDF | *April 2025 - Current*
-- Architected and deployed a pipeline for document parsing and question answering using **RAG systems** over internal knowledge bases
-- Led the development of an **LLM evaluation framework** to benchmark and monitor model performance on key business tasks
+- Architected document parsing and RAG pipeline on GCP using **Vertex AI embeddings** and **Vector Search** for semantic retrieval over internal knowledge bases
+- Built **LLM evaluation framework** leveraging **Vertex AI Model Evaluation** to benchmark Gemini and custom models on business-critical tasks
+- Deployed production inference endpoints using **Vertex AI Prediction** with automated scaling and monitoring
 
 ### **Senior Data Scientist** | Doctolib | *Sep 2024 - April 2025*
 - Architected and deployed a **RAG system** reducing customer support costs by **20%**
@@ -50,7 +56,7 @@ title-block-banner: true
 
 ## Key Achievements & Leadership
 
-- **Production Impact:** Deployed 20+ ML models to production with measurable business and costs impact
+- **Production Impact:** Deployed 20+ ML models to production including Vertex AI endpoints with measurable business and costs impact
 - **Technical Leadership:** Mentored 5+ junior data scientists, conducted Python/R training sessions at EDF
 - **Cross-functional Collaboration:** Led projects spanning engineering, product, and business teams
 
