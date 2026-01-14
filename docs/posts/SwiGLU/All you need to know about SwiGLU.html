@@ -344,21 +344,21 @@ window.Quarto = {
 <p><strong>1. Multiplicative interactions create feature combinations</strong></p>
 <p>This is the key insight. Consider what each architecture computes:</p>
 <p><strong>Standard FFN</strong> (ReLU/GELU): <code>output = activation(xW₁) @ W₂</code></p>
-<p>Each output dimension is a weighted sum of activated features. The activation is applied <em>element-wise</em>—features don’t interact with each other inside the activation.</p>
+<p>Each output dimension is a weighted sum of activated features. The activation is applied <em>element-wise</em>, this means that the features don’t interact with each other inside the activation.</p>
 <p><strong>SwiGLU FFN</strong>: <code>output = (Swish(xW) ⊙ xV) @ W₂</code></p>
 <p>The element-wise multiplication <span class="math inline">\(\odot\)</span> creates <strong>products between the two paths</strong>. If we denote <span class="math inline">\(g = \text{Swish}(xW)\)</span> and <span class="math inline">\(c = xV\)</span>, then output dimension <span class="math inline">\(i\)</span> before the final projection is <span class="math inline">\(g_i \times c_i\)</span>.</p>
 <p>Here’s why this matters: both <span class="math inline">\(g_i\)</span> and <span class="math inline">\(c_i\)</span> are linear combinations of input features (before the Swish). Their product contains <strong>cross-terms</strong> like <span class="math inline">\(x_j \times x_k\)</span>. The network can learn <span class="math inline">\(W\)</span> and <span class="math inline">\(V\)</span> such that certain input feature combinations are amplified or suppressed.</p>
-<p><strong>Analogy</strong>: This is similar to why attention is powerful. Attention computes <span class="math inline">\(\text{softmax}(QK^T)V\)</span>, where the <span class="math inline">\(QK^T\)</span> product captures interactions between query and key features. SwiGLU brings a similar multiplicative expressiveness to the FFN.</p>
+<p>This is similar to why attention is powerful. Attention computes <span class="math inline">\(\text{softmax}(QK^T)V\)</span>, where the <span class="math inline">\(QK^T\)</span> product captures interactions between query and key features. SwiGLU brings a similar multiplicative expressiveness to the FFN.</p>
 <p><strong>2. Why not use sigmoid in the gate instead of Swish?</strong></p>
 <p>GLU uses sigmoid: <span class="math inline">\(\sigma(xW) \odot xV\)</span>. The problem with the <code>sigmoid</code> is that it saturate saturates. For large positive or negative inputs, <span class="math inline">\(\sigma(x) \approx 1\)</span> or <span class="math inline">\(\sigma(x) \approx 0\)</span>, and the gradient <span class="math inline">\(\frac{\partial \sigma}{\partial x} \approx 0\)</span>. The gate becomes “frozen.”</p>
-<p>Swish doesn’t saturate for positive inputs—it grows approximately linearly (just like <code>ReLU</code>). This implies that: - Gradients flow better through the gate path - The gate can modulate rather than just switch on/off</p>
+<p>Swish doesn’t saturate for positive inputs, it grows approximately linearly (just like <code>ReLU</code>). This implies that: - Gradients flow better through the gate path - The gate can modulate rather than just switch on/off</p>
 <p><strong>3. smoothness</strong></p>
 <p>Another thing is that SwiGLU is infinitely differentiable &amp; this smoothness likely helps optimization stability.</p>
 </section>
 </section>
 <section id="final-note" class="level1">
 <h1><a id="toc6_"></a><a href="#toc0_">Final note</a></h1>
-<p>SwiGLU’s power comes from its <strong>gating mechanism</strong> &amp; <strong>multiplicative interactions</strong>. By splitting the input into two paths and multiplying them, the network can learn which feature combinations matter—similar to how attention captures interactions through <span class="math inline">\(QK^T\)</span>.</p>
+<p>SwiGLU’s power comes from its <strong>gating mechanism</strong> &amp; <strong>multiplicative interactions</strong>. By splitting the input into two paths and multiplying them, the network can learn which feature combinations matter (which is quite similar to how attention captures interactions through <span class="math inline">\(QK^T\)</span>).</p>
 <p>Combined with Swish’s non-saturating gradients, this makes SwiGLU particularly effective for large models.</p>
 
 
