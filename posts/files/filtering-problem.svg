@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <linearGradient id="laptop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="tablet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <filter id="nodeShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.2"/>
+    </filter>
+    <marker id="pathArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#1f2937">The Filtering Problem</text>
+  
+  <!-- LEFT PANEL: Original Graph -->
+  <g transform="translate(30, 50)">
+    <rect x="0" y="0" width="270" height="200" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="135" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#374151">Original HNSW Graph</text>
+    
+    <!-- Edges -->
+    <line x1="60" y1="80" x2="135" y2="80" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="135" y1="80" x2="210" y2="80" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="60" y1="80" x2="100" y2="150" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="135" y1="80" x2="100" y2="150" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="135" y1="80" x2="170" y2="150" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="210" y1="80" x2="170" y2="150" stroke="#d1d5db" stroke-width="2"/>
+    <line x1="100" y1="150" x2="170" y2="150" stroke="#d1d5db" stroke-width="2"/>
+    
+    <!-- Nodes -->
+    <circle cx="60" cy="80" r="18" fill="url(#laptop)" filter="url(#nodeShadow)"/>
+    <text x="60" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">💻 A</text>
+    
+    <circle cx="135" cy="80" r="18" fill="url(#phone)" filter="url(#nodeShadow)"/>
+    <text x="135" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">📱 B</text>
+    
+    <circle cx="210" cy="80" r="18" fill="url(#laptop)" filter="url(#nodeShadow)"/>
+    <text x="210" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">💻 C</text>
+    
+    <circle cx="100" cy="150" r="18" fill="url(#phone)" filter="url(#nodeShadow)"/>
+    <text x="100" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">📱 D</text>
+    
+    <circle cx="170" cy="150" r="18" fill="url(#tablet)" filter="url(#nodeShadow)"/>
+    <text x="170" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">📒 E</text>
+    
+    <!-- Legend -->
+    <g transform="translate(20, 175)">
+      <circle cx="8" cy="0" r="6" fill="url(#laptop)"/>
+      <text x="20" y="4" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">Laptop</text>
+      <circle cx="78" cy="0" r="6" fill="url(#phone)"/>
+      <text x="90" y="4" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">Phone</text>
+      <circle cx="148" cy="0" r="6" fill="url(#tablet)"/>
+      <text x="160" y="4" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">Tablet</text>
+    </g>
+  </g>
+  
+  <!-- Arrow 1 -->
+  <g transform="translate(310, 130)">
+    <text x="0" y="-10" font-family="system-ui, sans-serif" font-size="10" fill="#9ca3af">Filter:</text>
+    <text x="0" y="5" font-family="system-ui, sans-serif" font-size="10" font-weight="500" fill="#3b82f6">"laptops only"</text>
+    <path d="M10 25 L50 25" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  </g>
+  
+  <!-- RIGHT PANEL: Filtered Graph (Problem) -->
+  <g transform="translate(380, 50)">
+    <rect x="0" y="0" width="270" height="200" rx="12" fill="white" stroke="#fca5a5" stroke-width="2"/>
+    <text x="135" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#dc2626">After Filtering (Problem!)</text>
+    
+    <!-- Faded edges through removed nodes -->
+    <line x1="60" y1="80" x2="135" y2="80" stroke="#fca5a5" stroke-width="2" stroke-dasharray="4,4" opacity="0.4"/>
+    <line x1="135" y1="80" x2="210" y2="80" stroke="#fca5a5" stroke-width="2" stroke-dasharray="4,4" opacity="0.4"/>
+    
+    <!-- Removed nodes (ghosts) -->
+    <circle cx="135" cy="80" r="18" fill="#f3f4f6" stroke="#d1d5db" stroke-dasharray="4,4"/>
+    <text x="135" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#9ca3af">📱</text>
+    <line x1="125" y1="70" x2="145" y2="90" stroke="#ef4444" stroke-width="2"/>
+    <line x1="145" y1="70" x2="125" y2="90" stroke="#ef4444" stroke-width="2"/>
+    
+    <circle cx="100" cy="150" r="18" fill="#f3f4f6" stroke="#d1d5db" stroke-dasharray="4,4"/>
+    <text x="100" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#9ca3af">📱</text>
+    <line x1="90" y1="140" x2="110" y2="160" stroke="#ef4444" stroke-width="2"/>
+    <line x1="110" y1="140" x2="90" y2="160" stroke="#ef4444" stroke-width="2"/>
+    
+    <circle cx="170" cy="150" r="18" fill="#f3f4f6" stroke="#d1d5db" stroke-dasharray="4,4"/>
+    <text x="170" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#9ca3af">📒</text>
+    <line x1="160" y1="140" x2="180" y2="160" stroke="#ef4444" stroke-width="2"/>
+    <line x1="180" y1="140" x2="160" y2="160" stroke="#ef4444" stroke-width="2"/>
+    
+    <!-- Remaining nodes (isolated) -->
+    <circle cx="60" cy="80" r="18" fill="url(#laptop)" filter="url(#nodeShadow)"/>
+    <text x="60" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">💻 A</text>
+    
+    <circle cx="210" cy="80" r="18" fill="url(#laptop)" filter="url(#nodeShadow)"/>
+    <text x="210" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="white">💻 C</text>
+    
+    <!-- No connection indicator -->
+    <text x="135" y="115" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" fill="#ef4444">✗</text>
+    <text x="135" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#ef4444">No path!</text>
+    
+    <!-- Problem callout -->
+    <rect x="30" y="165" width="210" height="30" rx="4" fill="#fef2f2"/>
+    <text x="135" y="184" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#991b1b">A cannot reach C — graph is broken</text>
+  </g>
+  
+  <!-- BOTTOM LEFT: Post-filtering problem -->
+  <g transform="translate(30, 270)">
+    <rect x="0" y="0" width="400" height="200" rx="12" fill="white" stroke="#e5e7eb"/>
+    <text x="200" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#374151">Approach 1: Post-Filtering</text>
+    
+    <text x="20" y="55" font-family="system-ui, sans-serif" font-size="11" fill="#374151">1. Search HNSW → get top-K results</text>
+    <text x="20" y="75" font-family="system-ui, sans-serif" font-size="11" fill="#374151">2. Filter out non-laptops</text>
+    <text x="20" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#374151">3. Return filtered results</text>
+    
+    <!-- Visual representation -->
+    <g transform="translate(20, 110)">
+      <rect x="0" y="0" width="160" height="70" rx="4" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="80" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">Top-10 Results</text>
+      <text x="15" y="35" font-family="system-ui, sans-serif" font-size="9" fill="#059669">1. 📱 Phone</text>
+      <text x="15" y="48" font-family="system-ui, sans-serif" font-size="9" fill="#059669">2. 📱 Phone</text>
+      <text x="15" y="61" font-family="system-ui, sans-serif" font-size="9" fill="#3b82f6">3. 💻 Laptop ✓</text>
+      <text x="90" y="35" font-family="system-ui, sans-serif" font-size="9" fill="#059669">4. 📱 Phone</text>
+      <text x="90" y="48" font-family="system-ui, sans-serif" font-size="9" fill="#f59e0b">5. 📒 Tablet</text>
+      <text x="90" y="61" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">...</text>
+    </g>
+    
+    <path d="M195 145 L235 145" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+    
+    <g transform="translate(250, 110)">
+      <rect x="0" y="0" width="130" height="70" rx="4" fill="#fef2f2" stroke="#fca5a5"/>
+      <text x="65" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#991b1b">After Filter</text>
+      <text x="15" y="40" font-family="system-ui, sans-serif" font-size="9" fill="#3b82f6">3. 💻 Laptop</text>
+      <text x="15" y="55" font-family="system-ui, sans-serif" font-size="9" fill="#9ca3af">(only 1 result!)</text>
+    </g>
+    
+    <!-- Problem badge -->
+    <rect x="280" y="5" width="100" height="22" rx="4" fill="#fef2f2"/>
+    <text x="330" y="19" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="500" fill="#dc2626">❌ Misses results</text>
+  </g>
+  
+  <!-- BOTTOM RIGHT: Pre-filtering problem -->
+  <g transform="translate(470, 270)">
+    <rect x="0" y="0" width="400" height="200" rx="12" fill="white" stroke="#e5e7eb"/>
+    <text x="200" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#374151">Approach 2: Pre-Filtering</text>
+    
+    <text x="20" y="55" font-family="system-ui, sans-serif" font-size="11" fill="#374151">1. Filter dataset → keep only laptops</text>
+    <text x="20" y="75" font-family="system-ui, sans-serif" font-size="11" fill="#374151">2. Search within filtered subset</text>
+    <text x="20" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#374151">3. Return results</text>
+    
+    <!-- Visual representation -->
+    <g transform="translate(20, 110)">
+      <rect x="0" y="0" width="350" height="70" rx="4" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="175" y="15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280">HNSW graph built on ALL data</text>
+      
+      <circle cx="60" cy="45" r="12" fill="url(#laptop)"/>
+      <text x="60" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" fill="white">A</text>
+      
+      <line x1="72" y1="45" x2="108" y2="45" stroke="#d1d5db" stroke-width="1.5"/>
+      
+      <circle cx="120" cy="45" r="12" fill="#e5e7eb" stroke="#d1d5db" stroke-dasharray="3,3"/>
+      <text x="120" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" fill="#9ca3af">📱</text>
+      
+      <line x1="132" y1="45" x2="168" y2="45" stroke="#d1d5db" stroke-width="1.5"/>
+      
+      <circle cx="180" cy="45" r="12" fill="#e5e7eb" stroke="#d1d5db" stroke-dasharray="3,3"/>
+      <text x="180" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" fill="#9ca3af">📱</text>
+      
+      <line x1="192" y1="45" x2="228" y2="45" stroke="#d1d5db" stroke-width="1.5"/>
+      
+      <circle cx="240" cy="45" r="12" fill="url(#laptop)"/>
+      <text x="240" y="49" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" fill="white">C</text>
+      
+      <text x="150" y="63" text-anchor="middle" font-family="system-ui, sans-serif" font-size="8" fill="#ef4444">Path goes through removed nodes!</text>
+    </g>
+    
+    <!-- Problem badge -->
+    <rect x="280" y="5" width="100" height="22" rx="4" fill="#fef2f2"/>
+    <text x="330" y="19" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="500" fill="#dc2626">❌ Breaks graph</text>
+  </g>
+</svg>

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300">
+  <defs>
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#4f46e5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="300" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#1f2937">Graph Fundamentals</text>
+  
+  <!-- Left: Connected Graph -->
+  <g transform="translate(100, 80)">
+    <text x="100" y="-20" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#059669">Connected Graph</text>
+    
+    <!-- Edges -->
+    <line x1="50" y1="50" x2="150" y2="50" stroke="#d1d5db" stroke-width="3"/>
+    <line x1="150" y1="50" x2="100" y2="130" stroke="#d1d5db" stroke-width="3"/>
+    <line x1="100" y1="130" x2="50" y2="50" stroke="#d1d5db" stroke-width="3"/>
+    <line x1="50" y1="50" x2="100" y2="130" stroke="#d1d5db" stroke-width="3" stroke-dasharray="5,5" opacity="0.5"/>
+    
+    <!-- Nodes -->
+    <circle cx="50" cy="50" r="24" fill="url(#nodeGrad)" filter="url(#shadow)"/>
+    <text x="50" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="white">A</text>
+    
+    <circle cx="150" cy="50" r="24" fill="url(#nodeGrad)" filter="url(#shadow)"/>
+    <text x="150" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="white">B</text>
+    
+    <circle cx="100" cy="130" r="24" fill="url(#nodeGrad)" filter="url(#shadow)"/>
+    <text x="100" y="135" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="white">C</text>
+    
+    <!-- Check mark -->
+    <circle cx="100" cy="180" r="16" fill="#059669"/>
+    <path d="M92 180 L98 186 L110 174" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="100" y="210" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#6b7280">A→B→C reachable</text>
+  </g>
+  
+  <!-- Middle: Arrow -->
+  <g transform="translate(350, 130)">
+    <text x="0" y="-30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#9ca3af">Remove</text>
+    <text x="0" y="-15" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#9ca3af">Node B</text>
+    <path d="M-30 10 L30 10" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowhead)"/>
+  </g>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af"/>
+    </marker>
+  </defs>
+  
+  <!-- Right: Disconnected Graph -->
+  <g transform="translate(500, 80)">
+    <text x="100" y="-20" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#dc2626">Disconnected Graph</text>
+    
+    <!-- Removed node (faded) -->
+    <circle cx="150" cy="50" r="24" fill="#e5e7eb" stroke="#d1d5db" stroke-width="2" stroke-dasharray="4,4"/>
+    <text x="150" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#9ca3af">B</text>
+    <line x1="135" y1="35" x2="165" y2="65" stroke="#ef4444" stroke-width="2"/>
+    <line x1="165" y1="35" x2="135" y2="65" stroke="#ef4444" stroke-width="2"/>
+    
+    <!-- Remaining edges (broken) -->
+    <line x1="50" y1="50" x2="120" y2="50" stroke="#fca5a5" stroke-width="3" stroke-dasharray="5,5"/>
+    <line x1="180" y1="50" x2="100" y2="100" stroke="#fca5a5" stroke-width="3" stroke-dasharray="5,5" opacity="0.3"/>
+    
+    <!-- Remaining nodes -->
+    <circle cx="50" cy="50" r="24" fill="url(#nodeGrad)" filter="url(#shadow)"/>
+    <text x="50" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="white">A</text>
+    
+    <circle cx="100" cy="130" r="24" fill="url(#nodeGrad)" filter="url(#shadow)"/>
+    <text x="100" y="135" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="white">C</text>
+    
+    <!-- X mark -->
+    <circle cx="100" cy="180" r="16" fill="#dc2626"/>
+    <path d="M94 174 L106 186 M106 174 L94 186" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="100" y="210" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#6b7280">A cannot reach C</text>
+  </g>
+</svg>

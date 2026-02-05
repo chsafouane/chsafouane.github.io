@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Search Filtering Methods</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .method {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .viz-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .step {
+            background: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .arrow {
+            font-size: 30px;
+            color: #3498db;
+            margin: 0 10px;
+        }
+        .graph {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .node {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid #34495e;
+        }
+        .node.laptop { background: #3498db; color: white; }
+        .node.phone { background: #e74c3c; color: white; }
+        .node.tablet { background: #2ecc71; color: white; }
+        .node.filtered-out { 
+            background: #ecf0f1; 
+            color: #bdc3c7;
+            border-color: #bdc3c7;
+            opacity: 0.4;
+        }
+        .node.selected {
+            box-shadow: 0 0 0 3px #f39c12;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .pros, .cons {
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .pros {
+            background: #d5f4e6;
+            border-left: 4px solid #2ecc71;
+        }
+        .cons {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+        .pros h4, .cons h4 {
+            margin-top: 0;
+            font-size: 14px;
+        }
+        .pros ul, .cons ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #f39c12;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .rating {
+            display: inline-block;
+        }
+        .rating.good { color: #2ecc71; }
+        .rating.medium { color: #f39c12; }
+        .rating.bad { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Vector Search Filtering Methods Explained</h1>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box" style="background: #3498db;"></div>
+            <span>Laptop (what we want)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background: #e74c3c;"></div>
+            <span>Phone (filtered out)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background: #2ecc71;"></div>
+            <span>Tablet (filtered out)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background: #ecf0f1; border: 2px solid #bdc3c7; opacity: 0.4;"></div>
+            <span>Node ignored by filter</span>
+        </div>
+    </div>
+
+    <!-- METHOD 1: PRE-FILTERING -->
+    <div class="method">
+        <h2>Method 1: Pre-Filtering (Filter-Then-Search)</h2>
+        <p class="subtitle">"First throw away everything that doesn't match, then search what's left"</p>
+        
+        <div class="viz-container">
+            <div class="step">
+                <h3>Step 1: Full Dataset</h3>
+                <div class="graph">
+                    <div class="node laptop">L1</div>
+                    <div class="node phone">P1</div>
+                    <div class="node laptop">L2</div>
+                    <div class="node tablet">T1</div>
+                    <div class="node phone">P2</div>
+                    <div class="node laptop">L3</div>
+                    <div class="node tablet">T2</div>
+                    <div class="node phone">P3</div>
+                    <div class="node laptop">L4</div>
+                    <div class="node tablet">T3</div>
+                    <div class="node laptop">L5</div>
+                    <div class="node phone">P4</div>
+                    <div class="node laptop">L6</div>
+                    <div class="node tablet">T4</div>
+                    <div class="node phone">P5</div>
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">All vectors in HNSW graph</p>
+            </div>
+            
+            <span class="arrow">→</span>
+            
+            <div class="step">
+                <h3>Step 2: Apply Filter (category='laptop')</h3>
+                <div class="graph">
+                    <div class="node laptop">L1</div>
+                    <div class="node phone filtered-out">P1</div>
+                    <div class="node laptop">L2</div>
+                    <div class="node tablet filtered-out">T1</div>
+                    <div class="node phone filtered-out">P2</div>
+                    <div class="node laptop">L3</div>
+                    <div class="node tablet filtered-out">T2</div>
+                    <div class="node phone filtered-out">P3</div>
+                    <div class="node laptop">L4</div>
+                    <div class="node tablet filtered-out">T3</div>
+                    <div class="node laptop">L5</div>
+                    <div class="node phone filtered-out">P4</div>
+                    <div class="node laptop">L6</div>
+                    <div class="node tablet filtered-out">T4</div>
+                    <div class="node phone filtered-out">P5</div>
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Only laptops remain, graph is fragmented!</p>
+            </div>
+            
+            <span class="arrow">→</span>
+            
+            <div class="step">
+                <h3>Step 3: Brute Force Search</h3>
+                <div class="graph">
+                    <div class="node laptop selected">L1</div>
+                    <div class="node laptop">L2</div>
+                    <div class="node laptop">L3</div>
+                    <div class="node laptop">L4</div>
+                    <div class="node laptop selected">L5</div>
+                    <div class="node laptop">L6</div>
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">No graph to traverse! Must compare query to every laptop</p>
+            </div>
+        </div>
+
+        <p><strong>How it works:</strong> Use a metadata index (like a database index) to find all vectors matching the filter. Then throw away the HNSW graph and do a linear scan over just the matching vectors.</p>
+
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ Pros</h4>
+                <ul>
+                    <li>100% correct results (never misses anything)</li>
+                    <li>Very fast if filtered set is tiny (e.g., 100 items)</li>
+                    <li>Simple to implement</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ Cons</h4>
+                <ul>
+                    <li>Becomes linear scan if filter matches many items</li>
+                    <li>Completely ignores the HNSW graph you built</li>
+                    <li>Slow with loose filters (e.g., 50% of data matches)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- METHOD 2: POST-FILTERING -->
+    <div class="method">
+        <h2>Method 2: Post-Filtering (Search-Then-Filter)</h2>
+        <p class="subtitle">"Search everything first, then throw away results that don't match"</p>
+        
+        <div class="viz-container">
+            <div class="step">
+                <h3>Step 1: HNSW Search (ignore filter)</h3>
+                <div class="graph">
+                    <div class="node laptop selected">L1</div>
+                    <div class="node phone selected">P1</div>
+                    <div class="node laptop">L2</div>
+                    <div class="node tablet selected">T1</div>
+                    <div class="node phone">P2</div>
+                    <div class="node laptop selected">L3</div>
+                    <div class="node tablet">T2</div>
+                    <div class="node phone selected">P3</div>
+                    <div class="node laptop">L4</div>
+                    <div class="node tablet">T3</div>
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Get top 5 nearest: L1, P1, T1, L3, P3</p>
+            </div>
+            
+            <span class="arrow">→</span>
+            
+            <div class="step">
+                <h3>Step 2: Apply Filter</h3>
+                <div class="graph">
+                    <div class="node laptop selected">L1</div>
+                    <div class="node phone filtered-out">P1</div>
+                    <div class="node laptop">L2</div>
+                    <div class="node tablet filtered-out">T1</div>
+                    <div class="node phone">P2</div>
+                    <div class="node laptop selected">L3</div>
+                    <div class="node tablet">T2</div>
+                    <div class="node phone filtered-out">P3</div>
+                    <div class="node laptop">L4</div>
+                    <div class="node tablet">T3</div>
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Keep only laptops: L1, L3</p>
+            </div>
+            
+            <span class="arrow">→</span>
+            
+            <div class="step">
+                <h3>Step 3: Problem!</h3>
+                <p style="font-size: 14px; margin-top: 10px; color: #e74c3c;">
+                    <strong>We only got 2 laptops but wanted 5!</strong><br><br>
+                    The actual 3rd-5th closest laptops (L2, L4, L5) were never retrieved because phones and tablets were closer.
+                </p>
+            </div>
+        </div>
+
+        <p><strong>How it works:</strong> Run normal HNSW search to get top K results, then filter them. To get enough matches, you need to oversample — request maybe 10K results if you only want K after filtering.</p>
+
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ Pros</h4>
+                <ul>
+                    <li>Fast search (uses HNSW graph)</li>
+                    <li>Works well with loose filters (most items match)</li>
+                    <li>Easy to implement</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ Cons</h4>
+                <ul>
+                    <li>Can miss valid results with strict filters</li>
+                    <li>Must oversample (search for 10× more) → wastes compute</li>
+                    <li>Recall drops with restrictive filters</li>
+                    <li>Unpredictable: how much to oversample?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- METHOD 3: INTEGRATED FILTERING -->
+    <div class="method">
+        <h2>Method 3: Integrated/In-Algorithm Filtering</h2>
+        <p class="subtitle">"Modify the graph itself so filtering doesn't break traversal"</p>
+        
+        <div class="viz-container" style="flex-direction: column;">
+            <div class="step" style="width: 100%;">
+                <h3>The Idea: Build Extra Edges Within Each Category</h3>
+                <p style="margin-bottom: 20px;">When building HNSW, also create subgraphs where nodes of the same category connect to each other. This guarantees connectivity even when filtering.</p>
+                
+                <div style="display: flex; gap: 30px; justify-content: center;">
+                    <div>
+                        <h4 style="text-align: center; margin-bottom: 10px;">Regular HNSW</h4>
+                        <svg width="200" height="200" style="border: 1px solid #ddd; border-radius: 4px;">
+                            <!-- Nodes -->
+                            <circle cx="50" cy="50" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="150" cy="50" r="15" fill="#e74c3c" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="100" cy="100" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="50" cy="150" r="15" fill="#2ecc71" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="150" cy="150" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            
+                            <!-- Edges (some cross categories) -->
+                            <line x1="50" y1="50" x2="150" y2="50" stroke="#34495e" stroke-width="2"/>
+                            <line x1="50" y1="50" x2="100" y2="100" stroke="#34495e" stroke-width="2"/>
+                            <line x1="150" y1="50" x2="100" y2="100" stroke="#34495e" stroke-width="2"/>
+                            <line x1="100" y1="100" x2="150" y2="150" stroke="#34495e" stroke-width="2"/>
+                            <line x1="100" y1="100" x2="50" y2="150" stroke="#34495e" stroke-width="2"/>
+                            
+                            <!-- Labels -->
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L1</text>
+                            <text x="150" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P1</text>
+                            <text x="100" y="105" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L2</text>
+                            <text x="50" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">T1</text>
+                            <text x="150" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L3</text>
+                        </svg>
+                        <p style="font-size: 12px; text-align: center; margin-top: 5px;">Edges connect nearby nodes<br>(regardless of category)</p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="text-align: center; margin-bottom: 10px;">Filterable HNSW</h4>
+                        <svg width="200" height="200" style="border: 1px solid #ddd; border-radius: 4px;">
+                            <!-- Original edges (gray) -->
+                            <line x1="50" y1="50" x2="150" y2="50" stroke="#bdc3c7" stroke-width="1" opacity="0.4"/>
+                            <line x1="50" y1="50" x2="100" y2="100" stroke="#bdc3c7" stroke-width="1" opacity="0.4"/>
+                            <line x1="150" y1="50" x2="100" y2="100" stroke="#bdc3c7" stroke-width="1" opacity="0.4"/>
+                            <line x1="100" y1="100" x2="150" y2="150" stroke="#bdc3c7" stroke-width="1" opacity="0.4"/>
+                            <line x1="100" y1="100" x2="50" y2="150" stroke="#bdc3c7" stroke-width="1" opacity="0.4"/>
+                            
+                            <!-- NEW: Laptop-to-laptop edges (blue, bold) -->
+                            <line x1="50" y1="50" x2="100" y2="100" stroke="#3498db" stroke-width="3"/>
+                            <line x1="100" y1="100" x2="150" y2="150" stroke="#3498db" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="150" y2="150" stroke="#3498db" stroke-width="3" stroke-dasharray="5,5"/>
+                            
+                            <!-- Nodes -->
+                            <circle cx="50" cy="50" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="150" cy="50" r="15" fill="#e74c3c" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="100" cy="100" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="50" cy="150" r="15" fill="#2ecc71" stroke="#34495e" stroke-width="2"/>
+                            <circle cx="150" cy="150" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                            
+                            <!-- Labels -->
+                            <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L1</text>
+                            <text x="150" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P1</text>
+                            <text x="100" y="105" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L2</text>
+                            <text x="50" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">T1</text>
+                            <text x="150" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L3</text>
+                        </svg>
+                        <p style="font-size: 12px; text-align: center; margin-top: 5px;"><strong style="color: #3498db;">Thick blue edges</strong>: extra<br>laptop-to-laptop connections</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step" style="width: 100%; margin-top: 20px;">
+                <h3>During Search with Filter (category='laptop')</h3>
+                <p>The search can still traverse the graph because the laptop subgraph is connected!</p>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <svg width="200" height="200" style="border: 1px solid #ddd; border-radius: 4px;">
+                        <!-- Only laptop edges are active -->
+                        <line x1="50" y1="50" x2="100" y2="100" stroke="#3498db" stroke-width="3"/>
+                        <line x1="100" y1="100" x2="150" y2="150" stroke="#3498db" stroke-width="3"/>
+                        <line x1="50" y1="50" x2="150" y2="150" stroke="#3498db" stroke-width="3" stroke-dasharray="5,5"/>
+                        
+                        <!-- Active nodes -->
+                        <circle cx="50" cy="50" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                        <circle cx="100" cy="100" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                        <circle cx="150" cy="150" r="15" fill="#3498db" stroke="#34495e" stroke-width="2"/>
+                        
+                        <!-- Filtered out nodes -->
+                        <circle cx="150" cy="50" r="15" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2" opacity="0.4"/>
+                        <circle cx="50" cy="150" r="15" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2" opacity="0.4"/>
+                        
+                        <!-- Labels -->
+                        <text x="50" y="55" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L1</text>
+                        <text x="100" y="105" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L2</text>
+                        <text x="150" y="155" text-anchor="middle" fill="white" font-size="10" font-weight="bold">L3</text>
+                        <text x="150" y="55" text-anchor="middle" fill="#bdc3c7" font-size="10" opacity="0.4">P1</text>
+                        <text x="50" y="155" text-anchor="middle" fill="#bdc3c7" font-size="10" opacity="0.4">T1</text>
+                    </svg>
+                    <p style="font-size: 12px; margin-top: 10px;">L1 → L2 → L3 path still exists!<br>Graph traversal works normally.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px;">Different Implementations:</h3>
+        <table class="comparison-table">
+            <tr>
+                <th>System</th>
+                <th>Technique</th>
+                <th>How It Works</th>
+            </tr>
+            <tr>
+                <td><strong>Qdrant</strong></td>
+                <td>Filterable HNSW</td>
+                <td>Builds category subgraphs during index construction. Adds extra edges within each category to guarantee connectivity.</td>
+            </tr>
+            <tr>
+                <td><strong>Weaviate (old)</strong></td>
+                <td>Sweeping</td>
+                <td>Traverses normally but checks filter at each step. Extends search until enough valid results found.</td>
+            </tr>
+            <tr>
+                <td><strong>Weaviate (ACORN)</strong></td>
+                <td>Dense graphs + 2-hop</td>
+                <td>Keeps more edges (no pruning) and allows "jumping over" filtered-out nodes via 2-hop connections.</td>
+            </tr>
+            <tr>
+                <td><strong>Pinecone</strong></td>
+                <td>Single-stage</td>
+                <td>Merges vector and metadata indexes. Search operates on both simultaneously.</td>
+            </tr>
+        </table>
+
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ Pros</h4>
+                <ul>
+                    <li>100% recall (finds all relevant results)</li>
+                    <li>Fast like regular HNSW</li>
+                    <li>Can actually get FASTER with filters (less to search!)</li>
+                    <li>Predictable performance</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ Cons</h4>
+                <ul>
+                    <li>Uses more memory (extra edges)</li>
+                    <li>More complex to implement</li>
+                    <li>Index building takes longer</li>
+                    <li>Need to know filter fields in advance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- METHOD 4: FILTER FUSION -->
+    <div class="method">
+        <h2>Method 4: Filter Fusion (Encode Filters Into Embeddings)</h2>
+        <p class="subtitle">"Make the filter part of the vector itself, so search automatically respects it"</p>
+        
+        <div class="viz-container" style="flex-direction: column;">
+            <div class="step" style="width: 100%;">
+                <h3>The Trick: Append Filter Info to Embeddings</h3>
+                <p style="margin-bottom: 20px;">Instead of separate metadata, add extra dimensions to your vectors that encode the category. When you search, these extra dimensions make non-matching items appear "far away."</p>
+                
+                <div style="display: flex; gap: 40px; justify-content: center; align-items: center;">
+                    <div>
+                        <h4 style="text-align: center;">Original Embedding (768-dim)</h4>
+                        <div style="background: #ecf0f1; padding: 20px; border-radius: 6px; text-align: center;">
+                            <div style="font-family: monospace; font-size: 12px; color: #2c3e50;">
+                                [0.23, 0.12, -0.45, 0.67, ..., 0.31]
+                            </div>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                Just the content semantics
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <span class="arrow">+</span>
+                    
+                    <div>
+                        <h4 style="text-align: center;">Category One-Hot (3-dim)</h4>
+                        <div style="background: #ecf0f1; padding: 20px; border-radius: 6px; text-align: center;">
+                            <div style="font-family: monospace; font-size: 12px; color: #2c3e50;">
+                                [<span style="color: #3498db; font-weight: bold;">10</span>, 0, 0]
+                            </div>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                Weighted by α=10<br>
+                                <small>(laptop=1st position)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <span class="arrow">=</span>
+                    
+                    <div>
+                        <h4 style="text-align: center;">Augmented Embedding (771-dim)</h4>
+                        <div style="background: #d5f4e6; padding: 20px; border-radius: 6px; text-align: center; border: 2px solid #2ecc71;">
+                            <div style="font-family: monospace; font-size: 12px; color: #2c3e50;">
+                                [0.23, 0.12, -0.45, ..., 0.31, <span style="color: #3498db; font-weight: bold;">10, 0, 0</span>]
+                            </div>
+                            <div style="margin-top: 10px; font-size: 14px;">
+                                Content + category info
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step" style="width: 100%; margin-top: 30px;">
+                <h3>What Happens During Search</h3>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin: 20px 0;">
+                    <p style="margin-bottom: 15px;"><strong>Query:</strong> "gaming laptop" + filter(category='laptop')</p>
+                    <p style="margin-bottom: 15px; font-family: monospace; font-size: 13px;">
+                        Query vector: [0.45, 0.32, ..., <span style="color: #3498db; font-weight: bold;">10, 0, 0</span>]
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                        <div style="background: #d5f4e6; padding: 15px; border-radius: 6px; border-left: 4px solid #2ecc71;">
+                            <h4 style="margin-top: 0;">✓ Laptop Vector (matches)</h4>
+                            <p style="font-family: monospace; font-size: 12px; margin: 10px 0;">
+                                [0.41, 0.28, ..., <span style="color: #3498db; font-weight: bold;">10, 0, 0</span>]
+                            </p>
+                            <p style="font-size: 13px; margin-top: 10px;">
+                                Distance = √[(content differences)² + (10-10)² + (0-0)² + (0-0)²]
+                            </p>
+                            <p style="font-size: 14px; font-weight: bold; color: #2ecc71; margin-top: 10px;">
+                                Distance ≈ 1.5 (close!)
+                            </p>
+                        </div>
+                        
+                        <div style="background: #fadbd8; padding: 15px; border-radius: 6px; border-left: 4px solid #e74c3c;">
+                            <h4 style="margin-top: 0;">✗ Phone Vector (doesn't match)</h4>
+                            <p style="font-family: monospace; font-size: 12px; margin: 10px 0;">
+                                [0.42, 0.30, ..., <span style="color: #e74c3c; font-weight: bold;">0, 10, 0</span>]
+                            </p>
+                            <p style="font-size: 13px; margin-top: 10px;">
+                                Distance = √[(content differences)² + (0-10)² + (10-0)² + (0-0)²]
+                            </p>
+                            <p style="font-size: 14px; font-weight: bold; color: #e74c3c; margin-top: 10px;">
+                                Distance ≈ 14.2 (far!)
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <p style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
+                        <strong>Key insight:</strong> The phone's one-hot is [0, 10, 0] while query wants [10, 0, 0]. 
+                        This creates a penalty of <strong>√(10² + 10²) ≈ 14.1</strong>, which dominates the distance 
+                        and pushes all phones far away in the ranking!
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step" style="width: 100%; margin-top: 20px;">
+                <h3>The Math (Simplified)</h3>
+                <div class="code-block">
+# Original distance (content only)
+distance_content = ||embedding_1 - embedding_2||
+
+# If categories MATCH (both laptops):
+category_penalty = ||[10,0,0] - [10,0,0]|| = 0
+
+# If categories DON'T MATCH (laptop vs phone):
+category_penalty = ||[10,0,0] - [0,10,0]|| = √(100 + 100) ≈ 14.1
+
+# Final distance
+total_distance = √(distance_content² + category_penalty²)
+
+# By making α large enough (α=10 here),
+# the category penalty completely dominates
+# and wrong categories never appear in top results!
+                </div>
+            </div>
+        </div>
+
+        <div class="pros-cons">
+            <div class="pros">
+                <h4>✅ Pros</h4>
+                <ul>
+                    <li>No changes to search algorithm needed!</li>
+                    <li>Works with any ANN library out-of-the-box</li>
+                    <li>Filtering happens automatically via distance</li>
+                    <li>Can be very fast (avoids separate filter step)</li>
+                    <li>Elegant mathematical solution</li>
+                </ul>
+            </div>
+            <div class="cons">
+                <h4>❌ Cons</h4>
+                <ul>
+                    <li>Increases dimensionality (768 → 771 in example)</li>
+                    <li>Doesn't work well for high-cardinality filters (thousands of categories)</li>
+                    <li>Hard to do range queries (price < 1000)</li>
+                    <li>Requires tuning the weight α</li>
+                    <li>Need to re-embed everything if filters change</li>
+                    <li>Complex with multiple filter fields</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="method">
+        <h2>Quick Comparison: Which Method When?</h2>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>Method</th>
+                <th>Best For</th>
+                <th>Worst For</th>
+                <th>Recall</th>
+                <th>Speed</th>
+                <th>Memory</th>
+            </tr>
+            <tr>
+                <td><strong>Pre-Filtering</strong></td>
+                <td>Very selective filters (matches 0.1% of data)</td>
+                <td>Loose filters (matches 50% of data)</td>
+                <td><span class="rating good">●●●●●</span> 100%</td>
+                <td><span class="rating bad">●●○○○</span> Slow with large subsets</td>
+                <td><span class="rating good">●●●●○</span> Low</td>
+            </tr>
+            <tr>
+                <td><strong>Post-Filtering</strong></td>
+                <td>Loose filters with plenty of results</td>
+                <td>Strict filters (hard to get k results)</td>
+                <td><span class="rating medium">●●●○○</span> Variable</td>
+                <td><span class="rating good">●●●●○</span> Fast (but needs oversample)</td>
+                <td><span class="rating good">●●●●●</span> None</td>
+            </tr>
+            <tr>
+                <td><strong>Integrated</strong></td>
+                <td>Production systems, any filter selectivity</td>
+                <td>Prototyping (complex to implement)</td>
+                <td><span class="rating good">●●●●●</span> ~100%</td>
+                <td><span class="rating good">●●●●●</span> Fast & predictable</td>
+                <td><span class="rating medium">●●●○○</span> Higher</td>
+            </tr>
+            <tr>
+                <td><strong>Filter Fusion</strong></td>
+                <td>Low-cardinality categorical filters</td>
+                <td>Range queries, many filter dimensions</td>
+                <td><span class="rating good">●●●●●</span> 100%</td>
+                <td><span class="rating good">●●●●○</span> Fast (single ANN)</td>
+                <td><span class="rating medium">●●●○○</span> Slightly higher dims</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- REAL WORLD EXAMPLE -->
+    <div class="method">
+        <h2>Real World Example: E-commerce Search</h2>
+        <p style="margin-bottom: 20px;">You have 10M products. User searches "running shoes" with filter: <code>category='shoes' AND price<$100 AND brand IN ['Nike', 'Adidas']</code></p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: #fadbd8; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">❌ Pre-Filtering</h3>
+                <ol style="font-size: 14px; line-height: 1.8;">
+                    <li>Filter → finds 500K matching products</li>
+                    <li>Must brute-force scan all 500K</li>
+                    <li>Takes ~500ms 😢</li>
+                </ol>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">⚠️ Post-Filtering</h3>
+                <ol style="font-size: 14px; line-height: 1.8;">
+                    <li>Search all 10M → get top 100</li>
+                    <li>Filter → only 5 match (need 20!)</li>
+                    <li>Must search again with more results</li>
+                    <li>Unpredictable latency 😐</li>
+                </ol>
+            </div>
+            
+            <div style="background: #d5f4e6; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">✅ Integrated (Qdrant/Pinecone)</h3>
+                <ol style="font-size: 14px; line-height: 1.8;">
+                    <li>Search uses brand+category subgraph</li>
+                    <li>Checks price during traversal</li>
+                    <li>Gets exactly 20 results, first try</li>
+                    <li>Takes ~15ms 😊</li>
+                </ol>
+            </div>
+            
+            <div style="background: #e8f4f8; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">🎯 Filter Fusion</h3>
+                <ol style="font-size: 14px; line-height: 1.8;">
+                    <li>Embed brand as [α,0,0]</li>
+                    <li>Embed category as [0,β,0]</li>
+                    <li>Single ANN search finds matches</li>
+                    <li>Price needs separate check ⚠️</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="method" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h2 style="color: white;">The Bottom Line</h2>
+        <div style="font-size: 16px; line-height: 1.8;">
+            <p><strong>For production systems:</strong> Use integrated filtering (Qdrant, Pinecone, Weaviate with ACORN). It's worth the complexity.</p>
+            
+            <p><strong>For simple prototypes:</strong> Post-filtering is easiest if your filters are loose.</p>
+            
+            <p><strong>For tight memory budgets:</strong> Pre-filtering with small filtered sets.</p>
+            
+            <p><strong>For research/experimentation:</strong> Filter fusion is elegant but has limitations with complex filters.</p>
+            
+            <p style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 6px;">
+                <strong>Key takeaway:</strong> Unlike traditional databases where filters make queries faster, 
+                vector search filters can slow things down or break them completely — unless the system was 
+                specifically designed to handle them!
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

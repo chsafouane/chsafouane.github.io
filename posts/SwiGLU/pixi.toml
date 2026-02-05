@@ -1,0 +1,17 @@
+[workspace]
+authors = ["Safouane Chergui <chsafouane@gmail.com>"]
+channels = ["conda-forge"]
+name = "SwiGLU"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+ipykernel = ">=7.1.0,<8"
+matplotlib = ">=3.10.8,<4"
+numpy = ">=2.4.0,<3"
+
+[pypi-dependencies]
+torch = ">=2.9.1, <3"

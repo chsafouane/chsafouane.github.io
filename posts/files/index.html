@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filterable HNSW: A Deep Dive</title>
+    <style>
+        :root {
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border-color: #e5e7eb;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Article content */
+        article {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 48px;
+            margin-bottom: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            letter-spacing: -0.01em;
+        }
+        
+        h2:first-of-type {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 32px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        p {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 1.0625rem;
+        }
+        
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        /* Images/SVGs */
+        .figure {
+            margin: 32px 0;
+            text-align: center;
+        }
+        
+        .figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .figure-caption {
+            margin-top: 12px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        /* Code blocks */
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin: 20px 0;
+            padding-left: 28px;
+            color: var(--text-secondary);
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        /* Callout boxes */
+        .callout {
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+        
+        .callout-info {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent-blue);
+        }
+        
+        .callout-success {
+            background: #f0fdf4;
+            border-left: 4px solid var(--accent-green);
+        }
+        
+        .callout-warning {
+            background: #fffbeb;
+            border-left: 4px solid var(--accent-orange);
+        }
+        
+        .callout-danger {
+            background: #fef2f2;
+            border-left: 4px solid var(--accent-red);
+        }
+        
+        .callout p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.9375rem;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        /* TOC */
+        .toc {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9375rem;
+        }
+        
+        .toc a:hover {
+            color: var(--accent-blue);
+        }
+        
+        /* Math formulas */
+        .formula {
+            text-align: center;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin: 24px 0;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.25rem;
+        }
+        
+        .formula sub {
+            font-size: 0.75em;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px 16px;
+            }
+            
+            article {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Filterable HNSW</h1>
+            <p class="subtitle">How Qdrant solves the challenge of combining vector similarity search with metadata filtering</p>
+        </header>
+        
+        <article>
+            <nav class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#problem">1. The Real-World Problem</a></li>
+                    <li><a href="#graph-basics">2. Graph Theory Fundamentals</a></li>
+                    <li><a href="#hnsw">3. How HNSW Works</a></li>
+                    <li><a href="#filtering-problem">4. The Filtering Problem</a></li>
+                    <li><a href="#percolation">5. Understanding the Damage (Percolation Theory)</a></li>
+                    <li><a href="#solution">6. Qdrant's Solution: Pre-Built Subgraphs</a></li>
+                    <li><a href="#query-planner">7. The Query Planner</a></li>
+                    <li><a href="#filter-types">8. Handling Different Filter Types</a></li>
+                    <li><a href="#implementation">9. Implementation Requirements</a></li>
+                    <li><a href="#limitations">10. Limitations & Edge Cases</a></li>
+                    <li><a href="#summary">11. Summary & Best Practices</a></li>
+                </ul>
+            </nav>
+            
+            <section id="problem">
+                <h2>1. The Real-World Problem</h2>
+                
+                <p>You're building a product search engine. A user asks: <em>"Show me laptops similar to this one, under $1,000, from Apple or Dell."</em></p>
+                
+                <p>This query has two distinct parts:</p>
+                
+                <ul>
+                    <li><strong>Vector similarity</strong>: Find products with similar embeddings to the query</li>
+                    <li><strong>Metadata filtering</strong>: Only return items matching specific criteria</li>
+                </ul>
+                
+                <p>Modern vector databases use <strong>HNSW</strong> (Hierarchical Navigable Small World) graphs for fast similarity search. But HNSW was designed for unfiltered search. When you add filters, things break in subtle and dangerous ways.</p>
+                
+                <p>This tutorial explains exactly why, and how Qdrant's <strong>filterable HNSW</strong> algorithm solves it.</p>
+            </section>
+            
+            <section id="graph-basics">
+                <h2>2. Graph Theory Fundamentals</h2>
+                
+                <p>Before diving into HNSW, we need to understand what graphs are and why connectivity matters.</p>
+                
+                <h3>What is a Graph?</h3>
+                
+                <p>A <strong>graph</strong> is a mathematical structure consisting of <strong>nodes</strong> (points) connected by <strong>edges</strong> (lines). Think of it like a subway map: stations are nodes, tracks are edges.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Definition</th>
+                            <th>Subway Analogy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Node</td>
+                            <td>A data point in the graph</td>
+                            <td>A station</td>
+                        </tr>
+                        <tr>
+                            <td>Edge</td>
+                            <td>A connection between two nodes</td>
+                            <td>A track between stations</td>
+                        </tr>
+                        <tr>
+                            <td>Path</td>
+                            <td>A sequence of edges connecting nodes</td>
+                            <td>Your route from A to F</td>
+                        </tr>
+                        <tr>
+                            <td>Connected</td>
+                            <td>Any node reachable from any other</td>
+                            <td>You can get anywhere</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Why Connectivity Matters</h3>
+                
+                <p>A graph is <strong>connected</strong> if you can reach any node from any other by following edges. If not, the graph has <strong>disconnected components</strong>—isolated islands with no path between them.</p>
+                
+                <div class="figure">
+                    <img src="images/graph-basics.svg" alt="Connected vs disconnected graphs">
+                    <p class="figure-caption">When node B is removed, nodes A and C become disconnected—there's no path between them.</p>
+                </div>
+                
+                <p>This distinction becomes critical when we start removing nodes from a graph.</p>
+            </section>
+            
+            <section id="hnsw">
+                <h2>3. How HNSW Works</h2>
+                
+                <p>HNSW is a graph-based algorithm for approximate nearest neighbor search. Understanding it requires two key intuitions.</p>
+                
+                <h3>Intuition 1: The Navigation Graph</h3>
+                
+                <p>Imagine you're dropped in a foreign city and need to find the best coffee shop. You have two strategies:</p>
+                
+                <p><strong>Strategy A (Brute Force):</strong> Visit every coffee shop, rate each one, pick the best. Guaranteed to find the best, but takes forever—O(n) time.</p>
+                
+                <p><strong>Strategy B (Ask Locals):</strong> Ask someone nearby for directions. Go there, ask again. Keep following recommendations until you converge on the answer. Fast—O(log n) time—but might miss the absolute best (approximate).</p>
+                
+                <p><strong>HNSW implements Strategy B.</strong> It builds a graph where each data point connects to its most similar neighbors. To search, you start somewhere and "hop" through the graph, always moving toward more similar items.</p>
+                
+                <h3>Intuition 2: The Hierarchical Layers</h3>
+                
+                <p>The "H" in HNSW stands for <strong>Hierarchical</strong>. The graph has multiple layers, like zooming in on a map:</p>
+                
+                <div class="figure">
+                    <img src="images/hnsw-layers.svg" alt="HNSW hierarchical layers">
+                    <p class="figure-caption">HNSW uses multiple layers: top layers for coarse navigation, bottom layers for fine-grained search.</p>
+                </div>
+                
+                <p>You start at the top (coarse navigation) and descend (fine navigation). This hierarchical structure is what makes HNSW fast—you don't search the entire bottom layer; you descend from above, already in the right neighborhood.</p>
+                
+                <h3>The <code>m</code> Parameter</h3>
+                
+                <p>The <code>m</code> parameter controls how many edges each node has. Higher <code>m</code> means better search quality and more robust connectivity, but also higher memory usage and slower index construction. Typical values range from 8 to 64. Qdrant defaults to <code>m=16</code>.</p>
+            </section>
+            
+            <section id="filtering-problem">
+                <h2>4. The Filtering Problem</h2>
+                
+                <p>Now we reach the core challenge. Vector search rarely happens in isolation—users want filtered results.</p>
+                
+                <h3>The Two Naive Approaches (And Why They Fail)</h3>
+                
+                <div class="callout callout-danger">
+                    <p class="callout-title">⚠️ Approach 1: Post-Filtering</p>
+                    <p>Search HNSW graph → get top-K results → filter out non-matching items → return filtered list.</p>
+                    <p><strong>Problem:</strong> What if only 3 of those 100 items match your filter? You'll return poor results—the truly relevant items weren't in the initial top-K.</p>
+                </div>
+                
+                <div class="callout callout-danger">
+                    <p class="callout-title">⚠️ Approach 2: Pre-Filtering</p>
+                    <p>Filter dataset → keep only matching items → search within filtered subset.</p>
+                    <p><strong>Problem:</strong> You can't just "search within the filtered subset" using HNSW—the graph was built on ALL data. When you remove nodes, you might break the graph.</p>
+                </div>
+                
+                <div class="figure">
+                    <img src="images/filtering-problem.svg" alt="The filtering problem">
+                    <p class="figure-caption">Both naive approaches fail: post-filtering misses results; pre-filtering breaks graph connectivity.</p>
+                </div>
+                
+                <p>This is the fundamental problem: <strong>the HNSW graph's connectivity depends on nodes that might be filtered out.</strong></p>
+            </section>
+            
+            <section id="percolation">
+                <h2>5. Understanding the Damage (Percolation Theory)</h2>
+                
+                <p>How bad does filtering get? <strong>Percolation theory</strong> gives us a precise answer.</p>
+                
+                <h3>The Critical Threshold</h3>
+                
+                <p>Percolation theory studies when networks fall apart. The key result is:</p>
+                
+                <div class="formula">
+                    p<sub>c</sub> = 1 / ⟨k⟩
+                </div>
+                
+                <p>Where:</p>
+                <ul>
+                    <li><strong>p<sub>c</sub></strong> = critical threshold (minimum fraction of nodes to keep the graph connected)</li>
+                    <li><strong>⟨k⟩</strong> = average number of edges per node</li>
+                </ul>
+                
+                <div class="figure">
+                    <img src="images/percolation-theory.svg" alt="Percolation theory">
+                    <p class="figure-caption">With m=16 edges per node, you can randomly remove ~94% of nodes and the graph likely stays connected.</p>
+                </div>
+                
+                <p>This sounds great—until you realize that:</p>
+                <ol>
+                    <li>Filters often remove more than 94% of data</li>
+                    <li>Filter removal isn't random—it's systematic</li>
+                </ol>
+                
+                <p>When a filter matches only 0.5% of your data, you're almost certainly below the threshold. The remaining nodes form disconnected islands—and HNSW can only find results on whichever island you started.</p>
+            </section>
+            
+            <section id="solution">
+                <h2>6. Qdrant's Solution: Pre-Built Subgraphs</h2>
+                
+                <p>Qdrant's insight is elegant: <strong>don't rely on the main graph for filtered queries—pre-build connected subgraphs for each filter value.</strong></p>
+                
+                <h3>The Core Algorithm</h3>
+                
+                <p>For a categorical field like <code>category</code> with values <code>[laptop, phone, tablet]</code>:</p>
+                
+                <ol>
+                    <li>Build a mini-HNSW graph connecting only laptops to each other</li>
+                    <li>Build a mini-HNSW graph connecting only phones to each other</li>
+                    <li>Build a mini-HNSW graph connecting only tablets to each other</li>
+                    <li>Merge all these edges into the main graph</li>
+                </ol>
+                
+                <p>Now, when you filter for "laptops only," there's a <strong>guaranteed connected path</strong> through all laptops—because you explicitly built one!</p>
+                
+                <div class="figure">
+                    <img src="images/qdrant-solution.svg" alt="Qdrant's filterable HNSW solution">
+                    <p class="figure-caption">By building category-specific edges and merging them, Qdrant guarantees connectivity within each category.</p>
+                </div>
+                
+                <h3>Space Overhead Analysis</h3>
+                
+                <p>A key concern: doesn't this explode memory usage?</p>
+                
+                <div class="callout callout-success">
+                    <p class="callout-title">✓ Surprisingly efficient</p>
+                    <p>The total edges increase by at most 2×, regardless of how many categories exist. Each node appears in exactly one category subgraph, so each node gains at most <code>m</code> additional edges. Overhead is constant regardless of category count.</p>
+                </div>
+            </section>
+            
+            <section id="query-planner">
+                <h2>7. The Query Planner</h2>
+                
+                <p>Qdrant doesn't blindly use filterable HNSW for every query. A <strong>query planner</strong> selects the optimal strategy at runtime based on filter selectivity.</p>
+                
+                <div class="figure">
+                    <img src="images/query-planner.svg" alt="Query planner strategy selection">
+                    <p class="figure-caption">The query planner adaptively chooses between standard HNSW, filterable HNSW, and full scan.</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filter Selectivity</th>
+                            <th>Strategy</th>
+                            <th>Reasoning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>High</strong> (70%+)</td>
+                            <td>Standard HNSW</td>
+                            <td>Graph is still well-connected</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium</strong> (5-70%)</td>
+                            <td>Filterable HNSW</td>
+                            <td>Use pre-built subgraph edges</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Low</strong> (&lt;5%)</td>
+                            <td>Full scan</td>
+                            <td>Candidate set is tiny</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p>The <code>full_scan_threshold</code> parameter controls when to switch from HNSW to full scan. When the filtered candidate count falls below the threshold, Qdrant switches to brute-force scanning—which is actually faster for tiny result sets.</p>
+            </section>
+            
+            <section id="filter-types">
+                <h2>8. Handling Different Filter Types</h2>
+                
+                <p>Not all filters are categorical. Qdrant handles different types with different strategies.</p>
+                
+                <h3>Categorical Filters (Optimal Case)</h3>
+                <p>Direct subgraph construction. Each category value gets its own connected component. This is the optimal case for filterable HNSW.</p>
+                
+                <h3>Numerical Range Filters (Approximated)</h3>
+                <p>For ranges like <code>price &lt; 1000</code>, Qdrant discretizes into buckets. Neighboring buckets are connected to each other, enabling range traversal. Edge cases near bucket boundaries require post-filtering.</p>
+                
+                <h3>Geographical Filters</h3>
+                <p>Location-based filters use <strong>geohash</strong> encoding. Points within the same geohash prefix form a subgraph, with edges to neighboring prefixes for smooth geographical traversal.</p>
+                
+                <h3>Multi-Field Filters (Challenging Case)</h3>
+                <p>Complex filters combining multiple fields don't have pre-built subgraphs. Qdrant handles this by using individual field indexes, taking intersection of candidate sets, and applying additional post-filtering as needed.</p>
+            </section>
+            
+            <section id="implementation">
+                <h2>9. Implementation Requirements</h2>
+                
+                <div class="callout callout-warning">
+                    <p class="callout-title">⚠️ Critical: Payload Indexes Must Be Created Explicitly</p>
+                    <p>Qdrant does not automatically index payload fields. You must create indexes explicitly, ideally BEFORE uploading data.</p>
+                </div>
+                
+<pre><code># Create the collection
+client.create_collection(
+    collection_name="products",
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+)
+
+# MUST create payload indexes for filtered fields
+client.create_payload_index(
+    collection_name="products",
+    field_name="category",
+    field_schema=PayloadSchemaType.KEYWORD,
+)
+
+client.create_payload_index(
+    collection_name="products",
+    field_name="price",
+    field_schema=PayloadSchemaType.FLOAT,
+)</code></pre>
+                
+                <p>Without these indexes, filtered queries fall back to post-filtering—losing all the benefits of filterable HNSW.</p>
+                
+                <h3>Timing Matters</h3>
+                
+                <p><strong>Best Practice:</strong> Create indexes BEFORE uploading data. This ensures the HNSW graph is built with filter-aware edges from the start.</p>
+                
+                <p>If you create indexes after data upload, the HNSW graph won't have the subgraph edges. You'll need to rebuild the index by updating the HNSW configuration—an expensive operation for large collections.</p>
+            </section>
+            
+            <section id="limitations">
+                <h2>10. Limitations & Edge Cases</h2>
+                
+                <p>No algorithm is perfect. Here's an honest assessment of filterable HNSW's limitations.</p>
+                
+                <div class="figure">
+                    <img src="images/limitations.svg" alt="Limitations and edge cases">
+                    <p class="figure-caption">Six key limitations to be aware of when using filterable HNSW.</p>
+                </div>
+                
+                <h3>1. Non-Indexed Fields</h3>
+                <p>Filters on non-indexed fields fall back to post-filtering. You must know your query patterns upfront.</p>
+                
+                <h3>2. Categorical Bias</h3>
+                <p>Works optimally for discrete categories. Continuous values require approximation via bucketing with boundary filtering overhead.</p>
+                
+                <h3>3. Complex Multi-Field Filters</h3>
+                <p>No pre-built subgraph for arbitrary combinations. Performance degrades as filter complexity increases.</p>
+                
+                <h3>4. Index Timing</h3>
+                <p>Indexes created after HNSW is built won't have subgraph edges—requiring expensive rebuild.</p>
+                
+                <h3>5. Filter-Vector Correlation</h3>
+                <p>Percolation theory assumes random removal. If filters correlate with vector semantics (e.g., all laptops cluster together), theoretical guarantees weaken.</p>
+                
+                <h3>6. Memory Overhead</h3>
+                <p>Each indexed field adds storage for the payload index plus up to 2× HNSW edges. Index only frequently filtered fields.</p>
+            </section>
+            
+            <section id="summary">
+                <h2>11. Summary & Best Practices</h2>
+                
+                <h3>The Key Insights</h3>
+                
+                <ol>
+                    <li><strong>The problem:</strong> HNSW graphs break when filtering removes nodes that served as bridges</li>
+                    <li><strong>The solution:</strong> Pre-build connected subgraphs for each filter value, merge into main graph</li>
+                    <li><strong>The guarantee:</strong> Filtered queries traverse the subgraph edges, maintaining connectivity</li>
+                    <li><strong>The trade-off:</strong> 2× edge overhead, requires upfront index planning</li>
+                </ol>
+                
+                <h3>Best Practices Checklist</h3>
+                
+                <div class="callout callout-success">
+                    <ul>
+                        <li>☑️ Create payload indexes BEFORE uploading data</li>
+                        <li>☑️ Index only frequently-filtered fields to minimize overhead</li>
+                        <li>☑️ Use categorical filters when possible (they're optimal)</li>
+                        <li>☑️ Benchmark with realistic filter selectivities</li>
+                        <li>☑️ Monitor memory usage as you add indexes</li>
+                        <li>☑️ Consider <code>full_scan_threshold</code> tuning for your workload</li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+        
+        <footer>
+            <p>Further reading: <a href="https://qdrant.tech/documentation/concepts/filtering/">Qdrant Documentation</a> • <a href="https://qdrant.tech/articles/filterable-hnsw/">Original Article</a> • <a href="https://arxiv.org/abs/1603.09320">HNSW Paper</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 450">
+  <defs>
+    <linearGradient id="highGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dbeafe"/>
+      <stop offset="100%" style="stop-color:#bfdbfe"/>
+    </linearGradient>
+    <linearGradient id="medGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dcfce7"/>
+      <stop offset="100%" style="stop-color:#bbf7d0"/>
+    </linearGradient>
+    <linearGradient id="lowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fef3c7"/>
+      <stop offset="100%" style="stop-color:#fde68a"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="850" height="450" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="425" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#1f2937">Query Planner: Adaptive Strategy Selection</text>
+  
+  <!-- Input: Query box -->
+  <g transform="translate(325, 50)">
+    <rect x="0" y="0" width="200" height="50" rx="8" fill="white" stroke="#6366f1" stroke-width="2"/>
+    <text x="100" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="500" fill="#4f46e5">Incoming Query</text>
+    <text x="100" y="38" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#6b7280">vector + filter condition</text>
+  </g>
+  
+  <!-- Arrow down -->
+  <path d="M425 100 L425 130" stroke="#9ca3af" stroke-width="2" marker-end="url(#downArrowGray)"/>
+  <defs>
+    <marker id="downArrowGray" markerWidth="10" markerHeight="7" refX="5" refY="7" orient="auto">
+      <polygon points="0 0, 10 0, 5 7" fill="#9ca3af"/>
+    </marker>
+  </defs>
+  
+  <!-- Decision box -->
+  <g transform="translate(300, 135)">
+    <polygon points="125,0 250,40 125,80 0,40" fill="white" stroke="#9ca3af" stroke-width="2"/>
+    <text x="125" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="500" fill="#374151">Estimate filter</text>
+    <text x="125" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="500" fill="#374151">selectivity</text>
+  </g>
+  
+  <!-- Three branches -->
+  <!-- Left branch (High selectivity) -->
+  <path d="M325 175 L180 230" stroke="#3b82f6" stroke-width="2"/>
+  <text x="235" y="200" font-family="system-ui, sans-serif" font-size="10" fill="#3b82f6">High (70%+)</text>
+  
+  <!-- Middle branch (Medium selectivity) -->
+  <path d="M425 215 L425 230" stroke="#10b981" stroke-width="2"/>
+  <text x="475" y="230" font-family="system-ui, sans-serif" font-size="10" fill="#10b981">Medium (5-70%)</text>
+  
+  <!-- Right branch (Low selectivity) -->
+  <path d="M525 175 L670 230" stroke="#f59e0b" stroke-width="2"/>
+  <text x="610" y="200" font-family="system-ui, sans-serif" font-size="10" fill="#f59e0b">Low (&lt;5%)</text>
+  
+  <!-- Strategy boxes -->
+  <!-- High selectivity strategy -->
+  <g transform="translate(50, 240)">
+    <rect x="0" y="0" width="260" height="170" rx="10" fill="url(#highGrad)" stroke="#93c5fd" stroke-width="2"/>
+    <text x="130" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#1e40af">Standard HNSW</text>
+    <text x="130" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#3b82f6">Skip non-matching nodes</text>
+    
+    <line x1="20" y1="55" x2="240" y2="55" stroke="#bfdbfe"/>
+    
+    <text x="20" y="75" font-family="system-ui, sans-serif" font-size="10" fill="#1e3a8a">How it works:</text>
+    <text x="20" y="92" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Traverse main HNSW graph normally</text>
+    <text x="20" y="106" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Skip nodes that don't match filter</text>
+    <text x="20" y="120" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Graph still well-connected enough</text>
+    
+    <text x="20" y="142" font-family="system-ui, sans-serif" font-size="10" fill="#1e3a8a">Why this works:</text>
+    <text x="20" y="158" font-family="system-ui, sans-serif" font-size="9" fill="#374151">Removing 30% of nodes unlikely to fragment</text>
+  </g>
+  
+  <!-- Medium selectivity strategy -->
+  <g transform="translate(330, 240)">
+    <rect x="0" y="0" width="260" height="170" rx="10" fill="url(#medGrad)" stroke="#86efac" stroke-width="2"/>
+    <text x="130" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#166534">Filterable HNSW</text>
+    <text x="130" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#059669">Use category subgraph edges</text>
+    
+    <line x1="20" y1="55" x2="240" y2="55" stroke="#bbf7d0"/>
+    
+    <text x="20" y="75" font-family="system-ui, sans-serif" font-size="10" fill="#14532d">How it works:</text>
+    <text x="20" y="92" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Use pre-built category edges</text>
+    <text x="20" y="106" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Guaranteed connectivity within category</text>
+    <text x="20" y="120" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Best of both worlds</text>
+    
+    <text x="20" y="142" font-family="system-ui, sans-serif" font-size="10" fill="#14532d">Why this works:</text>
+    <text x="20" y="158" font-family="system-ui, sans-serif" font-size="9" fill="#374151">Subgraph edges maintain connectivity</text>
+    
+    <!-- Star highlight -->
+    <text x="230" y="25" font-family="system-ui, sans-serif" font-size="14" fill="#059669">★</text>
+  </g>
+  
+  <!-- Low selectivity strategy -->
+  <g transform="translate(610, 240)">
+    <rect x="0" y="0" width="200" height="170" rx="10" fill="url(#lowGrad)" stroke="#fde68a" stroke-width="2"/>
+    <text x="100" y="25" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#92400e">Full Scan</text>
+    <text x="100" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#d97706">Brute force filtered set</text>
+    
+    <line x1="20" y1="55" x2="180" y2="55" stroke="#fde68a"/>
+    
+    <text x="20" y="75" font-family="system-ui, sans-serif" font-size="10" fill="#78350f">How it works:</text>
+    <text x="20" y="92" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Filter dataset first</text>
+    <text x="20" y="106" font-family="system-ui, sans-serif" font-size="9" fill="#374151">• Compare query to all</text>
+    <text x="20" y="120" font-family="system-ui, sans-serif" font-size="9" fill="#374151">  filtered candidates</text>
+    
+    <text x="20" y="142" font-family="system-ui, sans-serif" font-size="10" fill="#78350f">Why this works:</text>
+    <text x="20" y="158" font-family="system-ui, sans-serif" font-size="9" fill="#374151">Set is tiny → scan is fast</text>
+  </g>
+  
+  <!-- Bottom: Parameter note -->
+  <g transform="translate(50, 420)">
+    <rect x="0" y="0" width="750" height="25" rx="4" fill="#f3f4f6"/>
+    <text x="375" y="17" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#374151">
+      <tspan font-weight="500">Tunable parameter:</tspan> full_scan_threshold controls when to switch from HNSW to full scan
+    </text>
+  </g>
+</svg>
