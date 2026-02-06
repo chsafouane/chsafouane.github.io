@@ -1,0 +1,103 @@
+digraph PreFiltering {
+    graph [
+        rankdir=TB
+        bgcolor="white"
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=13
+        pad=0.2
+        nodesep=0.3
+        ranksep=0.85
+        newrank=true
+        compound=true
+        // Keep the output image reasonably small
+        size="7.2,4.6"
+        ratio=compress
+        dpi=110
+    ]
+    
+    node [
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=11
+        style="filled,rounded"
+        shape=box
+        margin="0.13,0.09"
+        penwidth=2
+    ]
+    
+    edge [
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=10
+        penwidth=2.2
+        color="#64748b"
+    ]
+    
+    // BEFORE: Original graph - horizontal layout
+    subgraph cluster_before {
+        label="Before: Original HNSW graph"
+        labelloc=t
+        fontsize=11
+        fontcolor="#475569"
+        style="rounded,filled"
+        color="#cbd5e1"
+        fillcolor="#f8fafc"
+        penwidth=1.8
+        margin=8
+        
+        {rank=same; apple1; sony1; google1}
+        
+        apple1 [label="Apple" fillcolor="#bbf7d0" color="#15803d"]
+        sony1 [label="Sony" fillcolor="#e9d5ff" color="#7c3aed"]
+        google1 [label="Google" fillcolor="#bfdbfe" color="#2563eb"]
+        
+        apple1 -> sony1 [dir=none penwidth=2.0]
+        sony1 -> google1 [dir=none penwidth=2.0]
+    }
+    
+    // Arrow label as a node
+    arrow_label [
+        label="Filter:\nkeep only Apple & Google"
+        shape=box
+        fontsize=11
+        fontcolor="#475569"
+        style="rounded,filled"
+        color="#cbd5e1"
+        fillcolor="white"
+        penwidth=1.2
+        margin="0.18,0.12"
+    ]
+    
+    // AFTER: Filtered graph
+    subgraph cluster_after {
+        label="After: Sony removed → Apple and Google disconnected"
+        labelloc=t
+        fontsize=11
+        fontcolor="#dc2626"
+        style="rounded,filled"
+        color="#fca5a5"
+        fillcolor="#fef2f2"
+        penwidth=1.8
+        margin=8
+        
+        // Keep left-to-right ordering: Sony (removed), Google, Apple
+        {rank=same; sony2; google2; apple2}
+        
+        apple2 [label="Apple" fillcolor="#bbf7d0" color="#15803d"]
+        sony2 [label="Sony" fillcolor="#f5f5f5" color="#9ca3af" fontcolor="#9ca3af" style="filled,rounded,dashed" penwidth=1]
+        google2 [label="Google" fillcolor="#bfdbfe" color="#2563eb"]
+        
+        // No edges - they're disconnected
+        sony2 -> google2 [style=invis]
+        google2 -> apple2 [style=invis]
+    }
+    
+    // Vertical flow
+    sony1 -> arrow_label [style=invis weight=20]
+    arrow_label -> google2 [style=invis weight=20]
+    
+    // Big visible arrow
+    google1:s -> apple2:n [
+        penwidth=3.2
+        arrowsize=1.35
+        constraint=false
+    ]
+}

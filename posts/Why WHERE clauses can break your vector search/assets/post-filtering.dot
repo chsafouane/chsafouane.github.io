@@ -1,0 +1,95 @@
+digraph PostFiltering {
+    // Clean, modern graph settings
+    graph [
+        rankdir=TB
+        bgcolor="white"
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=12
+        pad=0.6
+        nodesep=0.4
+        ranksep=0.7
+        dpi=150
+        compound=true
+    ]
+    
+    node [
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=11
+        style="filled,rounded"
+        shape=box
+        margin="0.12,0.08"
+        penwidth=1.5
+    ]
+    
+    edge [
+        fontname="Helvetica Neue,Helvetica,Arial,sans-serif"
+        fontsize=9
+        penwidth=2
+        color="#64748b"
+    ]
+    
+    // Query - clean gray box
+    query [
+        label="Query: \"wireless earbuds\", K=5"
+        fillcolor="#f8fafc"
+        color="#475569"
+        penwidth=2
+    ]
+    
+    // Step 1 cluster: HNSW returns top-K
+    subgraph cluster_step1 {
+        label="Step 1 — HNSW returns top-K"
+        labelloc=t
+        fontsize=10
+        fontcolor="#64748b"
+        style="rounded"
+        color="#cbd5e1"
+        bgcolor="#f8fafc"
+        penwidth=1.5
+        margin=20
+        
+        r1 [label="1. Sony" fillcolor="#fef3c7" color="#b45309"]
+        r2 [label="2. Samsung" fillcolor="#fef3c7" color="#b45309"]
+        r3 [label="3. Apple" fillcolor="#bbf7d0" color="#15803d" penwidth=2.5]
+        r4 [label="4. JBL" fillcolor="#fef3c7" color="#b45309"]
+        r5 [label="5. Bose" fillcolor="#fef3c7" color="#b45309"]
+        
+        r1 -> r2 -> r3 -> r4 -> r5 [style=invis]
+        {rank=same; r1; r2; r3; r4; r5}
+    }
+    
+    // Step 2 cluster: Apply filter
+    subgraph cluster_step2 {
+        label="Step 2 — Apply filter: brand ∈ {Apple, Google}"
+        labelloc=t
+        fontsize=10
+        fontcolor="#64748b"
+        style="rounded"
+        color="#cbd5e1"
+        bgcolor="#fefce8"
+        penwidth=1.5
+        margin=20
+        
+        kept [
+            label="✓ Returned\nApple (rank 3)"
+            fillcolor="#bbf7d0"
+            color="#15803d"
+            penwidth=2
+        ]
+        
+        missed [
+            label="✗ Missed\ncloser Apple/Google beyond K\n(ranks 8, 12...)"
+            fillcolor="#fecaca"
+            color="#b91c1c"
+            penwidth=2
+            style="filled,rounded,dashed"
+        ]
+        
+        {rank=same; kept; missed}
+        kept -> missed [style=invis]
+    }
+    
+    // Flow edges
+    query -> r3 [lhead=cluster_step1]
+    r3 -> kept [ltail=cluster_step1 lhead=cluster_step2]
+}

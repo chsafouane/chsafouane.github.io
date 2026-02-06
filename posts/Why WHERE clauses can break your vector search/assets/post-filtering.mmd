@@ -1,36 +1,41 @@
-%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '16px' }}}%%
-flowchart LR
-  q["Query:<br/>wireless earbuds<br/>K = 5"]
-  
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
+    'fontSize': '14px',
+    'lineColor': '#64748b',
+    'textColor': '#0f172a'
+  },
+  'flowchart': { 'curve': 'basis' }
+}}%%
+flowchart TB
+  q["Query: wireless earbuds, K = 5"]
+
   subgraph step1["Step 1: HNSW returns top-K (no filter)"]
-    direction TB
-    r1["Rank 1 Sony"]
-    r2["Rank 2 Samsung"]
-    r3["Rank 3 Apple"]
-    r4["Rank 4 JBL"]
-    r5["Rank 5 Bose"]
+    direction LR
+    r1["Rank 1<br/>Sony"]
+    r2["Rank 2<br/>Samsung"]
+    r3["Rank 3<br/>Apple"]
+    r4["Rank 4<br/>JBL"]
+    r5["Rank 5<br/>Bose"]
   end
 
   f{"Step 2: Apply filter<br/>brand = Apple or Google"}
 
-  subgraph results[" "]
-    direction TB
-    keep["Returned<br/>Apple (rank 3)"]
-    miss["Never considered<br/>closer Apple/Google<br/>ranked beyond K<br/>(e.g., 8, 12, 19)"]
-  end
+  keep["Returned<br/>Apple (rank 3)"]
+  miss["Missed candidates<br/>better Apple/Google items exist beyond K"]
 
   q --> step1
   step1 --> f
   f --> keep
   f -.-> miss
 
-  classDef query fill:#f6f7fb,stroke:#6b7280,stroke-width:2px
-  classDef step fill:#f6f7fb,stroke:#6b7280,stroke-width:1px
-  classDef keep fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-  classDef drop fill:#fff7ed,stroke:#c2410c,stroke-width:1px
-  classDef note fill:#ffebee,stroke:#c62828,stroke-width:2px,stroke-dasharray:5 4
-  classDef filter fill:#fff8e1,stroke:#f57f17,stroke-width:2px
-  classDef hidden fill:transparent,stroke:transparent
+  classDef query fill:#f8fafc,stroke:#6b7280,stroke-width:2px,color:#0f172a
+  classDef step fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px,color:#0f172a
+  classDef keep fill:#bbf7d0,stroke:#15803d,stroke-width:2px,color:#0f172a
+  classDef drop fill:#fff7ed,stroke:#c2410c,stroke-width:1px,color:#0f172a
+  classDef note fill:#fef2f2,stroke:#dc2626,stroke-width:2px,stroke-dasharray:6 5,color:#0f172a
+  classDef filter fill:#fef9c3,stroke:#a16207,stroke-width:2px,color:#0f172a
 
   class q query
   class step1 step
@@ -39,4 +44,3 @@ flowchart LR
   class miss note
   class r1,r2,r4,r5 drop
   class r3 keep
-  class results hidden

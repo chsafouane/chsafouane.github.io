@@ -1,0 +1,88 @@
+digraph BrandSubgraphs {
+    graph [
+        rankdir=LR
+        bgcolor=white
+        fontname="Helvetica"
+        fontsize=14
+        pad=0.5
+        nodesep=0.4
+        ranksep=0.6
+        dpi=150
+    ]
+    
+    node [
+        fontname="Helvetica"
+        fontsize=12
+        style="filled"
+        shape=circle
+        width=0.5
+        fixedsize=true
+    ]
+    
+    edge [
+        color="#666666"
+        penwidth=1.5
+        dir=none
+    ]
+    
+    // Apple subgraph
+    subgraph cluster_apple {
+        label="🍎 Apple"
+        fontsize=13
+        fontcolor="#28a745"
+        style="rounded,filled"
+        fillcolor="#e8f5e9"
+        color="#28a745"
+        penwidth=2
+        
+        A [label="A" fillcolor="#d4edda" color="#28a745" penwidth=2]
+        B [label="B" fillcolor="#d4edda" color="#28a745" penwidth=2]
+        E [label="E" fillcolor="#d4edda" color="#28a745" penwidth=2]
+        
+        A -> B [color="#28a745"]
+        B -> E [color="#28a745"]
+        A -> E [color="#28a745"]
+    }
+    
+    // Google subgraph
+    subgraph cluster_google {
+        label="🔵 Google"
+        fontsize=13
+        fontcolor="#1565c0"
+        style="rounded,filled"
+        fillcolor="#e3f2fd"
+        color="#1565c0"
+        penwidth=2
+        
+        C [label="C" fillcolor="#cce5ff" color="#1565c0" penwidth=2]
+        D [label="D" fillcolor="#cce5ff" color="#1565c0" penwidth=2]
+        G [label="G" fillcolor="#cce5ff" color="#1565c0" penwidth=2]
+        
+        C -> D [color="#1565c0"]
+        D -> G [color="#1565c0"]
+        C -> G [color="#1565c0"]
+    }
+    
+    // Sony subgraph
+    subgraph cluster_sony {
+        label="🟣 Sony"
+        fontsize=13
+        fontcolor="#7b1fa2"
+        style="rounded,filled"
+        fillcolor="#f3e5f5"
+        color="#7b1fa2"
+        penwidth=2
+        
+        F [label="F" fillcolor="#e1bee7" color="#7b1fa2" penwidth=2]
+        H [label="H" fillcolor="#e1bee7" color="#7b1fa2" penwidth=2]
+        I [label="I" fillcolor="#e1bee7" color="#7b1fa2" penwidth=2]
+        
+        F -> H [color="#7b1fa2"]
+        H -> I [color="#7b1fa2"]
+        F -> I [color="#7b1fa2"]
+    }
+    
+    // Invisible edges to force left-to-right layout
+    A -> C [style=invis]
+    C -> F [style=invis]
+}

@@ -1,28 +1,45 @@
-%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '18px', 'nodeTextColor': '#333' }}}%%
-flowchart TB
-    subgraph step1["Step 1: Build brand subgraphs"]
-        direction LR
-        subgraph apple["🍎 Apple"]
-            direction TB
-            LA["A"] --- LB["B"]
-            LA --- LE["E"]
-            LB --- LE
-        end
-        subgraph google["🔵 Google"]
-            direction TB
-            LC["C"] --- LD["D"]
-            LC --- LG["G"]
-            LD --- LG
-        end
-        subgraph sony["🟣 Sony"]
-            direction TB
-            LF["F"] --- LH["H"]
-            LF --- LI["I"]
-            LH --- LI
-        end
+%%{init: {
+    'theme': 'base',
+    'themeVariables': {
+        'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
+        'fontSize': '14px',
+        'lineColor': '#64748b',
+        'textColor': '#0f172a'
+    },
+    'flowchart': { 'curve': 'basis' }
+}}%%
+flowchart LR
+    subgraph apple["Apple"]
+        direction TB
+        A["A"] --- B["B"]
+        A --- E["E"]
+        B --- E
     end
-    
-    style step1 fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style apple fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style google fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    style sony fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    subgraph google["Google"]
+        direction TB
+        C["C"] --- D["D"]
+        C --- G["G"]
+        D --- G
+    end
+
+    subgraph sony["Sony"]
+        direction TB
+        F["F"] --- H["H"]
+        F --- I["I"]
+        H --- I
+    end
+
+    apple ~~~ google ~~~ sony
+
+    classDef appleNode fill:#bbf7d0,stroke:#15803d,stroke-width:2px,color:#0f172a
+    classDef googleNode fill:#bfdbfe,stroke:#2563eb,stroke-width:2px,color:#0f172a
+    classDef sonyNode fill:#e9d5ff,stroke:#7c3aed,stroke-width:2px,color:#0f172a
+
+    class A,B,E appleNode
+    class C,D,G googleNode
+    class F,H,I sonyNode
+
+    style apple fill:#f0fdf4,stroke:#cbd5e1,stroke-width:2px
+    style google fill:#eff6ff,stroke:#cbd5e1,stroke-width:2px
+    style sony fill:#faf5ff,stroke:#cbd5e1,stroke-width:2px
