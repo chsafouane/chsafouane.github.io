@@ -24,6 +24,8 @@ format:
       - cosmo
       - brand
     css: styles.css
+    mermaid:
+      theme: default
 
 execute:
   freeze: auto

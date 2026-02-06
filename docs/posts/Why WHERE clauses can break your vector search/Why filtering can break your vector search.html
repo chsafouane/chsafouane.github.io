@@ -9,7 +9,7 @@
 <meta name="author" content="Safouane Chergui">
 <meta name="dcterms.date" content="2026-02-06">
 
-<title>Why filtering can break your vector search – Safouane Chergui</title>
+<title>Why filtering breaks your vector search – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -104,6 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<meta name="mermaid-theme" content="default">
 <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
 <script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
@@ -197,7 +198,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Why filtering can break your vector search</h1>
+      <h1 class="title">Why filtering breaks your vector search</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Python</div>
                 <div class="quarto-category">NLP</div>
@@ -284,6 +285,7 @@ window.Quarto = {
 <p>A more realistic way to think about it: imagine you live in a world with no internet and you’re trying to find the best restaurant in an entire country. You wouldn’t inspect every street and every menu. Instead, you’d use a <em>navigation strategy</em>, maybe: - You’ll start by choosing a city that is known for its good restaurants - Then you’ll ask locals and head to likely part of town - Once in there, you’ll ask locals again to go to the right neighborhood - Finally, you’ll only compare restaurants in that neighborhood</p>
 <p>At the end of the day, you are trading a tiny risk of missing the absolute best restaurant in the country for a massive speedup.</p>
 <p><strong>Approximate Nearest Neighbor (ANN)</strong> algorithms formalize this trade-off for vector search. In practice, many vector databases use <strong>HNSW</strong> (Hierarchical Navigable Small World) as their default ANN index. HNSW builds a graph that lets the query “walk” toward closer and closer candidates without scanning everything.</p>
+<p>Btw, if you need a good course about vector search, HNSW and all things related to this, take a look</p>
 <section id="how-does-it-work" class="level2">
 <h2 class="anchored" data-anchor-id="how-does-it-work">How does it work?</h2>
 <p>Think back to the “no internet” restaurant problem from the previous section. You want the best restaurant in an entire country. Doing it exactly would mean visiting every street and reading every menu. HNSW turns your “ask the locals” strategy into reality.</p>
@@ -444,7 +446,7 @@ Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a>
     subgraph before["Original HNSW graph"]
         LA["🎧 Apple Earbuds"] --- SB["🎧 Sony Earbuds"] --- LC["🎧 Google Earbuds"]
     end
-    subgraph after["After filtering — Apple &amp; Google only"]
+    subgraph after["After filtering (Apple &amp; Google)"]
         LA2["🎧 Apple Earbuds"]
         LC2["🎧 Google Earbuds"]
         gap["🎧 Sony gone"]
