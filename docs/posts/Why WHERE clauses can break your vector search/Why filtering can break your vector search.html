@@ -278,7 +278,13 @@ window.Quarto = {
 <section id="a-quick-recap-on-hnsw" class="level1">
 <h1>1. A quick recap on HNSW</h1>
 <p>Suppose you’re querying a vector DB with a query embedding <code>q</code>. An easy way to find the nearest neighbors is <strong>exhaustive search</strong>: compute the similarity between <code>q</code> and all the stored vectors, then take the top k results. That gives exact results but it scales linearly. With N items in your vector DB, you perform <code>O(N)</code> distance evaluations per query. This works great for small datasets but the latency grows rapidly once you start dealing with bigger datasets.</p>
-<p>A more realistic way to think about it: imagine you live in a world with no internet and you’re trying to find the best restaurant in an entire country. You wouldn’t inspect every street and every menu. Instead, you’d use a <em>navigation strategy</em>, maybe: - You’ll start by choosing a city that is known for its good restaurants - Then you’ll ask locals and head to likely part of town - Once in there, you’ll ask locals again to go to the right neighborhood - Finally, you’ll only compare restaurants in that neighborhood</p>
+<p>A more realistic way to think about it: imagine you live in a world with no internet and you’re trying to find the best restaurant in an entire country. You wouldn’t inspect every street and every menu. Instead, you’d use a <em>navigation strategy</em>, maybe:</p>
+<ul>
+<li>You’ll start by choosing a city that is known for its good restaurants</li>
+<li>Then you’ll ask locals and head to likely part of town</li>
+<li>Once in there, you’ll ask locals again to go to the right neighborhood</li>
+<li>Finally, you’ll only compare restaurants in that neighborhood</li>
+</ul>
 <p>At the end of the day, you are trading a tiny risk of missing the absolute best restaurant in the country for a massive speedup.</p>
 <p><strong>Approximate Nearest Neighbor (ANN)</strong> algorithms formalize this trade-off for vector search. In practice, many vector databases use <strong>HNSW</strong> (Hierarchical Navigable Small World) as their default ANN index. HNSW builds a graph that lets the query “walk” toward closer and closer candidates without scanning everything.</p>
 <p>Btw, if you need a good course about vector search, HNSW and all things related to this, take a look</p>
