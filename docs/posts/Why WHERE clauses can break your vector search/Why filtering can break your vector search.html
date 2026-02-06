@@ -759,12 +759,12 @@ flowchart LR
 <ol type="1">
 <li><strong>Buckets contain equal amounts of points</strong> . If you have 10,000 products and 10 buckets, each bucket contains ~1,000 products regardless of how prices are distributed.</li>
 <li><strong>Neighboring buckets are connected</strong> so range queries like products whose price in [150, 350]can traverse across boundaries.</li>
-<li><strong>Border filtering is required</strong>: items in boundary buckets that don’t match the actual filter need post-filtering. For example, with a <code>price &lt; 150</code> filter, if bucket boundaries fall at $0, $100, $200, etc., the query would:</li>
-</ol>
+<li><strong>Border filtering is required</strong>: items in boundary buckets that don’t match the actual filter need post-filtering. For example, with a <code>price &lt; 150</code> filter, if bucket boundaries fall at $0, $100, $200, etc., the query would:
 <ul>
 <li>Traverse all buckets up to the one containing $150</li>
 <li>Post-filter items in the boundary bucket to exclude those with price &gt;= $150</li>
-</ul>
+</ul></li>
+</ol>
 <p>This works well in practice but isn’t as clean as the solution for categorical data.</p>
 <p>And of course, you can always opt for bucketing the numerical filter data yourself as you might have a better knowledge of the data and of where the boundaries should go.</p>
 </section>
