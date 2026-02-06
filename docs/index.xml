@@ -519,7 +519,7 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
 <section id="create-indexes-before-uploading-data" class="level3">
 <h3 class="anchored" data-anchor-id="create-indexes-before-uploading-data">2. Create indexes before uploading data</h3>
 <p>The order matters. HNSW graphs only get the subgraph edges when they’re built <em>after</em> the payload index exists. If you upload data first, the HNSW graph gets built without them.</p>
-<p>If you already uploaded data without indexes, you can still fix it but you’ll need to force an HNSW rebuild, which is expensive for large collections:</p>
+<p>If you already uploaded data without indexes, you can still fix it but you’ll need to force an HNSW rebuild, which is expensive for large collections.</p>
 </section>
 </section>
 <section id="what-about-numerical-filters" class="level2">
