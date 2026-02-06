@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.33">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>why-filtering-can-break-your-vector-search---medium – Safouane Chergui</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Safouane Chergui</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resume.html"> 
+<span class="menu-text">Resume</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/chsafouane"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/safouane-chergui/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://buymeacoffee.com/chsafouane"> <i class="bi bi-cup-straw" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../sitemap.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="why-filtering-breaks-your-vector-search" class="level1">
+<h1>Why filtering breaks your vector search</h1>
+<p>Semantic search works until you add a filter. You search for “wireless earbuds”, get great results, but then you decide to add a filter on brands <code>WHERE brand IN ('Apple', 'Google')</code> and suddenly many results vanish or you get nothing back at all, even if the data has results for your query.</p>
+<p>This isn’t a bug in your system but there is a reason why filtering breaks your vector search, and it all has to do with how HNSW works.</p>
+<p>This post explains the problem, quantifies how bad it gets, and walks through one of the elegant solutions there exists in vector DBs today which how Qdrant solves it.</p>
+<hr>
+<section id="a-quick-recap-on-hnsw" class="level2">
+<h2 class="anchored" data-anchor-id="a-quick-recap-on-hnsw">1. A quick recap on HNSW</h2>
+<p>Suppose you’re querying a vector DB with a query embedding <code>q</code>. An easy way to find the nearest neighbors is <strong>exhaustive search</strong>: compute the similarity between <code>q</code> and all the stored vectors, then take the top k results. That gives exact results but it scales linearly. With N items in your vector DB, you perform <code>O(N)</code> distance evaluations per query. This works great for small datasets but the latency grows rapidly once you start dealing with bigger datasets.</p>
+<p>A more realistic way to think about it: imagine you live in a world with no internet and you’re trying to find the best restaurant in an entire country. You wouldn’t inspect every street and every menu. Instead, you’d use a <em>navigation strategy</em>, maybe:</p>
+<ul>
+<li>You’ll start by choosing a city that is known for its good restaurants</li>
+<li>Then you’ll ask locals and head to likely part of town</li>
+<li>Once in there, you’ll ask locals again to go to the right neighborhood</li>
+<li>Finally, you’ll only compare restaurants in that neighborhood</li>
+</ul>
+<p>At the end of the day, you are trading a tiny risk of missing the absolute best restaurant in the country for a massive speedup.</p>
+<p><strong>Approximate Nearest Neighbor (ANN)</strong> algorithms formalize this trade-off for vector search. In practice, many vector databases use <strong>HNSW</strong> (Hierarchical Navigable Small World) as their default ANN index. HNSW builds a graph that lets the query “walk” toward closer and closer candidates without scanning everything.</p>
+<p>Btw, if you need a good course about vector search, HNSW and all things related to this, take a look at the free <a href="https://qdrant.tech/course/essentials/">Qdrant Essentials</a> course (not sponsored).</p>
+<section id="how-does-it-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-it-work">How does it work?</h3>
+<p>Think back to the “no internet” restaurant problem from the previous section. You want the best restaurant in an entire country. Doing it exactly would mean visiting every street and reading every menu. HNSW turns your “ask the locals” strategy into reality.</p>
+<section id="the-intuition" class="level4">
+<h4 class="anchored" data-anchor-id="the-intuition">The intuition</h4>
+<p>Your dataset is the country. Each item (vector) is a restaurant somewhere on the map. Your query vector is your personal taste.</p>
+<p>HNSW pre-builds “local recommendations”: each restaurant knows a handful of nearby restaurants (nearby in embedding space). At query time, you hop from one promising candidate to the next until you’re in the right neighborhood, then you refine the shortlist.</p>
+</section>
+<section id="under-the-hood" class="level4">
+<h4 class="anchored" data-anchor-id="under-the-hood">Under the hood</h4>
+<p>HNSW stores a graph:</p>
+<ul>
+<li>each vector is a node</li>
+<li>each node connects to a small set of nearby nodes (neighbors), where <em>nearby</em> is defined by your similarity metric (often cosine)</li>
+</ul>
+<p>At query time, the search looks like this:</p>
+<ol type="1">
+<li>Start from the index’s entry point (a specific node stored in the HNSW structure).</li>
+<li>Keep a <em>shortlist</em> of the best candidates you’ve seen so far.</li>
+<li>Repeatedly expand the most promising candidate by checking its neighbors and updating the shortlist.</li>
+<li>Stop when your budget is exhausted and return the top K from the shortlist.</li>
+</ol>
+<p>The key knob at query time is <code>ef</code> (Qdrant: <code>hnsw_ef</code>) which determines <strong>how wide that shortlist is allowed to be.</strong> Bigger <code>ef</code> means you consider more alternatives (better recall) but do more distance checks (higher latency).</p>
+<p>Here’s a table of the 3 main parameters for HNWS graph and their impact on the usability:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>When</th>
+<th>What it controls</th>
+<th>Bigger means…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>M</code></td>
+<td>build time</td>
+<td>max neighbors per node</td>
+<td>higher memory, often better connectivity/recall</td>
+</tr>
+<tr class="even">
+<td><code>ef_construction</code></td>
+<td>build time</td>
+<td>how hard the builder tries to find good edges</td>
+<td>slower build, higher index quality</td>
+</tr>
+<tr class="odd">
+<td><code>ef</code> / <code>hnsw_ef</code></td>
+<td>query time</td>
+<td>how wide the candidate shortlist is</td>
+<td>higher latency, higher recall</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="why-the-hierarchy-matters" class="level4">
+<h4 class="anchored" data-anchor-id="why-the-hierarchy-matters">Why the hierarchy matters</h4>
+<p>The strategy above works on a single graph, but it can waste time wandering before it reaches the right region.</p>
+<p>HNSW adds the <em>pick the right city first</em> step by using multiple layers for search.</p>
+<ul>
+<li>The higher layer is like a very coarse-grained map of the country, including details just about very few restaurant that are very far from each other.</li>
+<li>The lowest layer of all is like the map of the whole country with all the details. It includes all the nodes of all previous layer.</li>
+</ul>
+<p>In general terms:</p>
+<ul>
+<li>upper layers contain fewer nodes with longer-range connections</li>
+<li>lower layers contain more nodes with short-range connections</li>
+</ul>
+<p>When searching for the most similar nodes to your query, search is top-down.</p>
+<ul>
+<li>You start in the top layer, walk greedily to the most similar node you can find until you can’t improve</li>
+<li>You drop to the next layer while keeping your current best node as the new starting point</li>
+<li>You repeat until the bottom layer (which contains all nodes)</li>
+</ul>
+<p>The hierarchy is what makes the navigation both fast and surprisingly accurate.</p>
+<p><img src="https://qdrant.tech/courses/day2/hnsw-layers.png" class="img-fluid" alt="HNSW greedy search visualization"> <em>Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a></em></p>
+<hr>
+</section>
+</section>
+</section>
+<section id="how-filtering-breaks-hnsw" class="level2">
+<h2 class="anchored" data-anchor-id="how-filtering-breaks-hnsw">2. How filtering breaks HNSW</h2>
+<p>Vector search almost never happens in isolation as your users always want to combine similarity with metadata filters as in our earbuds example: <em>“find wireless earbuds, but only from Apple or Google.”</em></p>
+<p>Two obvious ways to filter come to mind (which are implemented widely in industry) but they both fail most of the time.</p>
+<section id="the-post-filtering-method" class="level3">
+<h3 class="anchored" data-anchor-id="the-post-filtering-method">The post-filtering method</h3>
+<p>The naive approach: run HNSW to get the top-K most similar results, then throw away the ones that don’t match the filter.</p>
+<p>The main reason this method fails is that your top K <em>wireless earbuds</em> results might be dominated by other brands. After discarding non-matching items, you’re <strong>left with almost nothing</strong>.</p>
+<p>HNSW returned 5 results but only 1 matched the filter. Meanwhile, closer Apple/Google earbuds ranked beyond top K were never retrieved, so they could not be returned.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://raw.githubusercontent.com/chsafouane/chsafouane.github.io/feature/vector-search-diagrams/posts/Why%20WHERE%20clauses%20can%20break%20your%20vector%20search/assets/post-filtering.png" class="img-fluid figure-img"></p>
+<figcaption>Post-filtering diagram</figcaption>
+</figure>
+</div>
+<p>In practice, you end up making <code>top k</code> higher (and usually the exploration budget <code>ef</code>) high enough that <em>some</em> filtered items make it into the candidate set, which defeats the whole purpose of ANN: you pay for extra work just to throw most of it away.</p>
+</section>
+<section id="the-pre-filtering-method" class="level3">
+<h3 class="anchored" data-anchor-id="the-pre-filtering-method">The pre-filtering method</h3>
+<p>The other option is to filter the dataset first and then search HNSW only among matching items.</p>
+<p>While this method looks sound, it also fails…</p>
+<p>The reason it fails is that the HNSW graph was built on <strong>all data</strong>. When you filter your dataset, you’re removing nodes from the graph, so many edges disappear. Paths between matching items often route <em>through</em> non-matching ones, and once those bridge nodes are gone, the graph falls apart.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://raw.githubusercontent.com/chsafouane/chsafouane.github.io/feature/vector-search-diagrams/posts/Why%20WHERE%20clauses%20can%20break%20your%20vector%20search/assets/pre-filtering.png" class="img-fluid figure-img"></p>
+<figcaption>Pre-filtering diagram</figcaption>
+</figure>
+</div>
+<p>The path from Apple Earbuds to Google Earbuds went <em>through</em> Sony Earbuds. Remove non-matching brands, and Google Earbuds becomes <strong>unreachable</strong>. Your search silently misses it.</p>
+<p>Even worse, if the HNSW entry point (or the early candidates in the queue) happen to be in the filtered-out region, the search may never reach the remaining component at all.</p>
+<p>The HNSW graph’s connectivity depends on nodes that your filter removes. This isn’t an edge case — it’s the common case for selective filters.</p>
+<p>If you want real numbers on how many nodes you need to keep for a graph to remain connected, I highly recommend reading this short post on <a href="https://blog.vasnetsov.com/posts/categorical-hnsw/">HNSW &amp; percolation theory</a>. One caveat: percolation theory assumes <strong>random</strong> node removal. When filter values correlate with embedding position (e.g., all products of one brand cluster together), removal is <em>spatially correlated</em> — you lose entire neighborhoods at once, which is far more destructive than the random case. The percolation thresholds in that post are optimistic for correlated filters.</p>
+<hr>
+</section>
+</section>
+<section id="qdrants-solution-filterable-hnsw" class="level2">
+<h2 class="anchored" data-anchor-id="qdrants-solution-filterable-hnsw">3. Qdrant’s solution: filterable HNSW</h2>
+<p>Not all vector databases/vector frameworks implement a solution for this problem. Many only implement pre-filtering or post-filtering.</p>
+<p>Among the providers that <em>do</em> propose a solution, the approaches differ.</p>
+<p>In this blog post, I focus on Qdrant’s solution because it is simple and effective.</p>
+<p>The idea is to pre-build connected subgraphs for each filter value and merge their edges into the main graph.</p>
+<section id="how-does-it-work-1" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-it-work-1">How does it work</h3>
+<p>Filterable HNSW adds a small set of extra edges so filtering does not disconnect matching points.</p>
+<p>Take a categorical field like <code>brand</code> with values <code>[Apple, Google, Sony]</code>. Qdrant:</p>
+<ol type="1">
+<li>Builds a connected mini-HNSW subgraph inside each brand. That way, the products of each brand become connected together.</li>
+<li>Adds those subgraph edges to the main HNSW graph.</li>
+</ol>
+<p>This method guarantees that after filtering on brands, points that share the same brand will be connected (reachable from each other).</p>
+<p>It’s very important to know that connectivity between <em>different</em> brands is not enforced by these subgraphs. Cross-brand connections rely on similarity links in the main graph, which may or may not survive filtering.</p>
+<p>Let us look at an example to make this clear.</p>
+<p>In the diagrams below:</p>
+<ul>
+<li>A, B, E are Apple points</li>
+<li>C, D, G are Google</li>
+<li>F, H, I are Sony</li>
+</ul>
+<p>Qdrant builds a graph for each one of the 3 brands.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://raw.githubusercontent.com/chsafouane/chsafouane.github.io/feature/vector-search-diagrams/posts/Why%20WHERE%20clauses%20can%20break%20your%20vector%20search/assets/brand-subgraphs.png" class="img-fluid figure-img"></p>
+<figcaption>Brand subgraphs diagram</figcaption>
+</figure>
+</div>
+<p>Then these brand graphs are <strong>merged</strong> into the main graph. This is a key point: after the merge, there’s only <strong>one graph</strong> in memory containing both:</p>
+<ul>
+<li><strong>Similarity edges</strong> (from standard HNSW construction which connects nearby vectors using similarity)</li>
+<li><strong>Subgraph edges</strong> (connecting nodes with the same value of the filter, e.g: brands)</li>
+</ul>
+<p>These aren’t stored separately. The subgraph edges are simply added to the existing graph structure at build time.</p>
+<p>In the diagram below, all three brands sell similar products (earbuds, headphones, etc.), so their nodes are interleaved in embedding space. That’s why the main graph also has <strong>similarity edges across brands</strong> including direct Apple &lt;-&gt; Google links.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://raw.githubusercontent.com/chsafouane/chsafouane.github.io/feature/vector-search-diagrams/posts/Why%20WHERE%20clauses%20can%20break%20your%20vector%20search/assets/merged-graph.png" class="img-fluid figure-img"></p>
+<figcaption>Merged graph diagram</figcaption>
+</figure>
+</div>
+<p><strong>After filtering</strong> with <code>brand IN ('Apple', 'Google')</code>, Sony points are removed. Brand subgraph edges keep each brand internally connected. But what about the connection <em>between</em> Apple and Google?</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://raw.githubusercontent.com/chsafouane/chsafouane.github.io/feature/vector-search-diagrams/posts/Why%20WHERE%20clauses%20can%20break%20your%20vector%20search/assets/filtered-graph.png" class="img-fluid figure-img"></p>
+<figcaption>Filtered graph diagram</figcaption>
+</figure>
+</div>
+<p>In our example, because Apple and Google sell similar products, their nodes are close in embedding space. The direct Apple &lt;-&gt; Google similarity edges (A–C, B–G) survived the filter, so the search can still jump between brands.</p>
+<p>But these cross-brand edges exist <em>because</em> the brands overlap in what they sell. If instead one brand only made luxury laptops and the other only budget wireless earbuds, their products would land in <strong>different regions</strong> of the embedding space and there would be very few or no similarity edges between them. In that case, after filtering, the search starts in one brand’s cluster and never reaches the other. That’s the pre-filtering failure mode all over again, just at a smaller scale.</p>
+<p><strong>Keep this in mind:</strong> Filterable HNSW guarantees that <strong>all Apple products stay connected</strong> and <strong>all Google products stay connected</strong>. It does <strong>not</strong> guarantee that Apple products can reach Google products, this really depends on whether similarity edges bridge the gap, which depends on how correlated brand identity is with embedding position.</p>
+<p>For single-value filters (e.g., <code>brand = 'Apple'</code>), this distinction doesn’t matter.</p>
+</section>
+<section id="does-the-memory-explode" class="level3">
+<h3 class="anchored" data-anchor-id="does-the-memory-explode">Does the memory explode?</h3>
+<p>The memory usage is kept well under control with filterable HNSW</p>
+<p>As each node belongs to exactly one brand, each node gains at most <code>m</code> additional edges from its brand subgraph, which makes the number of new edges at most <code>n * m</code>. Now, as you add more filters (not only the brand), you’re going to have additional edges built.</p>
+</section>
+<section id="the-query-planner" class="level3">
+<h3 class="anchored" data-anchor-id="the-query-planner">The query planner</h3>
+<p>At query time, Qdrant estimates <strong>filter selectivity</strong> and decides: <em>should I traverse this graph, or just brute-force?</em></p>
+<ul>
+<li><p><strong>High or medium selectivity</strong>: In this case, Qdrant just traverses the graph. The subgraph edges are always there and whether they’re <em>critical</em> depends on how many nodes the filter removes.</p>
+<ul>
+<li>With high selectivity (e.g, 70% match), most similarity edges still lead to valid nodes</li>
+<li>With medium selectivity (e.g, 15% match), the subgraph edges become essential for maintaining connectivity.</li>
+</ul></li>
+<li><p><strong>Low selectivity (e.g, 0.1%)</strong>: Qdrant skips the graph entirely. When only a tiny fraction of nodes match, brute-force scanning over the filtered set is faster than graph traversal.</p></li>
+</ul>
+<p>The intuition: graph-based search only pays off when there’s enough connectivity to navigate. For very selective filters, there’s so little data left that exhaustive search wins.</p>
+<p>Qdrant allows you to control this behavior using <code>full_scan_threshold</code>. When the filtered candidate count falls below <code>full_scan_threshold</code>, Qdrant automatically switches to brute-force scanning.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> qdrant_client.models <span class="im">import</span> VectorParams, Distance, HnswConfigDiff</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>client.create_collection(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    collection_name<span class="op">=</span><span class="st">"products"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    vectors_config<span class="op">=</span>VectorParams(size<span class="op">=</span><span class="dv">384</span>, distance<span class="op">=</span>Distance.COSINE),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    hnsw_config<span class="op">=</span>HnswConfigDiff(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        m<span class="op">=</span><span class="dv">16</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        ef_construct<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        full_scan_threshold<span class="op">=</span><span class="dv">1000</span>  <span class="co"># switch to brute-force when fewer than 1k candidates match</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="getting-it-right-in-practice-with-qdrant" class="level3">
+<h3 class="anchored" data-anchor-id="getting-it-right-in-practice-with-qdrant">Getting it right in practice with Qdrant</h3>
+<p>Two implementation details trip people up consistently.</p>
+<section id="create-payload-indexes-explicitly" class="level4">
+<h4 class="anchored" data-anchor-id="create-payload-indexes-explicitly">1. Create payload indexes explicitly</h4>
+<p>Qdrant does not automatically index payload fields. Filtering still works without indexes — you’ll get correct results — but you lose two critical optimizations:</p>
+<ol type="1">
+<li><strong>No subgraph edges</strong>: The HNSW graph won’t have the extra edges needed for filtered search, so you lose the connectivity guarantees described above.</li>
+<li><strong>Poor cardinality estimation</strong>: The query planner can’t accurately estimate how many points match the filter, leading to suboptimal search strategies. I couldn’t find the exact way it determines the strategy in the documentation but as they’re also an open-source package, the curious minds can dive into their package to get this information.</li>
+</ol>
+</section>
+<section id="create-indexes-before-uploading-data" class="level4">
+<h4 class="anchored" data-anchor-id="create-indexes-before-uploading-data">2. Create indexes before uploading data</h4>
+<p>The order matters. HNSW graphs only get the subgraph edges when they’re built <em>after</em> the payload index exists. If you upload data first, the HNSW graph gets built without them.</p>
+<p>If you already uploaded data without indexes, you can still fix it but you’ll need to force an HNSW rebuild, which is expensive for large collections.</p>
+</section>
+</section>
+<section id="what-about-numerical-filters" class="level3">
+<h3 class="anchored" data-anchor-id="what-about-numerical-filters">What about numerical filters?</h3>
+<p>Everything above focused on categorical filters like <code>brand IN ('Apple', 'Google')</code>. But applications also filter on prices, ratings, timestamps, and other continuous values.</p>
+<p>Qdrant supports three numerical index types: <code>integer</code>, <code>float</code> &amp; <code>datetime</code></p>
+<section id="how-qdrant-handles-numerical-ranges" class="level4">
+<h4 class="anchored" data-anchor-id="how-qdrant-handles-numerical-ranges">How Qdrant handles numerical ranges</h4>
+<p>The <a href="https://qdrant.tech/articles/filterable-hnsw/">original filterable HNSW article</a> explains the approach:</p>
+<blockquote class="blockquote">
+<p>“Numerical range case can be reduced to the previous one if we split numerical range into buckets containing equal amount of points. Next we also connect neighboring buckets to achieve graph connectivity.”</p>
+</blockquote>
+<p>Here’s how the mechanism works:</p>
+<ol type="1">
+<li><strong>Buckets contain equal amounts of points</strong>. If you have 10,000 products and 10 buckets, each bucket contains ~1,000 products regardless of how prices are distributed.</li>
+<li><strong>Neighboring buckets are connected</strong> so range queries like products whose price in [150, 350] can traverse across boundaries.</li>
+<li><strong>Border filtering is required</strong>: items in boundary buckets that don’t match the actual filter need post-filtering. For example, with a <code>price &lt; 150</code> filter, if bucket boundaries fall at $0, $100, $200, etc., the query would:
+<ul>
+<li>Traverse all buckets up to the one containing $150</li>
+<li>Post-filter items in the boundary bucket to exclude those with price &gt;= $150</li>
+</ul></li>
+</ol>
+<p>This works well in practice but isn’t as clean as the solution for categorical data.</p>
+<p>And of course, you can always opt for bucketing the numerical filter data yourself as you might have a better knowledge of the data and of where the boundaries should go.</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">4. Conclusion</h2>
+<p>There are really a couple of takeaways here:</p>
+<ul>
+<li>Vector search with filters doesn’t just work out of the box and is not just “vector search + WHERE clause”</li>
+<li>Your Vector DB solution might not provide a solution for this, so do what any sound developer would do, read the docs!</li>
+</ul>
+<hr>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">5. Further reading</h2>
+<ul>
+<li><a href="https://qdrant.tech/documentation/concepts/filtering/">Qdrant Documentation: Filtering</a></li>
+<li><a href="https://qdrant.tech/articles/filterable-hnsw/">Original Filterable HNSW Article by Qdrant</a></li>
+<li><a href="https://arxiv.org/abs/1603.09320">HNSW Paper: Efficient and Robust Approximate Nearest Neighbor (Malkov &amp; Yashunin, 2016)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Percolation_theory">Percolation Theory — Wikipedia</a></li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/chsafouane\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
