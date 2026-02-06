@@ -1,49 +1,27 @@
-%%{init: {
-    'theme': 'base',
-    'themeVariables': {
-        'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
-        'fontSize': '14px',
-        'lineColor': '#64748b',
-        'textColor': '#0f172a'
-    },
-    'flowchart': { 'curve': 'basis' }
-}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif', 'fontSize': '14px', 'lineColor': '#64748b', 'textColor': '#0f172a'}}}%%
 flowchart TB
-    subgraph before["Before: Original HNSW graph"]
-        direction LR
-        apple1["Apple"] --- sony1["Sony"] --- google1["Google"]
-    end
+  subgraph before["Before: Original HNSW graph"]
+    direction LR
+    apple1["Apple"] --- sony1["Sony"] --- google1["Google"]
+  end
 
-    filter["Filter:\nkeep only Apple & Google"]
+  filter["Filter: keep only Apple and Google"]
 
-    subgraph after["After: Sony removed → Apple and Google disconnected"]
-        direction LR
-        sony2["Sony"] ~~~ google2["Google"] ~~~ apple2["Apple"]
-    end
+  subgraph after["After: Sony removed"]
+    direction LR
+    apple2["Apple"]
+    sony2["Sony"]
+    google2["Google"]
+  end
 
-    before --> filter
-    filter --> after
+  before --> filter --> after
 
-    %% Big illustrative arrow (crossing the gap)
-    google1 --> apple2
-
-    classDef apple fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#0f172a
-    classDef google fill:#bfdbfe,stroke:#2563eb,stroke-width:3px,color:#0f172a
-    classDef sony fill:#e9d5ff,stroke:#7c3aed,stroke-width:3px,color:#0f172a
-    classDef removed fill:#f5f5f5,stroke:#9ca3af,stroke-width:2px,stroke-dasharray:6 5,color:#9ca3af
-    classDef label fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#475569
-
-    class apple1,apple2 apple
-    class google1,google2 google
-    class sony1 sony
-    class sony2 removed
-    class filter label
-
-    style before fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
-    style after fill:#fef2f2,stroke:#fca5a5,stroke-width:2px
-
-    linkStyle 0 stroke:#64748b,stroke-width:4px
-    linkStyle 1 stroke:#64748b,stroke-width:4px
-    linkStyle 4 stroke:transparent
-    linkStyle 5 stroke:transparent
-    linkStyle 6 stroke:#64748b,stroke-width:6px
+  style apple1 fill:#bbf7d0,stroke:#15803d,stroke-width:2px
+  style google1 fill:#bfdbfe,stroke:#2563eb,stroke-width:2px
+  style sony1 fill:#e9d5ff,stroke:#7c3aed,stroke-width:2px
+  style apple2 fill:#bbf7d0,stroke:#15803d,stroke-width:2px
+  style google2 fill:#bfdbfe,stroke:#2563eb,stroke-width:2px
+  style sony2 fill:#f5f5f5,stroke:#9ca3af,stroke-width:2px
+  style filter fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+  style before fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+  style after fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px

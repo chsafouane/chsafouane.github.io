@@ -1,57 +1,57 @@
 %%{init: {
-    'theme': 'base',
-    'themeVariables': {
-        'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
-        'fontSize': '14px',
-        'lineColor': '#64748b',
-        'textColor': '#0f172a'
-    },
-    'flowchart': { 'curve': 'basis' }
+  'theme': 'base',
+  'themeVariables': {
+    'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
+    'fontSize': '14px',
+    'lineColor': '#64748b',
+    'textColor': '#0f172a'
+  },
+  'flowchart': { 'curve': 'basis' }
 }}%%
 flowchart TB
-    subgraph merged["Merged main graph (similarity + brand edges)"]
-        direction TB
+  subgraph merged["Merged main graph (similarity + brand edges)"]
+    direction TB
 
-        subgraph r1[" "]
-            direction LR
-            A["A"] --- F["F"] --- C["C"]
-        end
-        subgraph r2[" "]
-            direction LR
-            B["B"] --- H["H"] --- D["D"]
-        end
-        subgraph r3[" "]
-            direction LR
-            E["E"] --- I["I"] --- G["G"]
-        end
-
-        %% Cross-brand similarity shortcuts
-        A --- C
-        B --- G
-
-        %% Brand subgraph edges (thick)
-        A === B
-        A === E
-        B === E
-
-        C === D
-        C === G
-        D === G
-
-        F === H
-        F === I
-        H === I
+    subgraph r1[" "]
+      direction LR
+      A["A"] --- F["F"] --- C["C"]
+    end
+    subgraph r2[" "]
+      direction LR
+      B["B"] --- H["H"] --- D["D"]
+    end
+    subgraph r3[" "]
+      direction LR
+      E["E"] --- I["I"] --- G["G"]
     end
 
-    classDef apple fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#0f172a
-    classDef google fill:#bfdbfe,stroke:#2563eb,stroke-width:3px,color:#0f172a
-    classDef sony fill:#e9d5ff,stroke:#7c3aed,stroke-width:3px,color:#0f172a
+    %% Cross-brand similarity shortcuts
+    A --- C
+    B --- G
 
-    class A,B,E apple
-    class C,D,G google
-    class F,H,I sony
+    %% Brand subgraph edges (thick)
+    A === B
+    A === E
+    B === E
 
-    style r1 fill:transparent,stroke:transparent
-    style r2 fill:transparent,stroke:transparent
-    style r3 fill:transparent,stroke:transparent
-    style merged fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+    C === D
+    C === G
+    D === G
+
+    F === H
+    F === I
+    H === I
+  end
+
+  classDef apple fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#0f172a
+  classDef google fill:#bfdbfe,stroke:#2563eb,stroke-width:3px,color:#0f172a
+  classDef sony fill:#e9d5ff,stroke:#7c3aed,stroke-width:3px,color:#0f172a
+
+  class A,B,E apple
+  class C,D,G google
+  class F,H,I sony
+
+  style r1 fill:transparent,stroke:transparent
+  style r2 fill:transparent,stroke:transparent
+  style r3 fill:transparent,stroke:transparent
+  style merged fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px

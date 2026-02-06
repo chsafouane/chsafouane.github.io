@@ -1,52 +1,52 @@
 %%{init: {
-    'theme': 'base',
-    'themeVariables': {
-        'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
-        'fontSize': '14px',
-        'lineColor': '#64748b',
-        'textColor': '#0f172a'
-    },
-    'flowchart': { 'curve': 'basis' }
+  'theme': 'base',
+  'themeVariables': {
+    'fontFamily': 'Helvetica Neue,Helvetica,Arial,sans-serif',
+    'fontSize': '14px',
+    'lineColor': '#64748b',
+    'textColor': '#0f172a'
+  },
+  'flowchart': { 'curve': 'basis' }
 }}%%
 flowchart LR
-    subgraph filtered["Filtered set (Apple + Google)"]
-        direction LR
+  subgraph filtered["Filtered set (Apple + Google)"]
+    direction LR
 
-        subgraph apple["Apple"]
-            direction TB
-            A["A"] === B["B"]
-            A === E["E"]
-            B === E
-        end
-
-        subgraph google["Google"]
-            direction TB
-            C["C"] === D["D"]
-            C === G["G"]
-            D === G
-        end
-
-        A --- C
-        B --- G
+    subgraph apple["Apple"]
+      direction TB
+      A["A"] === B["B"]
+      A === E["E"]
+      B === E
     end
 
-    subgraph removed["Removed (Sony)"]
-        direction TB
-        F["F"]
-        H["H"]
-        I["I"]
+    subgraph google["Google"]
+      direction TB
+      C["C"] === D["D"]
+      C === G["G"]
+      D === G
     end
 
-    classDef appleNode fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#0f172a
-    classDef googleNode fill:#bfdbfe,stroke:#2563eb,stroke-width:3px,color:#0f172a
-    classDef removedNode fill:#f5f5f5,stroke:#9ca3af,stroke-width:2px,stroke-dasharray:6 5,color:#9ca3af
+    A --- C
+    B --- G
+  end
 
-    class A,B,E appleNode
-    class C,D,G googleNode
-    class F,H,I removedNode
+  subgraph removed["Removed (Sony)"]
+    direction TB
+    F["F"]
+    H["H"]
+    I["I"]
+  end
 
-    style filtered fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
-    style apple fill:#f0fdf4,stroke:#cbd5e1,stroke-width:2px
-    style google fill:#eff6ff,stroke:#cbd5e1,stroke-width:2px
+  classDef appleNode fill:#bbf7d0,stroke:#15803d,stroke-width:3px,color:#0f172a
+  classDef googleNode fill:#bfdbfe,stroke:#2563eb,stroke-width:3px,color:#0f172a
+  classDef removedNode fill:#f5f5f5,stroke:#9ca3af,stroke-width:2px,stroke-dasharray:6 5,color:#9ca3af
 
-    style removed fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,stroke-dasharray:6 5
+  class A,B,E appleNode
+  class C,D,G googleNode
+  class F,H,I removedNode
+
+  style filtered fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+  style apple fill:#f0fdf4,stroke:#cbd5e1,stroke-width:2px
+  style google fill:#eff6ff,stroke:#cbd5e1,stroke-width:2px
+
+  style removed fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,stroke-dasharray:6 5
