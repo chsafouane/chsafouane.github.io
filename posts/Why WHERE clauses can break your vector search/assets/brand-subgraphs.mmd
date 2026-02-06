@@ -1,23 +1,28 @@
-%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '14px' }}}%%
-flowchart LR
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '18px', 'nodeTextColor': '#333' }}}%%
+flowchart TB
     subgraph step1["Step 1: Build brand subgraphs"]
-        subgraph apple["Apple"]
+        direction LR
+        subgraph apple["🍎 Apple"]
+            direction TB
             LA["A"] --- LB["B"]
             LA --- LE["E"]
             LB --- LE
         end
-        subgraph google["Google"]
+        subgraph google["🔵 Google"]
+            direction TB
             LC["C"] --- LD["D"]
             LC --- LG["G"]
             LD --- LG
         end
-        subgraph sony["Sony"]
+        subgraph sony["🟣 Sony"]
+            direction TB
             LF["F"] --- LH["H"]
             LF --- LI["I"]
             LH --- LI
         end
     end
     
-    style apple fill:#e8f5e9,stroke:#2e7d32
-    style google fill:#e3f2fd,stroke:#1565c0
-    style sony fill:#f3e5f5,stroke:#7b1fa2
+    style step1 fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style apple fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style google fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style sony fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
