@@ -476,9 +476,11 @@ Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a>
 <h2 class="anchored" data-anchor-id="the-query-planner">The query planner</h2>
 <p>At query time, Qdrant estimates <strong>filter selectivity</strong> and decides: <em>should I traverse this graph, or just brute-force?</em></p>
 <ul>
-<li><p><strong>High or medium selectivity</strong>: In this case, Qdrant just traverses the graph. The subgraph edges are always there and whether they’re <em>critical</em> depends on how many nodes the filter removes.</p></li>
-<li><p>With high selectivity (e.g, 70% match), most similarity edges still lead to valid nodes</p></li>
-<li><p>With medium selectivity (e.g, 15% match), the subgraph edges become essential for maintaining connectivity.</p></li>
+<li><p><strong>High or medium selectivity</strong>: In this case, Qdrant just traverses the graph. The subgraph edges are always there and whether they’re <em>critical</em> depends on how many nodes the filter removes.</p>
+<ul>
+<li>With high selectivity (e.g, 70% match), most similarity edges still lead to valid nodes</li>
+<li>With medium selectivity (e.g, 15% match), the subgraph edges become essential for maintaining connectivity.</li>
+</ul></li>
 <li><p><strong>Low selectivity (e.g, 0.1%)</strong>: Qdrant skips the graph entirely. When only a tiny fraction of nodes match, brute-force scanning over the filtered set is faster than graph traversal.</p></li>
 </ul>
 <p>The intuition: graph-based search only pays off when there’s enough connectivity to navigate. For very selective filters, there’s so little data left that exhaustive search wins.</p>
