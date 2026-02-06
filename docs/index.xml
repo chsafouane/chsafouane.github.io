@@ -12,9 +12,9 @@
 <generator>quarto-1.7.33</generator>
 <lastBuildDate>Thu, 05 Feb 2026 23:00:00 GMT</lastBuildDate>
 <item>
-  <title>Why WHERE clauses can break your vector search</title>
+  <title>Why filtering can break your vector search</title>
   <dc:creator>Safouane Chergui</dc:creator>
-  <link>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why WHERE clauses can break your vector search.html</link>
+  <link>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html</link>
   <description><![CDATA[ 
 
 
@@ -507,7 +507,7 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
   <category>Python</category>
   <category>NLP</category>
   <category>vector search</category>
-  <guid>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why WHERE clauses can break your vector search.html</guid>
+  <guid>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html</guid>
   <pubDate>Thu, 05 Feb 2026 23:00:00 GMT</pubDate>
 </item>
 <item>
