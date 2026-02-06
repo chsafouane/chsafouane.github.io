@@ -428,7 +428,11 @@ Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a>
 <div style="text-align: center;">
 <p><img src="assets/brand-subgraphs.png" alt="Brand subgraphs diagram" style="max-width: 100%; height: auto;"></p>
 </div>
-<p>Then these brand graphs are <strong>merged</strong> into the main graph. This is a key point: after the merge, there’s only <strong>one graph</strong> in memory containing both: - <strong>Similarity edges</strong> (from standard HNSW construction which connects nearby vectors using similarity) - <strong>Subgraph edges</strong> (connecting nodes with the same value of the filter, e.g: brands)</p>
+<p>Then these brand graphs are <strong>merged</strong> into the main graph. This is a key point: after the merge, there’s only <strong>one graph</strong> in memory containing both:</p>
+<ul>
+<li><strong>Similarity edges</strong> (from standard HNSW construction which connects nearby vectors using similarity)</li>
+<li><strong>Subgraph edges</strong> (connecting nodes with the same value of the filter, e.g: brands)</li>
+</ul>
 <p>These aren’t stored separately. The subgraph edges are simply added to the existing graph structure at build time.</p>
 <p>In the diagram below, all three brands sell similar products (earbuds, headphones, etc.), so their nodes are interleaved in embedding space. That’s why the main graph also has <strong>similarity edges across brands</strong> including direct Apple &lt;-&gt; Google links.</p>
 <div style="text-align: center;">
