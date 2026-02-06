@@ -1,0 +1,37 @@
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '14px' }}}%%
+flowchart TD
+  q["Query: wireless earbuds<br/>K = 5"]
+  
+  subgraph step1["Step 1: HNSW returns top-K<br/>(no filter)"]
+    direction LR
+    r1["Rank 1<br/>Sony"]
+    r2["Rank 2<br/>Samsung"]
+    r3["Rank 3<br/>Apple"]
+    r4["Rank 4<br/>JBL"]
+    r5["Rank 5<br/>Bose"]
+  end
+
+  f{"Step 2: Apply filter<br/>brand is Apple or Google"}
+
+  keep["Returned<br/>Apple (rank 3)"]
+  miss["Never considered<br/>closer Apple/Google items<br/>ranked beyond K<br/>(e.g., 8, 12, 19)"]
+
+  q --> step1
+  step1 --> f
+  f --> keep
+  f -.-> miss
+
+  classDef query fill:#f6f7fb,stroke:#6b7280,stroke-width:1px
+  classDef step fill:#f6f7fb,stroke:#6b7280,stroke-width:1px
+  classDef keep fill:#e8f5e9,stroke:#2e7d32,stroke-width:1.5px
+  classDef drop fill:#fff7ed,stroke:#c2410c,stroke-width:1px
+  classDef note fill:#ffebee,stroke:#c62828,stroke-width:1.5px,stroke-dasharray:5 4
+  classDef filter fill:#fff8e1,stroke:#f57f17,stroke-width:1.5px
+
+  class q query
+  class step1 step
+  class f filter
+  class keep keep
+  class miss note
+  class r1,r2,r4,r5 drop
+  class r3 keep

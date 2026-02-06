@@ -1,0 +1,23 @@
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '14px' }}}%%
+flowchart LR
+    subgraph before["Original HNSW graph"]
+        direction TB
+        LA["Apple Earbuds"]
+        SB["Sony Earbuds"]
+        LC["Google Earbuds"]
+        LA --- SB
+        SB --- LC
+    end
+    
+    subgraph after["After filtering — Apple &<br/>Google only"]
+        direction TB
+        LA2["Apple Earbuds"]
+        LC2["Google Earbuds"]
+        gap["Sony gone"]
+    end
+    
+    before -->|"remove non-Apple/Google"| after
+    
+    style gap fill:#ffdddd,stroke:#cc0000,stroke-dasharray: 5 5
+    style before fill:#f0f0ff,stroke:#333
+    style after fill:#fff0f0,stroke:#cc0000

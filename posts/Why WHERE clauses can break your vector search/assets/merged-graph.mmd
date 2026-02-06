@@ -1,0 +1,38 @@
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '14px' }}}%%
+flowchart TB
+    subgraph step2["Step 2: Merge into main graph"]
+        direction TB
+
+        subgraph r1[" "]
+            direction LR
+            MA["A<br/>Apple"] ---|similarity| MF["F<br/>Sony"] ---|similarity| MC["C<br/>Google"]
+        end
+        subgraph r2[" "]
+            direction LR
+            MB["B<br/>Apple"] ---|similarity| MH["H<br/>Sony"] ---|similarity| MD["D<br/>Google"]
+        end
+        subgraph r3[" "]
+            direction LR
+            ME["E<br/>Apple"] ---|similarity| MI["I<br/>Sony"] ---|similarity| MG["G<br/>Google"]
+        end
+
+        MA ---|similarity| MC
+        MB ---|similarity| MG
+
+        MA ===|brand| MB
+        MA ===|brand| ME
+        MB ===|brand| ME
+
+        MC ===|brand| MD
+        MC ===|brand| MG
+        MD ===|brand| MG
+
+        MF ===|brand| MH
+        MF ===|brand| MI
+        MH ===|brand| MI
+    end
+
+    style r1 fill:transparent,stroke:transparent
+    style r2 fill:transparent,stroke:transparent
+    style r3 fill:transparent,stroke:transparent
+    style step2 fill:#f5f5f5,stroke:#333
