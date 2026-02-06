@@ -10,7 +10,7 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Tue, 03 Feb 2026 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 05 Feb 2026 23:00:00 GMT</lastBuildDate>
 <item>
   <title>Why WHERE clauses can break your vector search</title>
   <dc:creator>Safouane Chergui</dc:creator>
@@ -508,7 +508,7 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
   <category>NLP</category>
   <category>vector search</category>
   <guid>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why WHERE clauses can break your vector search.html</guid>
-  <pubDate>Tue, 03 Feb 2026 23:00:00 GMT</pubDate>
+  <pubDate>Thu, 05 Feb 2026 23:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Why does SwiGLU work ?</title>
