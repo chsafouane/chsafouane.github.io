@@ -10,7 +10,506 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Tue, 13 Jan 2026 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 03 Feb 2026 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Why WHERE clauses can break your vector search</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why WHERE clauses can break your vector search.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Semantic search works until you add a filter. You search for “wireless earbuds”, get great results, but then you decide to add a filter on brands <code>WHERE brand IN ('Apple', 'Google')</code> and suddenly many results vanish or you get nothing back at all, even if the data has results for your query.</p>
+<p>This isn’t a bug in your system but there is a reason why filtering breaks your vector search, and it all has to do with how HNSW works.</p>
+<p>This post explains the problem, quantifies how bad it gets, and walks through one of the elegant solutions there exists in vector DBs today which how Qdrant solves it.</p>
+<section id="a-quick-recap-on-hnsw" class="level1">
+<h1>1. A quick recap on HNSW</h1>
+<p>Suppose you’re querying a vector DB with a query embedding <code>q</code>. An easy way to find the nearest neighbors is <strong>exhaustive search</strong>: compute the similarity between <code>q</code> and all the stored vectors, then take the top k results. That gives exact results but it scales linearly. With N items in your vector DB, you perform <code>O(N)</code> distance evaluations per query. This works great for small datasets but the latency grows rapidly once you start dealing with bigger datasets.</p>
+<p>A more realistic way to think about it: imagine you live in a world with no internet and you’re trying to find the best restaurant in an entire country. You wouldn’t inspect every street and every menu. Instead, you’d use a <em>navigation strategy</em>, maybe: - You’ll start by choosing a city that is known for its good restaurants - Then you’ll ask locals and head to likely part of town - Once in there, you’ll ask locals again to go to the right neighborhood - Finally, you’ll only compare restaurants in that neighborhood</p>
+<p>At the end of the day, you are trading a tiny risk of missing the absolute best restaurant in the country for a massive speedup.</p>
+<p><strong>Approximate Nearest Neighbor (ANN)</strong> algorithms formalize this trade-off for vector search. In practice, many vector databases use <strong>HNSW</strong> (Hierarchical Navigable Small World) as their default ANN index. HNSW builds a graph that lets the query “walk” toward closer and closer candidates without scanning everything.</p>
+<section id="how-does-it-work" class="level2">
+<h2 class="anchored" data-anchor-id="how-does-it-work">How does it work?</h2>
+<p>Think back to the “no internet” restaurant problem from the previous section. You want the best restaurant in an entire country. Doing it exactly would mean visiting every street and reading every menu. HNSW turns your “ask the locals” strategy into reality.</p>
+<section id="the-intuition" class="level3">
+<h3 class="anchored" data-anchor-id="the-intuition">The intuition</h3>
+<p>Your dataset is the country. Each item (vector) is a restaurant somewhere on the map. Your query vector is your personal taste.</p>
+<p>HNSW pre-builds “local recommendations”: each restaurant knows a handful of nearby restaurants (nearby in embedding space). At query time, you hop from one promising candidate to the next until you’re in the right neighborhood, then you refine the shortlist.</p>
+</section>
+<section id="under-the-hood" class="level3">
+<h3 class="anchored" data-anchor-id="under-the-hood">Under the hood</h3>
+<p>HNSW stores a graph:</p>
+<ul>
+<li>each vector is a node</li>
+<li>each node connects to a small set of nearby nodes (neighbors), where <em>nearby</em> is defined by your similarity metric (often cosine)</li>
+</ul>
+<p>At query time, the search looks like this:</p>
+<ol type="1">
+<li>Start from the index’s entry point (a specific node stored in the HNSW structure).</li>
+<li>Keep a <em>shortlist</em> of the best candidates you’ve seen so far.</li>
+<li>Repeatedly expand the most promising candidate by checking its neighbors and updating the shortlist.</li>
+<li>Stop when your budget is exhausted and return the top <img src="https://latex.codecogs.com/png.latex?K"> from the shortlist.</li>
+</ol>
+<p>The key knob at query time is <code>ef</code> (Qdrant: <code>hnsw_ef</code>) which determines <strong>how wide that shortlist is allowed to be.</strong> Bigger <code>ef</code> means you consider more alternatives (better recall) but do more distance checks (higher latency).</p>
+<p>Here’s a table of the 3 main parameters for HNWS graph and their impact on the usability:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>When</th>
+<th>What it controls</th>
+<th>Bigger means…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>M</code></td>
+<td>build time</td>
+<td>max neighbors per node</td>
+<td>higher memory, often better connectivity/recall</td>
+</tr>
+<tr class="even">
+<td><code>ef_construction</code></td>
+<td>build time</td>
+<td>how hard the builder tries to find good edges</td>
+<td>slower build, higher index quality</td>
+</tr>
+<tr class="odd">
+<td><code>ef</code> / <code>hnsw_ef</code></td>
+<td>query time</td>
+<td>how wide the candidate shortlist is</td>
+<td>higher latency, higher recall</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="why-the-hierarchy-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-hierarchy-matters">Why the hierarchy matters</h3>
+<p>The strategy above works on a single graph, but it can waste time wandering before it reaches the right region.</p>
+<p>HNSW adds the <em>pick the right city first</em> step by using multiple layers for search.</p>
+<ul>
+<li>The higher layer is like a very coarse-grained map of the country, including details just about very few restaurant that are very far from each other.</li>
+<li>The lowest layer of all is like the map of the whole country with all the details. It includes all the nodes of all previous layer.</li>
+</ul>
+<p>In general terms:</p>
+<ul>
+<li>upper layers contain fewer nodes with longer-range connections</li>
+<li>lower layers contain more nodes with short-range connections</li>
+</ul>
+<p>When searching for the most similar nodes to your query, search is top-down.</p>
+<ul>
+<li>You start in the top layer, walk greedily to the most similar node you can find until you can’t improve</li>
+<li>You drop to the next layer while keeping your current best node as the new starting point</li>
+<li>You repeat until the bottom layer (which contains all nodes)</li>
+</ul>
+<p>The hierarchy is what makes the navigation both fast and surprisingly accurate.</p>
+<div style="text-align: center;">
+<p><img src="https://qdrant.tech/courses/day2/hnsw-layers.png" alt="HNSW greedy search visualization" style="max-width: 100%; height: auto;"></p>
+</div>
+<p style="text-align: center; font-style: italic; color: #666; margin-top: 5px;">
+Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a>
+</p>
+</section>
+</section>
+</section>
+<section id="how-filtering-breaks-hnsw" class="level1">
+<h1>2. How filtering breaks HNSW</h1>
+<p>Vector search almost never happens in isolation as your users always want to combine similarity with metadata filters as in our earbuds example: <em>“find wireless earbuds, but only from Apple or Google.”</em></p>
+<p>Two obvious ways to filter come to mind (which are implemented widely in industry) but they both fail most of the time.</p>
+<section id="the-post-filtering-method" class="level2">
+<h2 class="anchored" data-anchor-id="the-post-filtering-method">The post-filtering method</h2>
+<p>The naive approach: run HNSW to get the top-K most similar results, then throw away the ones that don’t match the filter.</p>
+<p>The main reason this method fails is that your top K <em>wireless earbuds</em> results might be dominated by other brands. After discarding non-matching items, you’re <strong>left with almost nothing</strong>.</p>
+<p>HNSW returned 5 results but only 1 matched the filter. Meanwhile, closer Apple/Google earbuds ranked beyond top K were never retrieved, so they could not be returned.</p>
+<div style="text-align: center;">
+<div class="cell" data-fig-width="6.5" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+  q(["Query\nwireless earbuds\nK = 5"]) --&gt; s1
+
+  subgraph s1["Step 1: HNSW returns top-K (no filter)"]
+    direction TB
+    r1["Rank 1  Sony"]
+    r2["Rank 2  Samsung"]
+    r3["Rank 3  Apple"]
+    r4["Rank 4  JBL"]
+    r5["Rank 5  Bose"]
+  end
+
+  s1 --&gt; f{"Step 2: Apply filter\nbrand is Apple or Google"}
+
+  f --&gt; keep["Returned\nApple (rank 3)"]
+  f -.-&gt; miss["Never considered\ncloser Apple/Google items\nranked beyond K\n(e.g., 8, 12, 19)"]
+
+  classDef step fill:#f6f7fb,stroke:#6b7280,stroke-width:1px;
+  classDef keep fill:#e8f5e9,stroke:#2e7d32,stroke-width:1.5px;
+  classDef drop fill:#fff7ed,stroke:#c2410c,stroke-width:1px;
+  classDef note fill:#ffebee,stroke:#c62828,stroke-width:1.5px,stroke-dasharray:5 4;
+  classDef filter fill:#fff8e1,stroke:#f57f17,stroke-width:1.5px;
+
+  class s1 step;
+  class q step;
+  class f filter;
+  class keep keep;
+  class miss note;
+
+  class r1,r2,r4,r5 drop;
+  class r3 keep;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<p>In practice, you end up making <code>top k</code> higher (and usually the exploration budget <code>ef</code>) high enough that <em>some</em> filtered items make it into the candidate set, which defeats the whole purpose of ANN: you pay for extra work just to throw most of it away.</p>
+</section>
+<section id="the-pre-filtering-method" class="level2">
+<h2 class="anchored" data-anchor-id="the-pre-filtering-method">The pre-filtering method</h2>
+<p>The other option is to filter the dataset first and then search HNSW only among matching items.</p>
+<p>While this method looks sound, it also fails…</p>
+<p>The reason it fails is that the HNSW graph was built on <strong>all data</strong>. When you filter your dataset, you’re removing nodes from the graph, so many edges disappear. Paths between matching items often route <em>through</em> non-matching ones, and once those bridge nodes are gone, the graph falls apart.</p>
+<div style="text-align: center;">
+<div class="cell" data-fig-width="7" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    subgraph before["Original HNSW graph"]
+        LA["🎧 Apple Earbuds"] --- SB["🎧 Sony Earbuds"] --- LC["🎧 Google Earbuds"]
+    end
+    subgraph after["After filtering — Apple &amp; Google only"]
+        LA2["🎧 Apple Earbuds"]
+        LC2["🎧 Google Earbuds"]
+        gap["🎧 Sony gone"]
+    end
+    before --&gt;|"remove non-Apple/Google"| after
+    style gap fill:#ffdddd,stroke:#cc0000,stroke-dasharray: 5 5
+    style before fill:#f0f0ff,stroke:#333
+    style after fill:#fff0f0,stroke:#cc0000
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<p>The path from Apple Earbuds to Google Earbuds went <em>through</em> Sony Earbuds. Remove non-matching brands, and Google Earbuds becomes <strong>unreachable</strong>. Your search silently misses it.</p>
+<p>Even worse, if the HNSW entry point (or the early candidates in the queue) happen to be in the filtered-out region, the search may never reach the remaining component at all.</p>
+<p>The HNSW graph’s connectivity depends on nodes that your filter removes. This isn’t an edge case — it’s the common case for selective filters.</p>
+<p>If you want real numbers on how many nodes you need to keep for a graph to remain connected, I highly recommend reading this short post on <a href="https://blog.vasnetsov.com/posts/categorical-hnsw/">HNSW &amp; percolation theory</a>. One caveat: percolation theory assumes <strong>random</strong> node removal. When filter values correlate with embedding position (e.g., all products of one brand cluster together), removal is <em>spatially correlated</em> — you lose entire neighborhoods at once, which is far more destructive than the random case. The percolation thresholds in that post are optimistic for correlated filters.</p>
+</section>
+</section>
+<section id="qdrants-solution-filterable-hnsw" class="level1">
+<h1>3. Qdrant’s solution: filterable HNSW</h1>
+<p>Not all vector databases/vector frameworks implement a solution for this problem. Many only implement pre-filtering or post-filtering.</p>
+<p>Among the providers that <em>do</em> propose a solution, the approaches differ.</p>
+<p>In this blog post, I focus on Qdrant’s solution because it is simple and effective.</p>
+<p>The idea is to pre-build connected subgraphs for each filter value and merge their edges into the main graph.</p>
+<section id="how-does-it-work-1" class="level2">
+<h2 class="anchored" data-anchor-id="how-does-it-work-1">How does it work</h2>
+<p>Filterable HNSW adds a small set of extra edges so filtering does not disconnect matching points.</p>
+<p>Take a categorical field like <code>brand</code> with values <code>[Apple, Google, Sony]</code>. Qdrant:</p>
+<ol type="1">
+<li>Builds a connected mini-HNSW subgraph inside each brand. That way, the products of each brand become connected together.</li>
+<li>Adds those subgraph edges to the main HNSW graph.</li>
+</ol>
+<p>This method guarantees that after filtering on brands, points that share the same brand will be connected (reachable from each other).</p>
+<p>It’s very important to know that connectivity between <em>different</em> brands is not enforced by these subgraphs. Cross-brand connections rely on similarity links in the main graph, which may or may not survive filtering.</p>
+<p>Let us look at an example to make this clear.</p>
+<p>In the diagrams below: - A, B, E are Apple points - C, D, G are Google - F, H, I are Sony</p>
+<p>Qdrant builds a graph for each one of the 3 brands.</p>
+<div style="text-align: center;">
+<div class="cell" data-fig-width="7.5" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    subgraph step1["Step 1: Build brand subgraphs"]
+        direction TB
+        subgraph apple["🍎 Apple"]
+            LA["A"] --- LB["B"]
+            LA --- LE["E"]
+            LB --- LE
+        end
+        subgraph google["🔵 Google"]
+            LC["C"] --- LD["D"]
+            LC --- LG["G"]
+            LD --- LG
+        end
+        subgraph sony["🟣 Sony"]
+            LF["F"] --- LH["H"]
+            LF --- LI["I"]
+            LH --- LI
+        end
+    end
+    style apple fill:#e8f5e9,stroke:#2e7d32
+    style google fill:#e3f2fd,stroke:#1565c0
+    style sony fill:#f3e5f5,stroke:#7b1fa2
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<p>Then these brand graphs are <strong>merged</strong> into the main graph. This is a key point: after the merge, there’s only <strong>one graph</strong> in memory containing both: - <strong>Similarity edges</strong> (from standard HNSW construction which connects nearby vectors using similarity) - <strong>Subgraph edges</strong> (connecting nodes with the same value of the filter, e.g: brands)</p>
+<p>These aren’t stored separately. The subgraph edges are simply added to the existing graph structure at build time.</p>
+<p>In the diagram below, all three brands sell similar products (earbuds, headphones, etc.), so their nodes are interleaved in embedding space. That’s why the main graph also has <strong>similarity edges across brands</strong> including direct Apple &lt;-&gt; Google links.</p>
+<div style="text-align: center;">
+<div class="cell" data-fig-width="7.5" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    subgraph step2["Step 2: Merge into main graph"]
+        direction TB
+
+        %% Interleave brands to highlight Sony as bridge nodes
+        subgraph r1[" "]
+            direction LR
+            MA["🍎 A"] ---|similarity| MF["🟣 F"] ---|similarity| MC["🔵 C"]
+        end
+        subgraph r2[" "]
+            direction LR
+            MB["🍎 B"] ---|similarity| MH["🟣 H"] ---|similarity| MD["🔵 D"]
+        end
+        subgraph r3[" "]
+            direction LR
+            ME["🍎 E"] ---|similarity| MI["🟣 I"] ---|similarity| MG["🔵 G"]
+        end
+
+        %% Hide layout-only row group boxes
+        style r1 fill:transparent,stroke:transparent
+        style r2 fill:transparent,stroke:transparent
+        style r3 fill:transparent,stroke:transparent
+
+        %% Cross-brand similarity edges (Apple ↔ Google)
+        MA ---|similarity| MC
+        MB ---|similarity| MG
+
+        %% Brand subgraph edges (added into the main graph)
+        MA ===|brand| MB
+        MA ===|brand| ME
+        MB ===|brand| ME
+
+        MC ===|brand| MD
+        MC ===|brand| MG
+        MD ===|brand| MG
+
+        MF ===|brand| MH
+        MF ===|brand| MI
+        MH ===|brand| MI
+    end
+    style step2 fill:#f5f5f5,stroke:#333
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<p><strong>After filtering</strong> with <code>brand IN ('Apple', 'Google')</code>, Sony points are removed. Brand subgraph edges keep each brand internally connected. But what about the connection <em>between</em> Apple and Google?</p>
+<div style="text-align: center;">
+<div class="cell" data-fig-width="8" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    subgraph filtered["Filtered set (Apple + Google)"]
+        direction LR
+
+        subgraph apple["🍎 Apple"]
+            direction TB
+            MA["A"] ===|brand| MB["B"]
+            MA ===|brand| ME["E"]
+            MB ===|brand| ME
+        end
+
+        subgraph google["🔵 Google"]
+            direction TB
+            MC["C"] ===|brand| MD["D"]
+            MC ===|brand| MG["G"]
+            MD ===|brand| MG
+        end
+
+        %% Surviving cross-brand similarity edges
+        MA ---|similarity| MC
+        MB ---|similarity| MG
+    end
+
+    subgraph removed["Removed (Sony)"]
+        direction TB
+        MF["🟣 F"]
+        MH["🟣 H"]
+        MI["🟣 I"]
+    end
+
+    style filtered fill:#e8f5e9,stroke:#2e7d32
+    style apple fill:#e8f5e9,stroke:#2e7d32
+    style google fill:#e3f2fd,stroke:#1565c0
+
+    style removed fill:#fafafa,stroke:#bdbdbd,stroke-dasharray: 5 5
+    style MF fill:#f5f5f5,stroke:#bdbdbd,color:#9e9e9e
+    style MH fill:#f5f5f5,stroke:#bdbdbd,color:#9e9e9e
+    style MI fill:#f5f5f5,stroke:#bdbdbd,color:#9e9e9e
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+<p>In our example, because Apple and Google sell similar products, their nodes are close in embedding space. The direct Appl &lt;-&gt; Google similarity edges (A–C, B–G) survived the filter, so the search can still jump between brands.</p>
+<p>But these cross-brand edges exist <em>because</em> the brands overlap in what they sell. If instead one brand only made luxury laptops and the other only budget wireless earbuds, their products would land in <strong>different regions</strong> of the embedding space and there would be very few or no similarity edges between them. In that case, after filtering, the search starts in one brand’s cluster and never reaches the other. That’s the pre-filtering failure mode all over again, just at a smaller scale.</p>
+<p><strong>Keep this in mind:</strong> Filterable HNSW guarantees that <strong>all Apple products stay connected</strong> and <strong>all Google products stay connected</strong>. It does <strong>not</strong> guarantee that Apple products can reach Google products, this really depends on whether similarity edges bridge the gap, which depends on how correlated brand identity is with embedding position.</p>
+<p>For single-value filters (e.g., <code>brand = 'Apple'</code>), this distinction doesn’t matter.</p>
+</section>
+<section id="does-the-memory-explode" class="level2">
+<h2 class="anchored" data-anchor-id="does-the-memory-explode">Does the memory explode ?</h2>
+<p>The memory usage is kept well under control with filterable HNSW</p>
+<p>As each node belongs to exactly one brand,each node gains at most <code>m</code> additional edges from its brand subgraph, which makes the number of new edges at most <code>n * m</code>. Now, as you add more filters (not only the brand), you’re going to have additional edges built.</p>
+</section>
+<section id="the-query-planner" class="level2">
+<h2 class="anchored" data-anchor-id="the-query-planner">The query planner</h2>
+<p>At query time, Qdrant estimates <strong>filter selectivity</strong> and decides: <em>should I traverse this graph, or just brute-force?</em></p>
+<ul>
+<li><p><strong>High or medium selectivity</strong>: In this case, Qdrant just traverses the graph. The subgraph edges are always there and whether they’re <em>critical</em> depends on how many nodes the filter removes.</p></li>
+<li><p>With high selectivity (e.g, 70% match), most similarity edges still lead to valid nodes</p></li>
+<li><p>With medium selectivity (e.g, 15% match), the subgraph edges become essential for maintaining connectivity.</p></li>
+<li><p><strong>Low selectivity (e.g, 0.1%)</strong>: Qdrant skips the graph entirely. When only a tiny fraction of nodes match, brute-force scanning over the filtered set is faster than graph traversal.</p></li>
+</ul>
+<p>The intuition: graph-based search only pays off when there’s enough connectivity to navigate. For very selective filters, there’s so little data left that exhaustive search wins.</p>
+<p>Qdrant allows you to control this behavior using <code>full_scan_threshold</code>. When the filtered candidate count falls below <code>full_scan_threshold</code>, Qdrant automatically switches to brute-force scanning.</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> qdrant_client.models <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> VectorParams, Distance, HnswConfigDiff</span>
+<span id="cb1-2"></span>
+<span id="cb1-3">client.create_collection(</span>
+<span id="cb1-4">    collection_name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"products"</span>,</span>
+<span id="cb1-5">    vectors_config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>VectorParams(size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">384</span>, distance<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>Distance.COSINE),</span>
+<span id="cb1-6">    hnsw_config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>HnswConfigDiff(</span>
+<span id="cb1-7">        m<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>,</span>
+<span id="cb1-8">        ef_construct<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb1-9">        full_scan_threshold<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># switch to brute-force when fewer than 1k candidates match</span></span>
+<span id="cb1-10">    )</span>
+<span id="cb1-11">)</span></code></pre></div>
+</section>
+<section id="getting-it-right-in-practice-with-qdrant" class="level2">
+<h2 class="anchored" data-anchor-id="getting-it-right-in-practice-with-qdrant">Getting it right in practice with Qdrant</h2>
+<p>Two implementation details trip people up consistently.</p>
+<section id="create-payload-indexes-explicitly" class="level3">
+<h3 class="anchored" data-anchor-id="create-payload-indexes-explicitly">1. Create payload indexes explicitly</h3>
+<p>Qdrant does not automatically index payload fields. Filtering still works without indexes — you’ll get correct results — but you lose two critical optimizations:</p>
+<ol type="1">
+<li><strong>No subgraph edges</strong>: The HNSW graph won’t have the extra edges needed for filtered search, so you lose the connectivity guarantees described above.</li>
+<li><strong>Poor cardinality estimation</strong>: The query planner can’t accurately estimate how many points match the filter, leading to suboptimal search strategies. I couldn’t find the exact way it determines the strategy in the documentation but as they’re also an open-source package, the curious minds can dive into their package to get this information.</li>
+</ol>
+</section>
+<section id="create-indexes-before-uploading-data" class="level3">
+<h3 class="anchored" data-anchor-id="create-indexes-before-uploading-data">2. Create indexes before uploading data</h3>
+<p>The order matters. HNSW graphs only get the subgraph edges when they’re built <em>after</em> the payload index exists. If you upload data first, the HNSW graph gets built without them.</p>
+<p>If you already uploaded data without indexes, you can still fix it but you’ll need to force an HNSW rebuild, which is expensive for large collections:</p>
+</section>
+</section>
+<section id="what-about-numerical-filters" class="level2">
+<h2 class="anchored" data-anchor-id="what-about-numerical-filters">What about numerical filters?</h2>
+<p>Everything above focused on categorical filters like <code>brand IN ('Apple', 'Google')</code>. But applications also filter on prices, ratings, timestamps, and other continuous values.</p>
+<p>Qdrant supports three numerical index types: <code>integer</code>, <code>float</code> &amp; <code>datetime</code></p>
+<section id="how-qdrant-handles-numerical-ranges" class="level3">
+<h3 class="anchored" data-anchor-id="how-qdrant-handles-numerical-ranges">How Qdrant handles numerical ranges</h3>
+<p>The <a href="https://qdrant.tech/articles/filterable-hnsw/">original filterable HNSW article</a> explains the approach:</p>
+<blockquote class="blockquote">
+<p>“Numerical range case can be reduced to the previous one if we split numerical range into buckets containing equal amount of points. Next we also connect neighboring buckets to achieve graph connectivity.”</p>
+</blockquote>
+<p>Here’s how the mechanism works:</p>
+<ol type="1">
+<li><strong>Buckets contain equal amounts of points</strong> . If you have 10,000 products and 10 buckets, each bucket contains ~1,000 products regardless of how prices are distributed.</li>
+<li><strong>Neighboring buckets are connected</strong> so range queries like products whose price in [150, 350]can traverse across boundaries.</li>
+<li><strong>Border filtering is required</strong>: items in boundary buckets that don’t match the actual filter need post-filtering. For example, with a <code>price &lt; 150</code> filter, if bucket boundaries fall at $0, $100, $200, etc., the query would:</li>
+</ol>
+<ul>
+<li>Traverse all buckets up to the one containing $150</li>
+<li>Post-filter items in the boundary bucket to exclude those with price &gt;= $150</li>
+</ul>
+<p>This works well in practice but isn’t as clean as the solution for categorical data.</p>
+<p>And of course, you can always opt for bucketing the numerical filter data yourself as you might have a better knowledge of the data and of where the boundaries should go.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>4. Conclusion</h1>
+<p>There are really a couple of takeaways here:</p>
+<ul>
+<li>Vector search with filters doesn’t just work out of the box and is not just “vector search + WHERE clause</li>
+<li>Your Vector DB solution might not provide a solution for this, so do what any sound developer woud do, read the docs !</li>
+</ul>
+</section>
+<section id="further-reading" class="level1">
+<h1>5. Further reading</h1>
+<ul>
+<li><a href="https://qdrant.tech/documentation/concepts/filtering/">Qdrant Documentation: Filtering</a></li>
+<li><a href="https://qdrant.tech/articles/filterable-hnsw/">Original Filterable HNSW Article by Qdrant</a></li>
+<li><a href="https://arxiv.org/abs/1603.09320">HNSW Paper: Efficient and Robust Approximate Nearest Neighbor (Malkov &amp; Yashunin, 2016)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Percolation_theory">Percolation Theory — Wikipedia</a></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>Python</category>
+  <category>NLP</category>
+  <category>vector search</category>
+  <guid>https://chsafouane.github.io/posts/Why WHERE clauses can break your vector search/Why WHERE clauses can break your vector search.html</guid>
+  <pubDate>Tue, 03 Feb 2026 23:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Why does SwiGLU work ?</title>
   <dc:creator>Safouane Chergui</dc:creator>
