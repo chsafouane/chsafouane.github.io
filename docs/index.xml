@@ -157,8 +157,8 @@ Source: <a href="https://qdrant.tech/courses/day2/hnsw-layers.png">Qdrant</a>
 </div>
 <p>The path from Apple Earbuds to Google Earbuds went <em>through</em> Sony Earbuds. Remove non-matching brands, and Google Earbuds becomes <strong>unreachable</strong>. Your search silently misses it.</p>
 <p>Even worse, if the HNSW entry point (or the early candidates in the queue) happen to be in the filtered-out region, the search may never reach the remaining component at all.</p>
-<p>The HNSW graph’s connectivity depends on nodes that your filter removes. This isn’t an edge case — it’s the common case for selective filters.</p>
-<p>If you want real numbers on how many nodes you need to keep for a graph to remain connected, I highly recommend reading this short post on <a href="https://blog.vasnetsov.com/posts/categorical-hnsw/">HNSW &amp; percolation theory</a>. One caveat: percolation theory assumes <strong>random</strong> node removal. When filter values correlate with embedding position (e.g., all products of one brand cluster together), removal is <em>spatially correlated</em> — you lose entire neighborhoods at once, which is far more destructive than the random case. The percolation thresholds in that post are optimistic for correlated filters.</p>
+<p>The HNSW graph’s connectivity depends on nodes that your filter removes. This isn’t an edge case, it’s the common case for selective filters.</p>
+<p>If you want real numbers on how many nodes you need to keep for a graph to remain connected, I highly recommend reading this short post on <a href="https://blog.vasnetsov.com/posts/categorical-hnsw/">HNSW &amp; percolation theory</a>. One caveat: percolation theory assumes <strong>random</strong> node removal. When filter values correlate with embedding position (e.g., all products of one brand cluster together), removal is <em>spatially correlated</em> and you lose entire neighborhoods at once, which is far more destructive than the random case. The percolation thresholds in that post are optimistic for correlated filters.</p>
 </section>
 </section>
 <section id="qdrants-solution-filterable-hnsw" class="level1">
@@ -283,7 +283,7 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
 <p>Two implementation details trip people up consistently.</p>
 <section id="create-payload-indexes-explicitly" class="level3">
 <h3 class="anchored" data-anchor-id="create-payload-indexes-explicitly">1. Create payload indexes explicitly</h3>
-<p>Qdrant does not automatically index payload fields. Filtering still works without indexes — you’ll get correct results — but you lose two critical optimizations:</p>
+<p>Qdrant does not automatically index payload fields. Filtering still works without indexes and you’ll get correct results but you lose two critical optimizations:</p>
 <ol type="1">
 <li><strong>No subgraph edges</strong>: The HNSW graph won’t have the extra edges needed for filtered search, so you lose the connectivity guarantees described above.</li>
 <li><strong>Poor cardinality estimation</strong>: The query planner can’t accurately estimate how many points match the filter, leading to suboptimal search strategies. I couldn’t find the exact way it determines the strategy in the documentation but as they’re also an open-source package, the curious minds can dive into their package to get this information.</li>
@@ -334,7 +334,7 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
 <li><a href="https://qdrant.tech/documentation/concepts/filtering/">Qdrant Documentation: Filtering</a></li>
 <li><a href="https://qdrant.tech/articles/filterable-hnsw/">Original Filterable HNSW Article by Qdrant</a></li>
 <li><a href="https://arxiv.org/abs/1603.09320">HNSW Paper: Efficient and Robust Approximate Nearest Neighbor (Malkov &amp; Yashunin, 2016)</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Percolation_theory">Percolation Theory — Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Percolation_theory">Percolation Theory from Wikipedia</a></li>
 </ul>
 
 
