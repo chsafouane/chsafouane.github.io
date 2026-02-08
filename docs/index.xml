@@ -463,7 +463,13 @@ font-style: inherit;"># switch to brute-force when fewer than 1k candidates matc
 </ol>
 <p>The GLU output is their element-wise product:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BGLU%20output%7D%20=%20%5B2.0%20%5Ctimes%200.9,%20%5C;%5C;%20-1.5%20%5Ctimes%200.1,%20%5C;%5C;%203.0%20%5Ctimes%200.95,%20%5C;%5C;%200.5%20%5Ctimes%200.05%5D"> <img src="https://latex.codecogs.com/png.latex?=%20%5B1.8,%20%5C;%5C;%20-0.15,%20%5C;%5C;%202.85,%20%5C;%5C;%200.025%5D"></p>
-<p>This means that: - <strong>Feature 1</strong>: Content is positive (2.0), gate is high (0.9) → passes through strongly (1.8) - <strong>Feature 2</strong>: Content is negative (-1.5), gate is low (0.1) → blocked (-0.15) - <strong>Feature 3</strong>: Content is positive (3.0), gate is very high (0.95) → fully passes (2.85) - <strong>Feature 4</strong>: Content is small (0.5), gate is very low (0.05) → suppressed (0.025)</p>
+<p>This means that:</p>
+<ul>
+<li><strong>Feature 1</strong>: Content is positive (2.0), gate is high (0.9) → passes through strongly (1.8)</li>
+<li><strong>Feature 2</strong>: Content is negative (-1.5), gate is low (0.1) → blocked (-0.15)</li>
+<li><strong>Feature 3</strong>: Content is positive (3.0), gate is very high (0.95) → fully passes (2.85)</li>
+<li><strong>Feature 4</strong>: Content is small (0.5), gate is very low (0.05) → suppressed (0.025)</li>
+</ul>
 <p>This allows the network to learn complex decision rules: “for inputs like <img src="https://latex.codecogs.com/png.latex?x">, amplify feature 1 and 3, but suppress features 2 and 4.”</p>
 <div id="cell-15" class="cell" data-execution_count="29">
 <div class="cell-output cell-output-display">
