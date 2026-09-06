@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Safouane Chergui">
+<meta name="dcterms.date" content="2026-09-06">
 
-<title>Weekends Eureka – Safouane Chergui</title>
+<title>Spec Before Prompt &amp; the 3 Gulfs of Building Agents (LLM Evals, Lecture 1) – Safouane Chergui</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,25 +25,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ea385d0e468b0dd5ea5bf0780b1290d9.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,68 +69,10 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Safouane Chergui" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
 <body class="nav-fixed quarto-light">
 
@@ -139,7 +81,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Safouane Chergui</span>
     </a>
   </div>
@@ -150,11 +92,11 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./resume.html"> 
+    <a class="nav-link" href="../../resume.html"> 
 <span class="menu-text">Resume</span></a>
   </li>  
   <li class="nav-item compact">
@@ -173,7 +115,7 @@ window.Quarto = {
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./sitemap.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../sitemap.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -187,274 +129,174 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Weekends Eureka</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">Spec Before Prompt &amp; the 3 Gulfs of Building Agents (LLM Evals, Lecture 1)</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">LLM</div>
+                <div class="quarto-category">Agent</div>
+                <div class="quarto-category">Evaluation</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Safouane Chergui </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 6, 2026</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="QWdlbnQ=">Agent <span class="quarto-category-count">(2)</span></div><div class="category" data-category="RGVlcCUyMExlYXJuaW5n">Deep Learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="RXZhbHVhdGlvbg==">Evaluation <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TExN">LLM <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TkxQ">NLP <span class="quarto-category-count">(3)</span></div><div class="category" data-category="UGFja2FnZSUyMG1hbmFnZW1lbnQ=">Package management <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UERG">PDF <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UHl0aG9u">Python <span class="quarto-category-count">(5)</span></div><div class="category" data-category="dmVjdG9yJTIwc2VhcmNo">vector search <span class="quarto-category-count">(1)</span></div></div></div>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
-
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="TExNJTJDQWdlbnQlMkNFdmFsdWF0aW9u" data-listing-date-sort="1788645600000" data-listing-file-modified-sort="1788733223834" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1749">
-<div class="thumbnail"><a href="./posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html" class="no-external">
-
-<img loading="lazy" src="./posts/Spec Before Prompt - LLM Evals Lecture 1/assets/sticky-notes.jpg" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html" class="no-external">Spec Before Prompt &amp; the 3 Gulfs of Building Agents (LLM Evals, Lecture 1)</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('QWdlbnQ='); return false;">Agent</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('RXZhbHVhdGlvbg=='); return false;">Evaluation</div>
-
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-3-gulfs-of-agent-development" id="toc-the-3-gulfs-of-agent-development">The 3 gulfs of agent development</a></li>
+  <li><a href="#most-prompts-are-written-by-an-ai-now-so-write-the-spec-first" id="toc-most-prompts-are-written-by-an-ai-now-so-write-the-spec-first">Most prompts are written by an AI now, so write the spec first</a></li>
+  <li><a href="#writing-a-good-spec" id="toc-writing-a-good-spec">Writing a good spec</a>
+  <ul>
+  <li><a href="#scope-what-does-it-handle-what-does-it-refuse" id="toc-scope-what-does-it-handle-what-does-it-refuse">Scope: what does it handle, what does it refuse ?</a></li>
+  <li><a href="#permissions-who-can-see-what-who-can-change-what" id="toc-permissions-who-can-see-what-who-can-change-what">Permissions: who can see what, who can change what ?</a></li>
+  <li><a href="#tool-contracts-what-comes-back-on-success-and-on-failure" id="toc-tool-contracts-what-comes-back-on-success-and-on-failure">Tool contracts: what comes back on success, and on failure ?</a></li>
+  <li><a href="#escalation-when-does-it-hand-off-to-a-human" id="toc-escalation-when-does-it-hand-off-to-a-human">Escalation: when does it hand off to a human ?</a></li>
+  </ul></li>
+  <li><a href="#your-spec-wont-be-perfect-and-thats-ok" id="toc-your-spec-wont-be-perfect-and-thats-ok">Your spec won’t be perfect, and that’s ok</a></li>
+  <li><a href="#now-look-at-a-real-specification-file" id="toc-now-look-at-a-real-specification-file">Now look at a real specification file</a></li>
+  <li><a href="#wrapping-up" id="toc-wrapping-up">Wrapping up</a></li>
+  </ul>
+</nav>
+<p>When developping an LLM system, everyone rushes to write the prompt and I think that’s the wrong place to start.</p>
+<p>I wrote about LLM evals once before (<a href="https://chsafouane.github.io/posts/LLM%20evaluation/LLM%20evaluation.html"><em>Stop Vibe-Checking: Real-World Lessons on LLM Evals</em></a>), back when I went through an earlier version of Hamel and Shreya’s course. The course has been reworked since then, so I’m going through it again. This time I’ll write one post per lecture instead of squeezing everything into a single post.</p>
+<p>This is the first blog post in the serie. If you build agents and they keep surprising you once real users get their hands on them, then this whole serie is for you.</p>
+<section id="the-3-gulfs-of-agent-development" class="level2">
+<h2 class="anchored" data-anchor-id="the-3-gulfs-of-agent-development">The 3 gulfs of agent development</h2>
+<p>The course frames the difficulty of building an LLM system as three gaps you have to cross. They call them the three gulfs of LLM systems development. I found the framing useful because it gives a structured way to look at the difficulties encountered when developping such systems, so let me walk through it.</p>
+<ul>
+<li><p><strong>Gulf of comprehension</strong>: This represents the gap between you and your data. Can you really understand every kind of query your system will get ? Not really. Real users can ask all kind of queries and you only have so much time to read through the queries users send and how your system responds. So, even when you try to test your system while building it, you’ll have a very hard time coming up with as diverse queries as real users will come up with.</p></li>
+<li><p><strong>Gulf of specification</strong>: This represents the gap between you and the LLM pipeline. When translating the specifications you want the model to follow in the prompt, you have to be specific, really really specific, and whatever you leave unsaid, the model fills in on its own, and not necessarily the way you had in mind. From first-hand experience, this is harder than it sounds even if it looks simple. Prompting using natural language is hard because it is not as specific as some other ways of writing specifications (for example, using programming languages)</p></li>
+<li><p><strong>Gulf of generalization</strong>: the gap between your data and the pipeline. You’ve built the agent and it works on your examples, but does it still work on the full range of messy inputs real users throw at it. The LLM performance will vary across tasks and user inputs. Getting this right can mean breaking the task into smaller steps, switching to a better model, adding retrieval, or fine-tuning.</p></li>
+</ul>
+<p>In this post I’ll focus on the gulf of specification, because the way to deal with it is something a lot of people skip.</p>
+<br>
+<div data-align="center">
+<p><img src="./assets/three-gulfs.png" width="60%" style="display: block; margin: 0 auto;"> <em>The Three Gulfs model, from Hamel Husain &amp; Shreya Shankar’s LLM-evals course.</em></p>
 </div>
-<div class="delink listing-description"><a href="./posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html" class="no-external">
-When developping an LLM system, everyone rushes to write the prompt and I think that’s the wrong place to start.
-</a></div>
+<p><br></p>
+</section>
+<section id="most-prompts-are-written-by-an-ai-now-so-write-the-spec-first" class="level2">
+<h2 class="anchored" data-anchor-id="most-prompts-are-written-by-an-ai-now-so-write-the-spec-first">Most prompts are written by an AI now, so write the spec first</h2>
+<p>Most prompts nowadays aren’t written by hand, word by word. People usually describe what they want in a prompt to an AI model and the model writes the prompt for them. So the part that’s really yours is not really the prompt anymore but the specs that will define the prompt.</p>
+<p>So before you write the prompt, or before you ask a model to write it for you, sit down and write what your agent should and shouldn’t do. Be structured about it, and be as concrete as you can. The spec you’ll write is your source of truth. The prompt is just one way to express it.</p>
+<p>A spec is just a structured document that says what the agent should and shouldn’t do. A good one usually has these sections:</p>
+<ul>
+<li><strong>Purpose</strong>: a short paragraph on what the agent is for.</li>
+<li><strong>Scope</strong>: which requests it handles and which it refuses.</li>
+<li><strong>Roles and permissions</strong>: who can see and change what.</li>
+<li><strong>Tools</strong>: what each tool does, and what it returns on success and on failure.</li>
+<li><strong>Escalation</strong>: when the agent hands off to a human.</li>
+<li><strong>Response requirements</strong>: everything else that doesn’t fit above, like tone, and rules such as citing a policy before making a claim.</li>
+</ul>
+<p>Two things to keep in mind:</p>
+<ul>
+<li><p>The spec is not going to be perfect, it’s really just a starting point resulting from some brainstorming. Take the time to do it but don’t dwell on it too much. You’ll get a chance to perfect the spec later when you build your evals and have interaction (synthetic or real-world) with the system.</p></li>
+<li><p>The spec is not the prompt, but every rule in the spec should be fully covered by the prompt.</p></li>
+</ul>
+<p>The lecture zooms in on four of these: scope, permissions, tool contracts, and escalation. Let me go through them, using an e-commerce customer-support agent as the example.</p>
+</section>
+<section id="writing-a-good-spec" class="level2">
+<h2 class="anchored" data-anchor-id="writing-a-good-spec">Writing a good spec</h2>
+<section id="scope-what-does-it-handle-what-does-it-refuse" class="level3">
+<h3 class="anchored" data-anchor-id="scope-what-does-it-handle-what-does-it-refuse">Scope: what does it handle, what does it refuse ?</h3>
+<p>Take the requests your system received over some period of time, group them into types, and for each type decide whether the agent should handle it or not. That’s the whole exercise. It looks boring, but that’s exactly what you want here. Here is what it looks like for the e-commerce agent:</p>
+<br>
+<div data-align="center">
+<p><img src="./assets/scope.png" width="90%" style="display: block; margin: 0 auto;" alt="Scope table: request types and whether the agent handles or refuses each"></p>
 </div>
-<div class="metadata">
-<a href="./posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html" class="no-external">
-<div class="listing-date">
-Sep 6, 2026
+<p><br></p>
+<p>Notice that the refusals are written down just as clearly as the things the agent does handle. If you leave a request type out, that’s usually where the agent starts improvising.</p>
+</section>
+<section id="permissions-who-can-see-what-who-can-change-what" class="level3">
+<h3 class="anchored" data-anchor-id="permissions-who-can-see-what-who-can-change-what">Permissions: who can see what, who can change what ?</h3>
+<p>Think about who’s going to use the system and what each of them is allowed to do. The same data can be fine for one role and off-limits for another. In the e-commerce example there are three roles: shopper, merchant, and support.</p>
+<br>
+<div data-align="center">
+<p><img src="./assets/permissions.png" width="90%" style="display: block; margin: 0 auto;" alt="Permissions matrix across shopper, merchant, and support roles"></p>
 </div>
-<div class="listing-author">
-Safouane Chergui
+<p><br></p>
+<p>Writing this table forces you to answer questions the prompt would otherwise answer on its own, silently. Can a merchant see another store’s orders ? No.&nbsp;And now it’s written down instead of left to the model’s judgment.</p>
+</section>
+<section id="tool-contracts-what-comes-back-on-success-and-on-failure" class="level3">
+<h3 class="anchored" data-anchor-id="tool-contracts-what-comes-back-on-success-and-on-failure">Tool contracts: what comes back on success, and on failure ?</h3>
+<p>Look at what your users already do today without any AI, the actions they take in the current system, and turn those into tools. But don’t only think about the happy path. For each tool, decide what it returns when it works and what it returns when it fails.</p>
+<p>Specifying the returns in case of failures is important and doesn’t leave the return open to interpretation by a model. An empty list output by a tool might mean that a failure occured when fetching the results or just that the real result is empty. Also, returning <code>not_eligible</code> versus <code>queued_for_approval</code> completely changes what the agent should say to the customer.</p>
+<p>Adapting the return type to your tool and specifying it in case of success and failure are both very important.</p>
+<br>
+<div data-align="center">
+<p><img src="./assets/tool-contracts.png" width="90%" style="display: block; margin: 0 auto;" alt="Tool contracts table: each tool with its success and failure responses"></p>
 </div>
-</a>
+<p><br></p>
+<p>If I had to pick one thing to remember from this lecture, it’s this: the failure messages matter as much as the success ones. If you don’t tell the agent why something failed, you leave it to guess, and it will guess wrong. R</p>
+</section>
+<section id="escalation-when-does-it-hand-off-to-a-human" class="level3">
+<h3 class="anchored" data-anchor-id="escalation-when-does-it-hand-off-to-a-human">Escalation: when does it hand off to a human ?</h3>
+<p>The question here is simple. If the agent gets it wrong, how much does it cost ? The cost of the mistake tells you who’s allowed to make the call and if escalation to human is necessary.</p>
+<br>
+<div data-align="center">
+<p><img src="./assets/escalation.png" width="90%" style="display: block; margin: 0 auto;" alt="Escalation table: risk tiers, examples, and who decides"></p>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="UHl0aG9uJTJDTkxQJTJDdmVjdG9yJTIwc2VhcmNo" data-listing-date-sort="1770332400000" data-listing-file-modified-sort="1770452477676" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2586">
-<div class="thumbnail"><a href="./posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html" class="no-external">
+<p><br></p>
+</section>
+</section>
+<section id="your-spec-wont-be-perfect-and-thats-ok" class="level2">
+<h2 class="anchored" data-anchor-id="your-spec-wont-be-perfect-and-thats-ok">Your spec won’t be perfect, and that’s ok</h2>
+<p>One warning before you get carried away. Don’t take all of this and go spend two weeks writing the perfect spec that covers every case. You’ll waste a lot of time and still not get there, because you can’t. You simply can’t think of every request type and every edge case up front. That’s the gulf of comprehension again, showing up in practice.</p>
+<p>So treat the spec as a first draft, not a finished document. A best-effort version is enough to get started. The real improvements come later, once the system is running and you start looking at where it goes wrong. That’s when the cases you never thought of show up.</p>
+<p>And how to find those cases in a systematic way, instead of stumbling on them by accident, is exactly what some of the next lectures are about. You can take a look at my previous post if you’re curious about how to do it: <a href="https://chsafouane.github.io/posts/LLM%20evaluation/LLM%20evaluation.html"><em>Stop Vibe-Checking: Real-World Lessons on LLM Evals</em></a></p>
+</section>
+<section id="now-look-at-a-real-specification-file" class="level2">
+<h2 class="anchored" data-anchor-id="now-look-at-a-real-specification-file">Now look at a real specification file</h2>
+<p>The tables above are the teaching version, kept small on purpose so the idea is easy to see. A real spec can get (but not necessarily) bigger and messier than that. The course comes with a project, a support agent for a fictional store called Cartwheel, and its spec is public.</p>
+<p>I’d read it in full (<a href="https://github.com/ai-evals-course/cartwheel-homeworks/blob/main/SPEC.md">SPEC.md</a>). It has the same sections we just went through, purpose, scope, roles and permissions, tools with their success and failure contracts, escalation, and a section of general response requirements, but with a lot more detail.</p>
+<p>A few lessons I took from reading it:</p>
+<ul>
+<li><p><strong>Give every requirement an ID.</strong> Scope rules are <code>SCOPE-1</code> and <code>SCOPE-2</code>, permission rules sit under <code>AUTH-1</code>, escalation rules are <code>ESC-1</code> to <code>ESC-4</code>, and so on. This structure really pays off later. When you find a failure you can point at the exact rule it broke, and when you write a test you can say which rule that test is checking.</p></li>
+<li><p><strong>Write down the boring response rules too.</strong> Beyond the four components above, the spec keeps a list of general response requirements: cite the policy identifier for every claim that comes from a policy document, don’t say an action succeeded before the tool reports success, say when information is missing instead of inventing a value, and explain refusals without leaking data the user isn’t allowed to see. These are easy to forget and annoying to debug later, which is exactly why they belong in the spec.</p></li>
+</ul>
+</section>
+<section id="wrapping-up" class="level2">
+<h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>
+<p>The main idea from this first lecture is simple: write the spec before the prompt, and structure it around scope, permissions, tool contracts, and escalation. And don’t obsess over making it perfect, because it isn’t supposed to be.</p>
+<p>As always, all the credit for the material goes to Hamel Husain and Shreya Shankar. If you or your company can afford it, their course on LLM evals is really worth it.</p>
+<p>This series is just my notes from going through it, one lecture at a time</p>
 
-<img loading="lazy" src="https://plus.unsplash.com/premium_photo-1681586126003-2a6d4ba943a2?q=80&amp;w=1112&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="thumbnail-image">
 
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html" class="no-external">Why filtering breaks your vector search</a>
-</h3>
-<div class="listing-categories">
+</section>
 
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('dmVjdG9yJTIwc2VhcmNo'); return false;">vector search</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html" class="no-external">
-Semantic search works until you add a filter. You search for “wireless earbuds”, get great results, but then you decide to add a filter on brands <code>WHERE brand IN ('Apple'…</code>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/Why WHERE clauses can break your vector search/Why filtering can break your vector search.html" class="no-external">
-<div class="listing-date">
-Feb 6, 2026
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="UHl0aG9uJTJDTkxQJTJDRGVlcCUyMExlYXJuaW5n" data-listing-date-sort="1768345200000" data-listing-file-modified-sort="1770551739759" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1430">
-<div class="thumbnail"><a href="./posts/SwiGLU/All you need to know about SwiGLU.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/SwiGLU/All you need to know about SwiGLU_files/figure-html/cell-2-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/SwiGLU/All you need to know about SwiGLU.html" class="no-external">Why does SwiGLU work ?</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('RGVlcCUyMExlYXJuaW5n'); return false;">Deep Learning</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/SwiGLU/All you need to know about SwiGLU.html" class="no-external">
-The goal of this blog post is to explain why modern LLM architectures use <code>SwiGLU</code> as the activation function for the feed-forward part and have moved away from <code>ReLU</code>.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/SwiGLU/All you need to know about SwiGLU.html" class="no-external">
-<div class="listing-date">
-Jan 14, 2026
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="TExNJTJDQWdlbnQlMkNFdmFsdWF0aW9u" data-listing-date-sort="1763506800000" data-listing-file-modified-sort="1763545027435" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3179">
-<div class="thumbnail"><a href="./posts/LLM evaluation/LLM evaluation.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/LLM evaluation/assets/front_image.jpg"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/LLM evaluation/LLM evaluation.html" class="no-external">Stop Vibe-Checking: Real-World Lessons on LLM Evals</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('QWdlbnQ='); return false;">Agent</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('RXZhbHVhdGlvbg=='); return false;">Evaluation</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/LLM evaluation/LLM evaluation.html" class="no-external">
-Deploying LLM-powered systems in production is the easy part. The hard part? Making sure they’re actually working.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/LLM evaluation/LLM evaluation.html" class="no-external">
-<div class="listing-date">
-Nov 19, 2025
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="UHl0aG9uJTJDUERG" data-listing-date-sort="1756418400000" data-listing-file-modified-sort="1756424911230" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2054">
-<div class="thumbnail"><a href="./posts/PDF parsing is hard/PDF parsing is hard.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/PDF parsing is hard/assets/pdf-icon.png" alt="PDF icon"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/PDF parsing is hard/PDF parsing is hard.html" class="no-external">PDF parsing is hard</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UERG'); return false;">PDF</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/PDF parsing is hard/PDF parsing is hard.html" class="no-external">
-The goal of this blogpost is to explain what a PDF is internally and why parsing PDF files is not that easy.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/PDF parsing is hard/PDF parsing is hard.html" class="no-external">
-<div class="listing-date">
-Aug 29, 2025
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="5" data-categories="UHl0aG9uJTJDUGFja2FnZSUyMG1hbmFnZW1lbnQ=" data-listing-date-sort="1751666400000" data-listing-file-modified-sort="1764181946389" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3207">
-<div class="thumbnail"><a href="./posts/Pixi intro/Why I ditched conda and pip for Pixi.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/Pixi intro/assets/pixi.webp"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Pixi intro/Why I ditched conda and pip for Pixi.html" class="no-external">Why I ditched pip and conda for Pixi</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UGFja2FnZSUyMG1hbmFnZW1lbnQ='); return false;">Package management</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/Pixi intro/Why I ditched conda and pip for Pixi.html" class="no-external">
-I’ve been using pip and then conda for as long as I can remember. Last year, I did a double-switch. First, I moved to <code>uv</code> and then not long after it I moved to <code>pixi</code>.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/Pixi intro/Why I ditched conda and pip for Pixi.html" class="no-external">
-<div class="listing-date">
-Jul 5, 2025
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="6" data-categories="UHl0aG9uJTJDTkxQ" data-listing-date-sort="1720303200000" data-listing-file-modified-sort="1756244391349" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2839">
-<div class="thumbnail"><a href="./posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html" class="no-external">
-
-<p class="card-img-top"><img src="posts/Byte Pair Encoding Tokenization/assets/utf8_table.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html" class="no-external">Byte Pair Encoding Tokenization</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TkxQ'); return false;">NLP</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html" class="no-external">
-The aim of this blog is to explain to you how BPE Tokenization works. We’re going to build a basic tokenizer using BPE tokenization and we’ll apply it on a dummy example.
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/Byte Pair Encoding Tokenization/Byte Pair Encoding Tokenization.html" class="no-external">
-<div class="listing-date">
-Jul 7, 2024
-</div>
-<div class="listing-author">
-Safouane Chergui
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

@@ -10,7 +10,132 @@
 <atom:link href="https://chsafouane.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Just a fancy note-taking website for my notes not to die on my iPad</description>
 <generator>quarto-1.7.33</generator>
-<lastBuildDate>Thu, 05 Feb 2026 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 05 Sep 2026 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Spec Before Prompt &amp; the 3 Gulfs of Building Agents (LLM Evals, Lecture 1)</title>
+  <dc:creator>Safouane Chergui</dc:creator>
+  <link>https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>When developping an LLM system, everyone rushes to write the prompt and I think that’s the wrong place to start.</p>
+<p>I wrote about LLM evals once before (<a href="https://chsafouane.github.io/posts/LLM%20evaluation/LLM%20evaluation.html"><em>Stop Vibe-Checking: Real-World Lessons on LLM Evals</em></a>), back when I went through an earlier version of Hamel and Shreya’s course. The course has been reworked since then, so I’m going through it again. This time I’ll write one post per lecture instead of squeezing everything into a single post.</p>
+<p>This is the first blog post in the serie. If you build agents and they keep surprising you once real users get their hands on them, then this whole serie is for you.</p>
+<section id="the-3-gulfs-of-agent-development" class="level2">
+<h2 class="anchored" data-anchor-id="the-3-gulfs-of-agent-development">The 3 gulfs of agent development</h2>
+<p>The course frames the difficulty of building an LLM system as three gaps you have to cross. They call them the three gulfs of LLM systems development. I found the framing useful because it gives a structured way to look at the difficulties encountered when developping such systems, so let me walk through it.</p>
+<ul>
+<li><p><strong>Gulf of comprehension</strong>: This represents the gap between you and your data. Can you really understand every kind of query your system will get ? Not really. Real users can ask all kind of queries and you only have so much time to read through the queries users send and how your system responds. So, even when you try to test your system while building it, you’ll have a very hard time coming up with as diverse queries as real users will come up with.</p></li>
+<li><p><strong>Gulf of specification</strong>: This represents the gap between you and the LLM pipeline. When translating the specifications you want the model to follow in the prompt, you have to be specific, really really specific, and whatever you leave unsaid, the model fills in on its own, and not necessarily the way you had in mind. From first-hand experience, this is harder than it sounds even if it looks simple. Prompting using natural language is hard because it is not as specific as some other ways of writing specifications (for example, using programming languages)</p></li>
+<li><p><strong>Gulf of generalization</strong>: the gap between your data and the pipeline. You’ve built the agent and it works on your examples, but does it still work on the full range of messy inputs real users throw at it. The LLM performance will vary across tasks and user inputs. Getting this right can mean breaking the task into smaller steps, switching to a better model, adding retrieval, or fine-tuning.</p></li>
+</ul>
+<p>In this post I’ll focus on the gulf of specification, because the way to deal with it is something a lot of people skip.</p>
+<br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/three-gulfs.png" width="60%" style="display: block; margin: 0 auto;"> <em>The Three Gulfs model, from Hamel Husain &amp; Shreya Shankar’s LLM-evals course.</em></p>
+</div>
+<p><br></p>
+</section>
+<section id="most-prompts-are-written-by-an-ai-now-so-write-the-spec-first" class="level2">
+<h2 class="anchored" data-anchor-id="most-prompts-are-written-by-an-ai-now-so-write-the-spec-first">Most prompts are written by an AI now, so write the spec first</h2>
+<p>Most prompts nowadays aren’t written by hand, word by word. People usually describe what they want in a prompt to an AI model and the model writes the prompt for them. So the part that’s really yours is not really the prompt anymore but the specs that will define the prompt.</p>
+<p>So before you write the prompt, or before you ask a model to write it for you, sit down and write what your agent should and shouldn’t do. Be structured about it, and be as concrete as you can. The spec you’ll write is your source of truth. The prompt is just one way to express it.</p>
+<p>A spec is just a structured document that says what the agent should and shouldn’t do. A good one usually has these sections:</p>
+<ul>
+<li><strong>Purpose</strong>: a short paragraph on what the agent is for.</li>
+<li><strong>Scope</strong>: which requests it handles and which it refuses.</li>
+<li><strong>Roles and permissions</strong>: who can see and change what.</li>
+<li><strong>Tools</strong>: what each tool does, and what it returns on success and on failure.</li>
+<li><strong>Escalation</strong>: when the agent hands off to a human.</li>
+<li><strong>Response requirements</strong>: everything else that doesn’t fit above, like tone, and rules such as citing a policy before making a claim.</li>
+</ul>
+<p>Two things to keep in mind:</p>
+<ul>
+<li><p>The spec is not going to be perfect, it’s really just a starting point resulting from some brainstorming. Take the time to do it but don’t dwell on it too much. You’ll get a chance to perfect the spec later when you build your evals and have interaction (synthetic or real-world) with the system.</p></li>
+<li><p>The spec is not the prompt, but every rule in the spec should be fully covered by the prompt.</p></li>
+</ul>
+<p>The lecture zooms in on four of these: scope, permissions, tool contracts, and escalation. Let me go through them, using an e-commerce customer-support agent as the example.</p>
+</section>
+<section id="writing-a-good-spec" class="level2">
+<h2 class="anchored" data-anchor-id="writing-a-good-spec">Writing a good spec</h2>
+<section id="scope-what-does-it-handle-what-does-it-refuse" class="level3">
+<h3 class="anchored" data-anchor-id="scope-what-does-it-handle-what-does-it-refuse">Scope: what does it handle, what does it refuse ?</h3>
+<p>Take the requests your system received over some period of time, group them into types, and for each type decide whether the agent should handle it or not. That’s the whole exercise. It looks boring, but that’s exactly what you want here. Here is what it looks like for the e-commerce agent:</p>
+<br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/scope.png" width="90%" style="display: block; margin: 0 auto;" alt="Scope table: request types and whether the agent handles or refuses each"></p>
+</div>
+<p><br></p>
+<p>Notice that the refusals are written down just as clearly as the things the agent does handle. If you leave a request type out, that’s usually where the agent starts improvising.</p>
+</section>
+<section id="permissions-who-can-see-what-who-can-change-what" class="level3">
+<h3 class="anchored" data-anchor-id="permissions-who-can-see-what-who-can-change-what">Permissions: who can see what, who can change what ?</h3>
+<p>Think about who’s going to use the system and what each of them is allowed to do. The same data can be fine for one role and off-limits for another. In the e-commerce example there are three roles: shopper, merchant, and support.</p>
+<br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/permissions.png" width="90%" style="display: block; margin: 0 auto;" alt="Permissions matrix across shopper, merchant, and support roles"></p>
+</div>
+<p><br></p>
+<p>Writing this table forces you to answer questions the prompt would otherwise answer on its own, silently. Can a merchant see another store’s orders ? No.&nbsp;And now it’s written down instead of left to the model’s judgment.</p>
+</section>
+<section id="tool-contracts-what-comes-back-on-success-and-on-failure" class="level3">
+<h3 class="anchored" data-anchor-id="tool-contracts-what-comes-back-on-success-and-on-failure">Tool contracts: what comes back on success, and on failure ?</h3>
+<p>Look at what your users already do today without any AI, the actions they take in the current system, and turn those into tools. But don’t only think about the happy path. For each tool, decide what it returns when it works and what it returns when it fails.</p>
+<p>Specifying the returns in case of failures is important and doesn’t leave the return open to interpretation by a model. An empty list output by a tool might mean that a failure occured when fetching the results or just that the real result is empty. Also, returning <code>not_eligible</code> versus <code>queued_for_approval</code> completely changes what the agent should say to the customer.</p>
+<p>Adapting the return type to your tool and specifying it in case of success and failure are both very important.</p>
+<br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/tool-contracts.png" width="90%" style="display: block; margin: 0 auto;" alt="Tool contracts table: each tool with its success and failure responses"></p>
+</div>
+<p><br></p>
+<p>If I had to pick one thing to remember from this lecture, it’s this: the failure messages matter as much as the success ones. If you don’t tell the agent why something failed, you leave it to guess, and it will guess wrong. R</p>
+</section>
+<section id="escalation-when-does-it-hand-off-to-a-human" class="level3">
+<h3 class="anchored" data-anchor-id="escalation-when-does-it-hand-off-to-a-human">Escalation: when does it hand off to a human ?</h3>
+<p>The question here is simple. If the agent gets it wrong, how much does it cost ? The cost of the mistake tells you who’s allowed to make the call and if escalation to human is necessary.</p>
+<br>
+<div data-align="center">
+<p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/escalation.png" width="90%" style="display: block; margin: 0 auto;" alt="Escalation table: risk tiers, examples, and who decides"></p>
+</div>
+<p><br></p>
+</section>
+</section>
+<section id="your-spec-wont-be-perfect-and-thats-ok" class="level2">
+<h2 class="anchored" data-anchor-id="your-spec-wont-be-perfect-and-thats-ok">Your spec won’t be perfect, and that’s ok</h2>
+<p>One warning before you get carried away. Don’t take all of this and go spend two weeks writing the perfect spec that covers every case. You’ll waste a lot of time and still not get there, because you can’t. You simply can’t think of every request type and every edge case up front. That’s the gulf of comprehension again, showing up in practice.</p>
+<p>So treat the spec as a first draft, not a finished document. A best-effort version is enough to get started. The real improvements come later, once the system is running and you start looking at where it goes wrong. That’s when the cases you never thought of show up.</p>
+<p>And how to find those cases in a systematic way, instead of stumbling on them by accident, is exactly what some of the next lectures are about. You can take a look at my previous post if you’re curious about how to do it: <a href="https://chsafouane.github.io/posts/LLM%20evaluation/LLM%20evaluation.html"><em>Stop Vibe-Checking: Real-World Lessons on LLM Evals</em></a></p>
+</section>
+<section id="now-look-at-a-real-specification-file" class="level2">
+<h2 class="anchored" data-anchor-id="now-look-at-a-real-specification-file">Now look at a real specification file</h2>
+<p>The tables above are the teaching version, kept small on purpose so the idea is easy to see. A real spec can get (but not necessarily) bigger and messier than that. The course comes with a project, a support agent for a fictional store called Cartwheel, and its spec is public.</p>
+<p>I’d read it in full (<a href="https://github.com/ai-evals-course/cartwheel-homeworks/blob/main/SPEC.md">SPEC.md</a>). It has the same sections we just went through, purpose, scope, roles and permissions, tools with their success and failure contracts, escalation, and a section of general response requirements, but with a lot more detail.</p>
+<p>A few lessons I took from reading it:</p>
+<ul>
+<li><p><strong>Give every requirement an ID.</strong> Scope rules are <code>SCOPE-1</code> and <code>SCOPE-2</code>, permission rules sit under <code>AUTH-1</code>, escalation rules are <code>ESC-1</code> to <code>ESC-4</code>, and so on. This structure really pays off later. When you find a failure you can point at the exact rule it broke, and when you write a test you can say which rule that test is checking.</p></li>
+<li><p><strong>Write down the boring response rules too.</strong> Beyond the four components above, the spec keeps a list of general response requirements: cite the policy identifier for every claim that comes from a policy document, don’t say an action succeeded before the tool reports success, say when information is missing instead of inventing a value, and explain refusals without leaking data the user isn’t allowed to see. These are easy to forget and annoying to debug later, which is exactly why they belong in the spec.</p></li>
+</ul>
+</section>
+<section id="wrapping-up" class="level2">
+<h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>
+<p>The main idea from this first lecture is simple: write the spec before the prompt, and structure it around scope, permissions, tool contracts, and escalation. And don’t obsess over making it perfect, because it isn’t supposed to be.</p>
+<p>As always, all the credit for the material goes to Hamel Husain and Shreya Shankar. If you or your company can afford it, their course on LLM evals is really worth it.</p>
+<p>This series is just my notes from going through it, one lecture at a time</p>
+
+
+</section>
+
+ ]]></description>
+  <category>LLM</category>
+  <category>Agent</category>
+  <category>Evaluation</category>
+  <guid>https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html</guid>
+  <pubDate>Sat, 05 Sep 2026 22:00:00 GMT</pubDate>
+  <media:content url="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/sticky-notes.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Why filtering breaks your vector search</title>
   <dc:creator>Safouane Chergui</dc:creator>
