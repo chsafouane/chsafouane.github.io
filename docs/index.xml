@@ -12,7 +12,7 @@
 <generator>quarto-1.7.33</generator>
 <lastBuildDate>Sat, 05 Sep 2026 22:00:00 GMT</lastBuildDate>
 <item>
-  <title>Spec Before Prompt &amp; the 3 Gulfs of Building Agents (LLM Evals, Lecture 1)</title>
+  <title>Specs First, Prompts Second</title>
   <dc:creator>Safouane Chergui</dc:creator>
   <link>https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/Spec Before Prompt.html</link>
   <description><![CDATA[ 
@@ -91,10 +91,7 @@
 <p><img src="https://chsafouane.github.io/posts/Spec Before Prompt - LLM Evals Lecture 1/assets/tool-contracts.png" width="90%" style="display: block; margin: 0 auto;" alt="Tool contracts table: each tool with its success and failure responses"></p>
 </div>
 <p><br></p>
-<p>If I had to pick one thing to remember from this lecture, it’s this: the failure messages matter as much as the success ones. If you don’t tell the agent why something failed, you leave it to guess, and it will guess wrong. R</p>
-</section>
-<section id="escalation-when-does-it-hand-off-to-a-human" class="level3">
-<h3 class="anchored" data-anchor-id="escalation-when-does-it-hand-off-to-a-human">Escalation: when does it hand off to a human ?</h3>
+<p>If I had to pick one thing to remember from this lecture, it’s this: the failure messages matter as much as the success ones. If you don’t tell the agent why something failed, you leave it to guess, and it will guess wrong.### Escalation: when does it hand off to a human ?</p>
 <p>The question here is simple. If the agent gets it wrong, how much does it cost ? The cost of the mistake tells you who’s allowed to make the call and if escalation to human is necessary.</p>
 <br>
 <div data-align="center">
