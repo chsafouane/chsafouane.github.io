@@ -209,9 +209,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#before-getting-started" id="toc-before-getting-started">1. Before getting started</a></li>
-  <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">2. <code>uv add</code> or <code>uv pip install</code> ?</a></li>
-  <li><a href="#the-dev-group-is-the-default" id="toc-the-dev-group-is-the-default">3. The <code>dev</code> group is the default!</a></li>
+  <li><a href="#before-getting-started" id="toc-before-getting-started">Before getting started</a></li>
+  <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">1. <code>uv add</code> or <code>uv pip install</code> ?</a></li>
+  <li><a href="#the-dev-group-is-the-default" id="toc-the-dev-group-is-the-default">2. The <code>dev</code> group is the default!</a></li>
   </ul>
 </nav>
 <hr>
@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <section id="before-getting-started" class="level1">
-<h1>1. Before getting started</h1>
+<h1>Before getting started</h1>
 <p>Almost all the commands in <code>uv</code> come down to modifying 2 files and a folder:</p>
 <ul>
 <li><p><code>pyproject.toml</code></p></li>
@@ -297,7 +297,7 @@ uv.lock           pandas 3.0.5 + hashes + markers
 <p>Also, it’s important to keep in mind that the flow also only ever goes downward. Whatever you do directly to <code>.venv</code> is never recorded in <code>uv.lock</code>, and whatever is in <code>uv.lock</code> never edits <code>pyproject.toml</code>. This rule is what the next section is about.</p>
 </section>
 <section id="uv-add-or-uv-pip-install" class="level1">
-<h1>2. <code>uv add</code> or <code>uv pip install</code> ?</h1>
+<h1>1. <code>uv add</code> or <code>uv pip install</code> ?</h1>
 <p>First thing to know is that <code>uv add pandas</code> and <code>uv pip install pandas</code> are not equivalent at all!</p>
 <p>Looking back at the three files of the previous section, the difference is easy to state: <code>uv add</code> walks down all three layers, while <code>uv pip install</code> only touches the bottom one.</p>
 <p><strong><code>uv add</code> writes to the three files.</strong> Let us add <code>rich</code> to the project:</p>
@@ -358,7 +358,7 @@ Uninstalled 8 packages in 83ms
 <p>The behavior of <code>uv sync</code> and <code>uv run</code> can be changed by passing arguments to these commands but I highly recommend to stick to the default behavior of each, it just makes it easier to remember what each does.</p>
 </section>
 <section id="the-dev-group-is-the-default" class="level1">
-<h1>3. The <code>dev</code> group is the default!</h1>
+<h1>2. The <code>dev</code> group is the default!</h1>
 <p>So now we have an environment with pandas and you want to add pytest to the group of your dev dependencies, the command is easy:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="at">--dev</span> pytest</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>and the result shows that pytest was installed</p>
