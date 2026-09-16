@@ -210,7 +210,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#before-getting-started" id="toc-before-getting-started">1. Before getting started</a></li>
-  <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">2. <code>uv add</code> or <code>uv pip install</code></a></li>
+  <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">2. <code>uv add</code> or <code>uv pip install</code> ?</a></li>
+  <li><a href="#the-dev-group-is-the-default" id="toc-the-dev-group-is-the-default">3. The <code>dev</code> group is the default!</a></li>
   </ul>
 </nav>
 <hr>
@@ -296,7 +297,7 @@ uv.lock           pandas 3.0.5 + hashes + markers
 <p>Also, it’s important to keep in mind that the flow also only ever goes downward. Whatever you do directly to <code>.venv</code> is never recorded in <code>uv.lock</code>, and whatever is in <code>uv.lock</code> never edits <code>pyproject.toml</code>. This rule is what the next section is about.</p>
 </section>
 <section id="uv-add-or-uv-pip-install" class="level1">
-<h1>2. <code>uv add</code> or <code>uv pip install</code></h1>
+<h1>2. <code>uv add</code> or <code>uv pip install</code> ?</h1>
 <p>First thing to know is that <code>uv add pandas</code> and <code>uv pip install pandas</code> are not equivalent at all!</p>
 <p>Looking back at the three files of the previous section, the difference is easy to state: <code>uv add</code> walks down all three layers, while <code>uv pip install</code> only touches the bottom one.</p>
 <p><strong><code>uv add</code> writes to the three files.</strong> Let us add <code>rich</code> to the project:</p>
@@ -355,6 +356,57 @@ Uninstalled 8 packages in 83ms
 3.11.2</code></pre>
 <p><code>matplotlib</code> was available for the duration of that one command, and <code>pyproject.toml</code>, <code>uv.lock</code> and <code>.venv</code> were all left untouched.</p>
 <p>The behavior of <code>uv sync</code> and <code>uv run</code> can be changed by passing arguments to these commands but I highly recommend to stick to the default behavior of each, it just makes it easier to remember what each does.</p>
+</section>
+<section id="the-dev-group-is-the-default" class="level1">
+<h1>3. The <code>dev</code> group is the default!</h1>
+<p>So now we have an environment with pandas and you want to add pytest to the group of your dev dependencies, the command is easy:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="at">--dev</span> pytest</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>and the result shows that pytest was installed</p>
+<pre><code>Resolved 15 packages in 296ms
+Installed 4 packages in 6ms
+ + iniconfig==2.3.0
+ + packaging==26.3
+ + pluggy==1.6.0
+ + pytest==9.1.1</code></pre>
+<p>Your pyproject.toml should show something similar to this:</p>
+<pre><code>dependencies = [
+    "pandas&gt;=3.0.5",
+    "rich&gt;=15.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest&gt;=9.1.1",
+]</code></pre>
+<p>The question is what happen next time that you do <code>uv sync</code>, is <code>uv</code> going to install the dev dependencies or not just the real dependencies of your project ?</p>
+<p>Let delete completely the existing .venv and redo a <code>uv sync</code> for the result to be crystal clear</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> .venv <span class="kw">&amp;&amp;</span> <span class="ex">uv</span> sync</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Using CPython 3.14.6 interpreter at: /opt/homebrew/opt/python@3.14/bin/python3.14
+Creating virtual environment at: .venv
+Resolved 15 packages in 2ms
+Installed 12 packages in 28ms
+ + iniconfig==2.3.0
+ + markdown-it-py==4.2.0
+ + mdurl==0.1.2
+ + numpy==2.5.3
+ + packaging==26.3
+ + pandas==3.0.5
+ + pluggy==1.6.0
+ + pygments==2.21.0
+ + pytest==9.1.1
+ + python-dateutil==2.9.0.post0
+ + rich==15.0.0
+ + six==1.17.0</code></pre>
+<p><code>uv</code> didn’t install just pandas (and its dependencies), it also installed the dev dependencies (pytest in this case) even though nobody asked for them.</p>
+<p>What you should know is that <code>uv</code> considers the group with the name <code>dev</code> as the default. Upon running <code>uv sync</code> with no additional arguments, it will always install your base dependencies with the dev dependencies on top of them.</p>
+<p>When I was first using <code>uv</code>, this behavior startled me as I was expecting to install just the base dependencies, the ones appearing in <code>dependencies</code> in <code>pyproject.toml</code>.</p>
+<p>If you create some other group for linting purpose and put ruff inside of it, it will not be installed by default unless specified explicitly.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="at">--group</span> lint ruff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Run <code>uv sync</code> and you’ll see that <code>ruff</code> is not installed.</p>
+<p>Two things to know before moving on from this section: - <code>uv sync --no-default-groups</code> installs just the base dependencies - You can set the default groups to be installed with <code>uv sync</code> by default using default-groups entry in pyproject.toml</p>
+<pre><code>[tool.uv]
+default-groups = ["dev", "lint"]</code></pre>
+<p>Other nice uv cli commands exist, I recommend that you check the docs for that.</p>
 
 
 </section>
