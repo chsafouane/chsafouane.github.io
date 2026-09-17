@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Safouane Chergui">
-<meta name="dcterms.date" content="2026-09-16">
+<meta name="dcterms.date" content="2026-09-17">
 
 <title>Things I wish I’d known about uv – Safouane Chergui</title>
 <style>
@@ -186,7 +186,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 16, 2026</p>
+        <p class="date">September 17, 2026</p>
       </div>
     </div>
     
@@ -213,6 +213,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">1. <code>uv add</code> or <code>uv pip install</code> ?</a></li>
   <li><a href="#the-dev-group-is-the-default" id="toc-the-dev-group-is-the-default">2. The <code>dev</code> group is the default!</a></li>
   <li><a href="#stick-to-uv-sync---locked-in-ci" id="toc-stick-to-uv-sync---locked-in-ci">3. Stick to <code>uv sync --locked</code> in CI</a></li>
+  <li><a href="#uv-run-uv-tool-uvx-what-the-hell-am-i-running" id="toc-uv-run-uv-tool-uvx-what-the-hell-am-i-running">4. uv run, uv tool &amp; uvx: what the hell am I running ?</a></li>
+  <li><a href="#wrapping-up" id="toc-wrapping-up">Wrapping up</a></li>
   </ul>
 </nav>
 <hr>
@@ -256,7 +258,7 @@ Installed 4 packages in 25ms
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=3.0.5"</span><span class="op">,</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The bounds of dependencies can be controlled but this is not the topic of this post.</p>
-<p><strong><code>uv.lock</code></strong> is where the <code>Resolved 6 packages</code> line of the output ended up. Ranges are gone and every package gets one exact version, a hash per downloadable file, and markers saying on which platforms it is needed.</p>
+<p><strong><code>uv.lock</code></strong> is where the packages of the <code>Resolved 6 packages</code> line ended up. Ranges are gone and every package gets one exact version, a hash per downloadable file, and markers saying on which platforms it is needed.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[package]]</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"pandas"</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"3.0.5"</span></span>
@@ -267,17 +269,17 @@ Installed 4 packages in 25ms
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="dt">sdist</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">url</span><span class="op"> =</span> <span class="st">".../pandas-3.0.5.tar.gz"</span><span class="op">, </span><span class="dt">hash</span><span class="op"> =</span> <span class="st">"sha256:dca3734d6ab7c906e6730f0788b0a1dbb9f2467731f9711f77995c8e9d62d712"</span><span class="op"> }</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="dt">wheels</span> <span class="op">=</span> <span class="op">[</span> <span class="er">...</span> <span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>If someone wants to reproduce your environment and wants to have the same .venv as you, uv.lock is what makes it possible, as it contains the specific versions you will use in your .venv.</p>
-<p>They do need <code>pyproject.toml</code> next to it though. Running <code>uv sync</code> in a folder that contains only uv.lock stops right away:</p>
+<p>If someone wants to reproduce your environment and wants to have the same <code>.venv</code> as you, <code>uv.lock</code> is what makes it possible, as it contains the specific versions you will use in your <code>.venv</code>.</p>
+<p>They do need <code>pyproject.toml</code> next to it though. Running <code>uv sync</code> in a folder that contains only <code>uv.lock</code> stops right away:</p>
 <pre><code>error: No `pyproject.toml` found in current directory or any parent directory</code></pre>
 <p>Note that uv does dependency resolution for other platforms as well, not just the one you’re using. This can be controlled as well but it’s outside the scope of this blog post.</p>
-<p>The impact on <strong><code>.venv</code></strong> is the <code>Installed 4 packages</code> line, the packages that were installed in <code>.venv/lib/python3.14/site-packages</code>. Only 4 packages were installed and not 6 packages because:</p>
+<p>The impact on <strong><code>.venv</code></strong> is the <code>Installed 4 packages</code> line: those packages were installed in <code>.venv/lib/python3.14/site-packages</code>. Only 4 packages were installed and not 6 packages because:</p>
 <ul>
 <li><p><code>tzdata</code> doesn’t need to be installed on mac, and is only included in case it’s win32 or emscripten</p></li>
 <li><p>The sixth entry is <code>uv-blog-demo</code>, the project itself. As we’ve run <code>uv init</code> with <code>--bare</code>, it is not a package, so there is nothing to install for it.</p></li>
 </ul>
-<p>Commands in <code>uv</code> usually impact one or many files at once.</p>
-<p>The chain between the three files is always the same, and it has two steps:</p>
+<p>Commands in <code>uv</code> usually impact one or more files at once.</p>
+<p>The chain between them is always the same, and it has two steps:</p>
 <pre><code>pyproject.toml    pandas&gt;=3.0.5
       │
       │ resolve
@@ -289,19 +291,19 @@ uv.lock           pandas 3.0.5 + hashes + markers
 .venv             pandas/ and numpy/ in site-packages</code></pre>
 <p>What changes from one command to the next is how much of that chain it walks through:</p>
 <ul>
-<li><code>uv lock</code> runs <strong>resolve</strong> only. It reads the ranges in pyproject.toml, picks exact versions and writes them to uv.lock, without touching <code>.venv</code>.</li>
-<li><code>uv sync</code> runs <strong>resolve, then install</strong>. It re-locks if pyproject.toml has moved ahead of uv.lock, then makes <code>.venv</code> match the lockfile exactly, which includes removing packages that are not in it.</li>
-<li><code>uv add pandas</code> edits pyproject.toml first, then runs the resolve and install step.</li>
+<li><code>uv lock</code> runs <strong>resolve</strong> only. It reads the ranges in <code>pyproject.toml</code>, picks exact versions and writes them to <code>uv.lock</code>, without touching <code>.venv</code>.</li>
+<li><code>uv sync</code> runs <strong>resolve, then install</strong>. It re-locks if <code>pyproject.toml</code> has moved ahead of <code>uv.lock</code>, then makes <code>.venv</code> match the lockfile exactly, which includes removing packages that are not in it.</li>
+<li><code>uv add pandas</code> edits <code>pyproject.toml</code> first, then runs the resolve and install step.</li>
 <li><code>uv run</code> runs the same two steps before running your command, with one difference: it installs what is missing but leaves extra packages alone.</li>
 </ul>
-<p>You’ll usually find yourself working with <code>uv add</code>, <code>uv sync</code> and <code>uv run</code></p>
+<p>You’ll usually find yourself working with <code>uv add</code>, <code>uv sync</code> and <code>uv run</code>.</p>
 <p>Also, it’s important to keep in mind that the flow also only ever goes downward. Whatever you do directly to <code>.venv</code> is never recorded in <code>uv.lock</code>, and whatever is in <code>uv.lock</code> never edits <code>pyproject.toml</code>. This rule is what the next section is about.</p>
 </section>
 <section id="uv-add-or-uv-pip-install" class="level1">
 <h1>1. <code>uv add</code> or <code>uv pip install</code> ?</h1>
 <p>First thing to know is that <code>uv add pandas</code> and <code>uv pip install pandas</code> are not equivalent at all!</p>
-<p>Looking back at the three files of the previous section, the difference is easy to state: <code>uv add</code> walks down all three layers, while <code>uv pip install</code> only touches the bottom one.</p>
-<p><strong><code>uv add</code> writes to the three files.</strong> Let us add <code>rich</code> to the project:</p>
+<p>They don’t write to the same files. Let us run each of them and see what changes.</p>
+<p><strong><code>uv add</code> writes to all three.</strong> Let us add <code>rich</code> to the project:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add rich</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Resolved 10 packages in 281ms
 Installed 4 packages in 12ms
@@ -309,16 +311,16 @@ Installed 4 packages in 12ms
  + mdurl==0.1.2
  + pygments==2.21.0
  + rich==15.0.0</code></pre>
-<p><code>pyproject.toml</code> gets the range:</p>
+<p><code>pyproject.toml</code> sees <code>rich</code> added to the list of its dependencies</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=3.0.5"</span><span class="op">,</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rich&gt;=15.0.0"</span><span class="op">,</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>uv.lock</code> gets the exact version that was picked:</p>
+<p><code>uv.lock</code> gets the exact version that was picked by the dependency resolver:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[package]]</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"rich"</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"15.0.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>and the four packages are now in <code>.venv</code>. Note that only <code>rich</code> made it to <code>pyproject.toml</code>, as it is the only one I asked for. The three others are its dependencies, so they live in the lockfile and in <code>.venv</code>, but not in <code>pyproject.toml</code>.</p>
+<p>and the four packages are now in <code>.venv</code></p>
 <p><strong><code>uv pip install</code> only writes to <code>.venv</code>.</strong> Say I am in the middle of something and I just want to plot a dataframe quickly, so I grab <code>matplotlib</code> the way I used to with <code>pip</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install matplotlib</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Resolved 11 packages in 658ms
@@ -332,11 +334,11 @@ Installed 8 packages in 16ms
  + packaging==26.3
  + pillow==12.3.0
  + pyparsing==3.3.2</code></pre>
-<p><code>matplotlib</code> is installed and I can import it right away, but searching for it in the other two files returns nothing:</p>
+<p><code>matplotlib</code> is installed and I can import it right away, but searching for it in <code>pyproject.toml</code> and <code>uv.lock</code> returns nothing:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-c</span> matplotlib pyproject.toml uv.lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>pyproject.toml:0
 uv.lock:0</code></pre>
-<p>Nothing wrote it down. A colleague cloning the repository and running <code>uv sync</code> will not get <code>matplotlib</code>.</p>
+<p>Nothing wrote it down in either of the two files. A colleague cloning the repository and running <code>uv sync</code> will not get <code>matplotlib</code>.</p>
 <p><strong>And it disappears the day someone syncs.</strong> <code>uv sync</code> makes <code>.venv</code> match the lockfile exactly, which also means removing whatever is not in it:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Resolved 10 packages in 3ms
@@ -349,10 +351,10 @@ Uninstalled 8 packages in 83ms
  - packaging==26.3
  - pillow==12.3.0
  - pyparsing==3.3.2</code></pre>
-<p>One nuance that cost me a couple of hours to get my head around: <code>uv run</code> does not delete the extra packages installed in <code>.venv</code>. Straight after <code>uv pip install matplotlib</code>, running <code>uv run python -c "import matplotlib"</code> works. By default, <code>uv run</code> installs what is missing but leaves extra packages alone, while <code>uv sync</code> performs an exact sync, removing any extra packages that don’t appear in in the lock file. So an environment polluted with <code>uv pip install</code> keeps working for days, until the day you run <code>uv sync</code> and then your installed packages gets uninstalled.</p>
+<p>One nuance that cost me a couple of hours to get my head around: <code>uv run</code> does not delete the extra packages installed in <code>.venv</code>. Straight after <code>uv pip install matplotlib</code>, running <code>uv run python -c "import matplotlib"</code> works. By default, <code>uv run</code> installs what is missing but leaves extra packages alone, while <code>uv sync</code> performs an exact sync, removing any extra packages that don’t appear in the lock file. So an environment polluted with <code>uv pip install</code> keeps working for days, until the day you run <code>uv sync</code> and then your installed packages get uninstalled.</p>
 <p><strong>So when should you use <code>uv pip install</code>?</strong> In my experience, never.</p>
 <p>And if, like in the example above, you only need a package for one command, there is a better option:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run <span class="at">--with</span> matplotlib python <span class="at">-c</span> <span class="st">"import matplotlib"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run <span class="at">--with</span> matplotlib python <span class="at">-c</span> <span class="st">"import matplotlib; print(matplotlib.__version__)"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Installed 11 packages in 33ms
 3.11.2</code></pre>
 <p><code>matplotlib</code> was available for the duration of that one command, and <code>pyproject.toml</code>, <code>uv.lock</code> and <code>.venv</code> were all left untouched.</p>
@@ -369,18 +371,18 @@ Installed 4 packages in 6ms
  + packaging==26.3
  + pluggy==1.6.0
  + pytest==9.1.1</code></pre>
-<p>Your pyproject.toml should show something similar to this:</p>
-<pre><code>dependencies = [
-    "pandas&gt;=3.0.5",
-    "rich&gt;=15.0.0",
-]
-
-[dependency-groups]
-dev = [
-    "pytest&gt;=9.1.1",
-]</code></pre>
-<p>The question is what happen next time that you do <code>uv sync</code>, is <code>uv</code> going to install the dev dependencies or not just the real dependencies of your project ?</p>
-<p>Let delete completely the existing .venv and redo a <code>uv sync</code> for the result to be crystal clear</p>
+<p>Your <code>pyproject.toml</code> should show something similar to this:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=3.0.5"</span><span class="op">,</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rich&gt;=15.0.0"</span><span class="op">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[dependency-groups]</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=9.1.1"</span><span class="op">,</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The question is what happens next time that you do <code>uv sync</code>: is <code>uv</code> going to install the dev dependencies as well, or just the real dependencies of your project ?</p>
+<p>Let us delete completely the existing <code>.venv</code> and redo a <code>uv sync</code> for the result to be crystal clear</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> .venv <span class="kw">&amp;&amp;</span> <span class="ex">uv</span> sync</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Using CPython 3.14.6 interpreter at: /opt/homebrew/opt/python@3.14/bin/python3.14
 Creating virtual environment at: .venv
@@ -401,10 +403,10 @@ Installed 12 packages in 28ms
 <p><code>uv</code> didn’t install just pandas (and its dependencies), it also installed the dev dependencies (pytest in this case) even though nobody asked for them.</p>
 <p>What you should know is that <code>uv</code> considers the group with the name <code>dev</code> as the default. Upon running <code>uv sync</code> with no additional arguments, it will always install your base dependencies with the dev dependencies on top of them.</p>
 <p>When I was first using <code>uv</code>, this behavior startled me as I was expecting to install just the base dependencies, the ones appearing in <code>dependencies</code> in <code>pyproject.toml</code>.</p>
-<p>If you create some other group for linting purpose and put ruff inside of it, it will not be installed by default unless specified explicitly.</p>
+<p>If you create some other group for linting purpose and put ruff inside of it, <code>ruff</code> will not be installed unless you ask for that group explicitly.</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="at">--group</span> lint ruff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Run <code>uv sync</code> and you’ll see that <code>ruff</code> is not installed.</p>
-<p>Two things to know before moving on from this section: - <code>uv sync --no-default-groups</code> installs just the base dependencies - You can set the default groups to be installed with <code>uv sync</code> by default using default-groups entry in pyproject.toml</p>
+<p>Two things to know before moving on from this section: - <code>uv sync --no-default-groups</code> installs just the base dependencies - You can set the default groups to be installed with <code>uv sync</code> by default using default-groups entry in <code>pyproject.toml</code></p>
 <pre><code>[tool.uv]
 default-groups = ["dev", "lint"]</code></pre>
 <p>Other nice uv cli commands exist, I recommend that you check the docs for that.</p>
@@ -415,22 +417,23 @@ default-groups = ["dev", "lint"]</code></pre>
 <p>The job of the CI is to check that all is good and raise errors if not, not to fix problems that exist in your codebase.</p>
 <p><code>uv sync --locked</code> does exactly what <code>uv sync</code> does, minus the fixing: when <code>uv.lock</code> no longer matches <code>pyproject.toml</code>, it stops with an error instead of updating it. Either the lockfile you committed is already correct, or the build fails.</p>
 <p>Here is a real situation I’ve been in and in which the CI failed me because of using <code>uv sync</code>.</p>
-<p>Let’s say a colleague and you are working on two branches to add different things to a project. One branch adds <code>scikit-learn</code> for the model, another adds <code>seaborn</code> for the plots. When they meet, both files conflict:</p>
+<p>Let’s say a colleague and you are working on two branches to add different things to our project. One branch adds <code>scikit-learn</code> for the model, another adds <code>seaborn</code> for the plots. When they meet, both files conflict:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge feature/plots</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>CONFLICT (content): Merge conflict in pyproject.toml
 CONFLICT (content): Merge conflict in uv.lock</code></pre>
 <p><code>pyproject.toml</code> takes ten seconds to fix, you keep both lines:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=3.0.5"</span><span class="op">,</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scikit-learn&gt;=1.9.1"</span><span class="op">,</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"seaborn&gt;=0.13.2"</span><span class="op">,</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rich&gt;=15.0.0"</span><span class="op">,</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scikit-learn&gt;=1.9.1"</span><span class="op">,</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"seaborn&gt;=0.13.2"</span><span class="op">,</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>uv.lock</code> is tons of lines here. It is generated, its diff tells you nothing, so you pick a side and move on (it’s bad, don’t do this!!!)</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">--ours</span> uv.lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The merge commit now asks for <code>seaborn</code> in <code>pyproject.toml</code> and has no trace of it in <code>uv.lock</code>. <code>git status</code> is clean and nothing looks wrong.</p>
 <p>If the CI runs <code>uv sync</code> on that commit, <code>uv.lock</code> will be updated from <code>pyproject.toml</code> and you’ll get the right dependencies (both scikit-learn and seaborn), and all tests in the CI will run smooth.</p>
-<pre><code>Resolved 21 packages in 4ms
-Installed 19 packages in 56ms
+<pre><code>Resolved 30 packages in 7ms
+Installed 26 packages in 98ms
  + cloudpickle==3.1.2
  + contourpy==1.4.0
  ...
@@ -441,8 +444,69 @@ Installed 19 packages in 56ms
 
 hint: To update the lockfile, run `uv lock`.</code></pre>
 <p>The message tells you that there is a problem and how to fix it.</p>
-<p>Another thing to note, if you use <code>uv run</code> in CI instead, it re-locks too, so a step that calls <code>uv run pytest</code> without syncing first reopens the same hole. The flag exists for this command as well: <code>uv run --locked pytest</code>.</p>
-<p>The thing to take from this is that the CI is a place to spot the errors and not to fix them, so use <code>--locked</code> with uv commands. If you’re stubborn, then sync but push back the new code to the branch (ew, shouldn’t be doing this).</p>
+<p>Another thing to note: if you use <code>uv run</code> in CI instead, it re-locks too, so a step that calls <code>uv run pytest</code> without syncing first brings back the same problem. The flag exists for this command as well: <code>uv run --locked pytest</code>.</p>
+<p>The thing to take from this is that the CI is a place to spot the errors and not to fix them, so use <code>--locked</code> with uv commands. If you’re stubborn, then sync but push the updated <code>uv.lock</code> back to the branch (ew, shouldn’t be doing this).</p>
+</section>
+<section id="uv-run-uv-tool-uvx-what-the-hell-am-i-running" class="level1">
+<h1>4. uv run, uv tool &amp; uvx: what the hell am I running ?</h1>
+<p>This part is about the difference between <code>uv run</code>, <code>uvx</code> and <code>uv tool</code> as well as the problems that might arise when using them.</p>
+<p>Only <code>uv run</code> knows about your project, the two others don’t:</p>
+<ul>
+<li><p><code>uv run &lt;command&gt;</code> looks for the command inside your project’s <code>.venv</code> first</p></li>
+<li><p><code>uv tool install &lt;tool&gt;</code> installs the tool in its own environment and puts it on your <code>PATH</code>, so it’s available everywhere, a bit like <code>brew install</code></p></li>
+<li><p><code>uvx &lt;tool&gt;</code> is a shorthand for <code>uv tool run &lt;tool&gt;</code>, it runs the tool without touching your project</p></li>
+</ul>
+<p>You’d think that the first one always gives you the version pinned in your <code>pyproject.toml</code>. It doesn’t.</p>
+<p>Now, here is the situation that I encountered and that drove me mad for a couple of hours before deciding to read the docs and understand what’s really going on. Let’s say that, as in section 2, we have added <code>ruff</code> to a <code>lint</code> dependency-group, but this time we’ve pinned it to an exact version so that everyone would have the same rules by default</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="at">--group</span> lint <span class="st">"ruff==0.16.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Our <code>pyproject.toml</code> now has a section that looks like this:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[dependency-groups]</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="dt">lint</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ruff==0.16.0"</span><span class="op">,</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A few days later, I come back to the project, pull my colleague’s changes and run a <code>uv sync</code> before getting back to work.</p>
+<p>Let us now lint our code using <code>uv run</code></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ruff check .</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>All checks passed!</code></pre>
+<p>While everything is fine, is it really the <code>ruff</code> I pinned that just ran?</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ruff <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>ruff 0.14.0</code></pre>
+<p>It is not the case. My <code>pyproject.toml</code> clearly states that ruff is <code>0.16.0</code> and I just linted my code with <code>0.14.0</code>, which is a version with different rules and different defaults.</p>
+<p><code>lint</code> is not a default group, so after a <code>uv sync</code> there is simply no <code>ruff</code> inside <code>.venv</code>. And when <code>uv run</code> doesn’t find a command in the project, it doesn’t stop there; it falls back to whatever it finds on your <code>PATH</code>.</p>
+<p>On my machine that is a <code>ruff</code> I installed globally months ago and never thought about again:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> tool install ruff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Had I never installed it, I would have gotten a clear error instead:</p>
+<pre><code>error: Failed to spawn: `ruff`
+  Caused by: No such file or directory (os error 2)</code></pre>
+<p>which is the behavior I want to have.</p>
+<p>To recap, <code>uv run</code> looking at <code>.venv</code> first and at <code>PATH</code> after is what makes the wrong version silent.</p>
+<p>To run the <code>ruff</code> that the project pins, you have to ask for the group it lives in:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run <span class="at">--group</span> lint ruff <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>ruff 0.16.0</code></pre>
+<p>At this point you might think that <code>uvx</code> is the way out of this mess, as it has nothing to do with your project and simply runs the tool:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uvx</span> ruff <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>ruff 0.14.0</code></pre>
+<p>Still <code>0.14.0</code>! What you should know is that <code>uvx</code> downloads the latest version of a tool and runs it, unless you have already installed that tool with <code>uv tool install</code>, in which case it quietly reuses the one you installed. The only way to know what <code>uvx</code> is running is to specify it clearly in the command</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uvx</span> ruff@0.16.8 <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>ruff 0.16.8</code></pre>
+<p>The two things that you should keep in mind:</p>
+<ul>
+<li><code>uv run</code> looks in <code>.venv</code> first and in your <code>PATH</code> after, so it can happily run a tool that your project never asked for. If the tool belongs to the project, run it through its group: <code>uv run --group lint ruff check .</code></li>
+<li><code>uvx</code> and <code>uv tool install</code> live outside of any project. They are meant for tools you want everywhere, and installing a linter or a formatter that way is exactly what creates the confusion above.</li>
+</ul>
+<p>Now, what I do to not have this problem is to run tools like <code>ruff</code> using <code>uv run python -m ruff</code>. <code>python -m</code> only looks inside <code>.venv</code> and never falls back to <code>PATH</code>, so when the tool isn’t there I get a clear error instead of a wrong version.</p>
+<p>The other way out is the <code>default-groups</code> entry from section 2: put <code>lint</code> in it and <code>ruff</code> is always in <code>.venv</code>, so <code>uv run ruff</code> never has a reason to look at your <code>PATH</code>.</p>
+</section>
+<section id="wrapping-up" class="level1">
+<h1>Wrapping up</h1>
+<p>While there are many things that I’d like to talk about, this blog post is getting long, so I’ll stop here.</p>
+<p>Here are some of the topics I might cover in an upcoming post about <code>uv</code>:</p>
+<ul>
+<li><p>pinning the python version of a project, and what <code>uv</code> does behind the scenes to get you the interpreter</p></li>
+<li><p>installing <code>pytorch</code> with GPU support, which comes down to telling <code>uv</code> to pull some packages from a different index</p></li>
+<li><p>the <code>uv</code> cache, and how to mount it as a docker volume so that your builds stop downloading the same wheels over and over</p></li>
+</ul>
+<p>If there is one thing to keep from all of the above, it’s that almost every problem I had with <code>uv</code> came from not reading the docs, but discovering this the hard way makes the lessons stick better.</p>
 
 
 </section>
