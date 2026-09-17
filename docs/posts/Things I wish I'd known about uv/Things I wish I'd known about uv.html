@@ -212,6 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#before-getting-started" id="toc-before-getting-started">Before getting started</a></li>
   <li><a href="#uv-add-or-uv-pip-install" id="toc-uv-add-or-uv-pip-install">1. <code>uv add</code> or <code>uv pip install</code> ?</a></li>
   <li><a href="#the-dev-group-is-the-default" id="toc-the-dev-group-is-the-default">2. The <code>dev</code> group is the default!</a></li>
+  <li><a href="#stick-to-uv-sync---locked-in-ci" id="toc-stick-to-uv-sync---locked-in-ci">3. Stick to <code>uv sync --locked</code> in CI</a></li>
   </ul>
 </nav>
 <hr>
@@ -407,6 +408,55 @@ Installed 12 packages in 28ms
 <pre><code>[tool.uv]
 default-groups = ["dev", "lint"]</code></pre>
 <p>Other nice uv cli commands exist, I recommend that you check the docs for that.</p>
+</section>
+<section id="stick-to-uv-sync---locked-in-ci" class="level1">
+<h1>3. Stick to <code>uv sync --locked</code> in CI</h1>
+<p>One of the nicest things about <code>uv sync</code> is that it syncs everything and fixes any discrepancies that might exist. If your <code>pyproject.toml</code> has some dependency that is not present in <code>uv.lock</code>, it will be added to <code>uv.lock</code> and installed in the project’s <code>.venv</code>.</p>
+<p>The job of the CI is to check that all is good and raise errors if not, not to fix problems that exist in your codebase.</p>
+<p><code>uv sync --locked</code> does exactly what <code>uv sync</code> does, minus the fixing: when <code>uv.lock</code> no longer matches <code>pyproject.toml</code>, it stops with an error instead of updating it. Either the lockfile you committed is already correct, or the build fails.</p>
+<p>Here is a real situation I’ve been in, where the CI let me through when it should have stopped me, all because it was running <code>uv sync</code>.</p>
+<p>Let’s say a colleague and you are working on two branches to add different things to a project. One branch adds <code>scikit-learn</code> for the model, another adds <code>seaborn</code> for the plots. When they meet, both files conflict:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge feature/plots</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>CONFLICT (content): Merge conflict in pyproject.toml
+CONFLICT (content): Merge conflict in uv.lock</code></pre>
+<p><code>pyproject.toml</code> takes ten seconds to fix, you keep both lines:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=3.0.5"</span><span class="op">,</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scikit-learn&gt;=1.9.1"</span><span class="op">,</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"seaborn&gt;=0.13.2"</span><span class="op">,</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>uv.lock</code> is tons of lines. It is generated, its diff tells you nothing, so you pick a side and move on:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">--ours</span> uv.lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Picking a side is fine in itself, the mistake is stopping there. I’ll come back to it at the end of this section.</p>
+<p>The merge commit now asks for <code>seaborn</code> in <code>pyproject.toml</code> and has no trace of it in <code>uv.lock</code>. <code>git status</code> is clean and nothing looks wrong.</p>
+<p>If the CI runs <code>uv sync</code> on that commit, <code>uv.lock</code> will be updated from <code>pyproject.toml</code> and you’ll get the right dependencies (both scikit-learn and seaborn), and all tests in the CI will run smooth.</p>
+<pre><code>Resolved 21 packages in 4ms
+Installed 19 packages in 56ms
+ + cloudpickle==3.1.2
+ + contourpy==1.4.0
+ ...
+ + seaborn==0.13.2</code></pre>
+<p>And this is what the CI left behind in its own checkout:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--stat</span> uv.lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code> uv.lock | 312 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 312 insertions(+)</code></pre>
+<p>312 lines written into a file tracked by git, in a runner that is thrown away a minute later. So, just using <code>uv sync</code> doesn’t allow you to see the discrepancy that exists in <code>uv.lock</code>.</p>
+<p>With <code>uv sync --locked</code>, the same commit raises an error</p>
+<pre><code>error: The lockfile at `uv.lock` needs to be updated, but `--locked` was provided.
+
+hint: To update the lockfile, run `uv lock`.</code></pre>
+<p>The message tells you that there is a problem and how to fix it.</p>
+<p>Another thing to note, if you use <code>uv run</code> in CI instead, it re-locks too, so a step that calls <code>uv run pytest</code> without syncing first reopens the same hole. The flag exists for this command as well: <code>uv run --locked pytest</code>.</p>
+<p>Don’t confuse <code>--locked</code> with <code>--frozen</code> either. <code>--frozen</code> sounds stricter but does the opposite: it skips the check altogether and installs the lockfile as it is. On the merge commit above, it exits with code 0 and no <code>seaborn</code>, so the build fails later on a confusing <code>ModuleNotFoundError</code>. It has its uses in a Docker layer where the lockfile was verified upstream, but <code>--locked</code> is the one you want in CI.</p>
+<p><strong>Back to that merge conflict.</strong> Clearing the markers by picking a side is fine, you just need one more command before committing, so that <code>uv</code> rebuilds the lockfile from the <code>pyproject.toml</code> you merged by hand:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">--ours</span> uv.lock</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Resolved 21 packages in 5ms
+Added matplotlib v3.11.2
+Added seaborn v0.13.2
+...</code></pre>
+<p>After that, <code>uv sync --locked</code> exits with code 0 and the CI has nothing to say.</p>
+<p>The thing to take from this is that the CI is a place to spot the errors and not to fix them, so use <code>--locked</code> with uv commands. If you’re stubborn, then sync but commit the regenerated <code>uv.lock</code> back to the branch (ew, shouldn’t be doing this).</p>
 
 
 </section>
