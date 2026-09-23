@@ -1,6 +1,6 @@
 ---
 title: "About"
-description: "About Safouane Chergui, lead data scientist in Paris."
+description: "About Safouane Chergui, AI engineer."
 hide-description: true
 image: profile.jpg
 image-alt: "Portrait of Safouane Chergui"

@@ -1,6 +1,6 @@
 ---
 title: "Safouane Chergui"
-description: "Lead data scientist in Paris. I write about LLM systems, evals, search and Python tooling."
+description: "AI Engineer. I love evals and system design."
 image: profile.jpg
 image-alt: "Portrait of Safouane Chergui"
 toc: false
