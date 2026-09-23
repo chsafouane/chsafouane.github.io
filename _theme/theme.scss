@@ -1,0 +1,914 @@
+/*-- scss:defaults --*/
+
+// This file derives every color from _brand.yml and writes the component rules.
+// It must be listed BEFORE `brand` in _quarto.yml: Quarto emits user-layer
+// defaults in reverse order, so brand variables are defined by the time these run.
+// Keep hex literals out of this file; add raw values to _brand.yml instead.
+//
+// Both the light and the dark stylesheet are compiled from this file, and the
+// dark one is layered on top of the light one. Every mode-specific value must
+// therefore be a variable used by the same selectors in both compiles.
+
+$is-dark: tone($body-bg) == "dark";
+
+$ink: $body-color;
+$paper: $body-bg;
+$muted: $body-secondary-color;
+$accent: $primary;
+
+$rule: mix($ink, $paper, 12%);
+$rule-strong: mix($ink, $paper, 24%);
+$surface: mix($ink, $paper, if($is-dark, 5%, 3%));
+$surface-2: mix($ink, $paper, if($is-dark, 10%, 6.5%));
+$accent-soft: mix($accent, $paper, if($is-dark, 20%, 12%));
+
+$font-ui: $headings-font-family;
+$font-prose: $font-family-base;
+
+// Figures sit on a white "plate" in both modes; dimmed a little at night.
+$plate-bg: $brand-plate;
+$plate-pad: 0.75rem;
+$plate-filter: if($is-dark, brightness(0.9) contrast(1.04), none);
+
+$radius: 0.5rem;
+$radius-lg: 0.75rem;
+
+// Layout: ~680px text column (Quarto adds 50px to the body width).
+$grid-body-width: 630px !default;
+$grid-margin-width: 260px !default;
+$grid-sidebar-width: 260px !default;
+
+$border-radius: $radius !default;
+$border-radius-lg: $radius-lg !default;
+$border-color: $rule !default;
+$table-border-color: $rule !default;
+$hr-color: $rule !default;
+$hr-opacity: 1 !default;
+
+$headings-color: $ink !default;
+$h1-font-size: 2.25rem !default;
+$h2-font-size: 1.55rem !default;
+$h3-font-size: 1.25rem !default;
+$h4-font-size: 1.075rem !default;
+$h5-font-size: 1rem !default;
+$h6-font-size: 1rem !default;
+$paragraph-margin-bottom: 1.15em !default;
+
+$navbar-bg: $paper !default;
+$navbar-fg: $muted !default;
+$navbar-hl: $ink !default;
+$navbar-brand: $ink !default;
+$navbar-brand-hl: $accent !default;
+
+$footer-bg: $paper !default;
+$footer-fg: $muted !default;
+$footer-font-size: 0.85rem !default;
+
+$toc-color: $accent !default;
+$toc-font-size: 0.82rem !default;
+$toc-active-border: $accent !default;
+$toc-inactive-border: $rule !default;
+
+$code-block-bg: $surface !default;
+$code-block-bg-padding: 0.9rem !default;
+$code-bg: $surface-2 !default;
+$code-color: $ink !default;
+$btn-code-copy-color: $muted !default;
+$btn-code-copy-color-active: $accent !default;
+
+$callout-border-width: 3px !default;
+$callout-margin-top: 1.75rem !default;
+$callout-margin-bottom: 1.75rem !default;
+$callout-color-note: $accent !default;
+$callout-color-tip: $brand-green !default;
+$callout-color-warning: $brand-amber !default;
+$callout-color-important: $brand-red !default;
+$callout-color-caution: $brand-orange !default;
+
+$mermaid-font-family: $font-ui !default;
+$mermaid-bg-color: $paper !default;
+$mermaid-fg-color: $ink !default;
+$mermaid-node-bg-color: $accent-soft !default;
+$mermaid-node-fg-color: $ink !default;
+$mermaid-edge-color: $muted !default;
+$mermaid-label-fg-color: $ink !default;
+$mermaid-label-bg-color: $paper !default;
+
+$tooltip-bg: $ink !default;
+$tooltip-color: $paper !default;
+
+/*-- scss:rules --*/
+
+// ---------------------------------------------------------------------------
+// 1. Base and rhythm
+// ---------------------------------------------------------------------------
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  font-optical-sizing: auto;
+}
+
+@include media-breakpoint-down(md) {
+  body {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+}
+
+main.content {
+  li + li {
+    margin-top: 0.3em;
+  }
+
+  hr {
+    width: 40%;
+    margin: 2.75rem auto;
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+}
+
+::selection {
+  background: $accent-soft;
+}
+
+:focus-visible {
+  outline: 2px solid $accent;
+  outline-offset: 2px;
+}
+
+// Interface text uses the sans face; prose stays serif.
+.navbar,
+.nav-footer,
+.sidebar,
+#quarto-search-results,
+.aa-Panel,
+figcaption,
+.figure-caption,
+.quarto-float-caption,
+.post-meta,
+.quarto-categories,
+.callout-header,
+main.content table,
+.code-with-filename-file,
+.tippy-box,
+.quarto-listing,
+.about-links,
+.posts-heading,
+.post-filter,
+.quarto-title-meta,
+#quarto-appendix,
+.btn {
+  font-family: $font-ui;
+}
+
+// ---------------------------------------------------------------------------
+// 2. Navbar
+// ---------------------------------------------------------------------------
+
+#quarto-header {
+  background: $paper;
+  border-bottom: 1px solid $rule;
+}
+
+#quarto-header .navbar {
+  box-shadow: none;
+  padding-block: 0.55rem;
+
+  .navbar-title {
+    font-weight: 600;
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 0.92rem;
+  }
+
+  .navbar-brand-container {
+    max-width: none;
+  }
+}
+
+.quarto-color-scheme-toggle .bi::before,
+.quarto-color-scheme-toggle:not(.alternate) .bi::before {
+  // keep the toggle icon crisp and muted like other nav icons
+  opacity: 0.85;
+}
+
+// ---------------------------------------------------------------------------
+// 3. Headings
+// ---------------------------------------------------------------------------
+
+main.content {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: $font-ui;
+    letter-spacing: -0.012em;
+    opacity: 1;
+    scroll-margin-top: 5rem;
+  }
+
+  h2 {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin: 2.9rem 0 0.8rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    margin: 2.2rem 0 0.6rem;
+  }
+
+  h4 {
+    margin: 1.8rem 0 0.5rem;
+  }
+
+  h5,
+  h6 {
+    margin: 1.4rem 0 0.4rem;
+    color: $muted;
+  }
+
+  .anchorjs-link {
+    color: $muted !important;
+    text-decoration: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Links in prose
+// ---------------------------------------------------------------------------
+
+main.content :is(p, li, td, dd, figcaption, .callout-body, blockquote, .footnotes) a:not(.footnote-ref):not(.footnote-back):not(.anchorjs-link):not(.lightbox):not(.post-link) {
+  color: $accent;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba($accent, 0.4);
+  transition: text-decoration-color 0.15s ease;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 5. Title block (no banner)
+// ---------------------------------------------------------------------------
+
+#title-block-header.quarto-title-block.default {
+  margin: 3rem 0 2.5rem;
+
+  .quarto-title h1.title {
+    font-size: clamp(2.05rem, 1.4rem + 2.2vw, 2.85rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+  }
+
+  .quarto-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1rem;
+    padding: 0;
+  }
+
+  .quarto-category {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    opacity: 1;
+    color: $muted;
+    background: transparent;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    margin: 0;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    &:hover {
+      color: $accent;
+      border-color: $accent;
+    }
+  }
+
+  .description,
+  .description > p {
+    font-family: $font-prose;
+    font-style: italic;
+    font-size: 1.28rem;
+    line-height: 1.45;
+    color: $muted;
+    margin: 0.25rem 0 0;
+    text-wrap: pretty;
+  }
+
+  .subtitle {
+    font-family: $font-prose;
+    font-style: italic;
+    color: $muted;
+  }
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.2rem;
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+  color: $muted;
+
+  > span + span::before {
+    content: "·";
+    margin: 0 0.55rem;
+    color: $rule-strong;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 6. Table of contents (right margin)
+// ---------------------------------------------------------------------------
+
+#quarto-margin-sidebar nav[role="doc-toc"],
+.sidebar nav[role="doc-toc"] {
+  > h2,
+  #toc-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: $muted;
+    margin-bottom: 0.6rem;
+  }
+
+  ul > li > a {
+    color: $muted;
+    line-height: 1.35;
+    padding-block: 0.22rem;
+
+    &:hover {
+      color: $ink;
+    }
+
+    &.active {
+      color: $accent;
+    }
+  }
+}
+
+.quarto-sidebar-toggle,
+.quarto-sidebar-toggle-title {
+  background: $paper;
+  border-color: $rule;
+  color: $muted;
+}
+
+// ---------------------------------------------------------------------------
+// 7. Code
+// ---------------------------------------------------------------------------
+
+div.sourceCode {
+  border: 1px solid $rule;
+  border-radius: $radius-lg;
+  margin: 1.5rem 0;
+}
+
+main pre {
+  line-height: 1.6;
+}
+
+main.content :is(p, li, td, th, dd, figcaption, .callout-body, h2, h3, h4) code:not(.sourceCode) {
+  background: $code-bg;
+  color: $code-color;
+  padding: 0.12em 0.36em;
+  border-radius: 0.3rem;
+  font-size: 0.84em;
+  white-space: break-spaces;
+}
+
+// Unlabelled fences (usually command output or ASCII diagrams) and notebook
+// stdout: a quiet dashed box, attached to a command block right above it.
+main.content pre:not(.sourceCode),
+main.content .cell-output pre {
+  background: transparent;
+  border: 1px dashed $rule-strong;
+  border-radius: $radius-lg;
+  padding: 0.8rem 1rem;
+  font-size: 0.78em;
+  color: $muted;
+  margin: 1.5rem 0;
+
+  code {
+    color: inherit;
+    background: none;
+    padding: 0;
+  }
+}
+
+main.content div.sourceCode:has(+ pre:not(.sourceCode)),
+main.content div.sourceCode:has(+ .cell-output) {
+  margin-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+main.content div.sourceCode + pre:not(.sourceCode),
+main.content div.sourceCode + .cell-output pre {
+  margin-top: 0;
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.cell-output-stdout pre,
+.cell-output-stderr pre,
+.cell-output-error pre {
+  white-space: pre-wrap;
+}
+
+main.content .cell-output-error pre {
+  border-color: rgba($brand-red, 0.5);
+}
+
+// ANSI black (#3e424d) disappears on the dark page; map it to the text color.
+.ansi-black-fg,
+.ansi-bright-black-fg {
+  color: $ink !important;
+}
+
+.code-with-filename .code-with-filename-file {
+  background: $surface-2;
+  border: 1px solid $rule;
+  border-bottom: 0;
+  border-radius: $radius-lg $radius-lg 0 0;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.75rem;
+  color: $muted;
+
+  pre {
+    color: inherit;
+  }
+}
+
+.code-with-filename div.sourceCode {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.code-copy-button {
+  border-radius: $radius;
+}
+
+// ---------------------------------------------------------------------------
+// 8. Callouts (callout-appearance: simple)
+// ---------------------------------------------------------------------------
+
+main div.callout.callout-style-simple {
+  border-width: 0 0 0 $callout-border-width;
+  border-radius: 0 $radius $radius 0;
+  padding: 0.95rem 1.15rem;
+
+  .callout-body {
+    font-size: 0.97em;
+  }
+
+  .callout-body > :last-child {
+    margin-bottom: 0;
+  }
+
+  > .callout-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 1;
+  }
+}
+
+@each $name, $color in ("note": $callout-color-note, "tip": $callout-color-tip, "warning": $callout-color-warning, "important": $callout-color-important, "caution": $callout-color-caution) {
+  main div.callout-#{$name}.callout-style-simple {
+    background: mix($color, $paper, if($is-dark, 11%, 6%));
+    border-left-color: $color;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 9. Tables
+// ---------------------------------------------------------------------------
+
+main.content table.table,
+main.content table:not(.table) {
+  --bs-table-bg: transparent;
+  --bs-table-color: #{$ink};
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  margin: 1.75rem 0;
+  border-collapse: collapse;
+
+  > thead > tr > th {
+    border-bottom: 1.5px solid $rule-strong;
+    font-weight: 600;
+    color: $ink;
+    vertical-align: bottom;
+  }
+
+  > :not(caption) > * > * {
+    padding: 0.55rem 0.7rem;
+    border-bottom-color: $rule;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  main.content table.table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 10. Blockquotes
+// ---------------------------------------------------------------------------
+
+main.content blockquote,
+main.content .blockquote {
+  border-left: 2px solid $accent;
+  padding: 0.15rem 0 0.15rem 1.15rem;
+  margin: 1.75rem 0;
+  color: $muted;
+  font-style: italic;
+  font-size: 1em;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 11. Figures and captions
+// ---------------------------------------------------------------------------
+
+main.content .quarto-figure,
+main.content .cell-output-display {
+  margin: 2.1rem 0;
+}
+
+// Every raster image, Graphviz SVG and matplotlib output sits on a plate, so
+// transparent PNGs stay readable in dark mode. Photos opt out with `.photo`.
+main.content :is(.figure-img, p > img, p > a.lightbox > img, .cell-output-display img),
+main.content :is(.cell-output-display, .quarto-figure) > svg,
+main.content :is(.cell-output-display, .quarto-figure) div > svg {
+  background: $plate-bg;
+  padding: $plate-pad;
+  border: 1px solid $rule;
+  border-radius: $radius-lg;
+  filter: $plate-filter;
+  box-sizing: border-box;
+}
+
+main.content :is(img.photo, .photo img) {
+  background: none;
+  padding: 0;
+  border: 0;
+  filter: none;
+}
+
+// Graphviz is inlined with style="max-width: none"; make it fit the column.
+main.content :is(.cell-output-display, .quarto-figure) svg {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin-inline: auto;
+}
+
+main.content p > :is(img, a.lightbox):only-child {
+  display: block;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+figcaption,
+.figure-caption,
+.quarto-float-caption,
+main.content .quarto-figure figcaption {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: $muted;
+  text-align: center;
+  margin-top: 0.7rem;
+  text-wrap: balance;
+}
+
+// Lightbox: keep transparent PNGs readable on the dark overlay.
+.glightbox-container .gslide-image img {
+  background: $plate-bg;
+  padding: 1rem;
+  border-radius: $radius-lg;
+}
+
+// ---------------------------------------------------------------------------
+// 12. Math
+// ---------------------------------------------------------------------------
+
+.katex {
+  font-size: 1.06em;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.4rem 0;
+  margin: 1.5rem 0;
+}
+
+// ---------------------------------------------------------------------------
+// 13. Footnotes, margin notes, appendix, popups
+// ---------------------------------------------------------------------------
+
+.column-margin,
+aside:not(.footnotes):not(.sidebar),
+.margin-caption {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: $muted;
+}
+
+a.footnote-ref {
+  font-family: $font-ui;
+  font-weight: 600;
+  text-decoration: none;
+  color: $accent;
+}
+
+#quarto-appendix.default {
+  border-top: 1px solid $rule;
+  background: transparent;
+
+  .quarto-appendix-heading {
+    border-bottom: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $muted;
+  }
+}
+
+.tippy-box[data-theme~="quarto"] {
+  background: $paper;
+  color: $ink;
+  border: 1px solid $rule;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, if($is-dark, 0.45, 0.1));
+  font-size: 0.85rem;
+}
+
+// ---------------------------------------------------------------------------
+// 14. Home page: intro and post list
+// ---------------------------------------------------------------------------
+
+.quarto-about-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  margin: 3.25rem 0 3.25rem;
+
+  .hero-photo {
+    width: 6.75rem;
+    height: 6.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: none;
+    border: 1px solid $rule;
+  }
+
+  #title-block-header.quarto-title-block.default {
+    margin: 0;
+
+    .quarto-title h1.title {
+      font-size: 1.95rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.3rem;
+    }
+
+    .description,
+    .description > p {
+      font-style: normal;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+
+  .about-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 0.8rem;
+  }
+
+  .about-link {
+    color: $muted;
+    text-decoration: none;
+    font-size: 1.1rem;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+    margin-top: 2rem;
+  }
+}
+
+main.content h2.posts-heading {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $muted;
+  border-bottom: 1px solid $rule;
+  padding-bottom: 0.6rem;
+  margin: 0;
+}
+
+.post-filter {
+  font-size: 0.85rem;
+  color: $muted;
+  margin: 0.8rem 0 0;
+
+  a {
+    color: $accent;
+  }
+}
+
+ul.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+main.content .post-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 1.5rem 0;
+  margin: 0;
+  border-bottom: 1px solid $rule;
+
+  &.has-thumb {
+    grid-template-columns: 1fr 7.5rem;
+    column-gap: 1.5rem;
+  }
+}
+
+.post-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover .post-title {
+    color: $accent;
+  }
+}
+
+.post-date {
+  display: block;
+  font-family: $font-ui;
+  font-size: 0.78rem;
+  color: $muted;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+main.content .post-title {
+  font-family: $font-ui;
+  font-size: 1.28rem;
+  line-height: 1.3;
+  margin: 0.25rem 0 0.4rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: $ink;
+  transition: color 0.15s ease;
+}
+
+.post-desc {
+  margin: 0;
+  color: $muted;
+  font-family: $font-prose;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.post-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.5rem;
+  margin-top: 0.75rem;
+  font-family: $font-ui;
+  font-size: 0.75rem;
+  color: $muted;
+}
+
+.post-reading-time {
+  margin-right: 0.35rem;
+}
+
+.post-tag {
+  background: none;
+  border: 1px solid $rule-strong;
+  border-radius: 999px;
+  padding: 0.05rem 0.6rem;
+  font: inherit;
+  color: $muted;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover,
+  &.active {
+    border-color: $accent;
+    color: $accent;
+  }
+}
+
+.post-thumb {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 7.5rem;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: $radius;
+  border: 1px solid $rule;
+  background: $plate-bg;
+  filter: $plate-filter;
+
+  @include media-breakpoint-down(md) {
+    display: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 15. About page (jolla template)
+// ---------------------------------------------------------------------------
+
+div.quarto-about-jolla {
+  .about-image {
+    border: 1px solid $rule;
+  }
+
+  .about-link {
+    font-family: $font-ui;
+    font-size: 0.85rem;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    color: $muted;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+      border-color: $accent;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 16. Footer
+// ---------------------------------------------------------------------------
+
+.nav-footer {
+  border-top: 1px solid $rule;
+  padding-block: 1.6rem;
+
+  a {
+    color: $muted;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  .nav-link {
+    padding: 0 0.45rem;
+  }
+}

@@ -1,8 +1,17 @@
-# options specified here will apply to all posts in this folder
+# Options that apply to every post in this folder.
 
-# freeze computational output
-# (see https://quarto.org/docs/projects/code-execution.html#freeze)
+# Posts are notebooks rendered from their stored outputs; never execute them
+# (CI has no Python or Jupyter).
+execute:
+  enabled: false
 freeze: true
 
-# Enable banner style title blocks
-title-block-banner: true
+date-format: "MMM D, YYYY"
+
+toc: true
+toc-depth: 3
+toc-location: right
+toc-title: "Contents"
+
+reference-location: margin
+lightbox: auto

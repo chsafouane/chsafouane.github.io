@@ -1,31 +1,69 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _site
+  resources:
+    - apple-touch-icon.png
 
 website:
   title: "Safouane Chergui"
   site-url: https://chsafouane.github.io
-  description: "Just a fancy note-taking website for my notes not to die on my iPad"
+  description: "Notes by Safouane Chergui on LLM systems, evaluation, search and Python tooling."
+  favicon: favicon.svg
+  image: profile.jpg
+  open-graph:
+    locale: en_US
+    site-name: "Safouane Chergui"
+  twitter-card:
+    card-style: summary_large_image
+  back-to-top-navigation: true
+  search:
+    location: navbar
+    type: overlay
   navbar:
     right:
       - about.qmd
       - resume.qmd
+      - icon: rss
+        href: index.xml
+        aria-label: "RSS feed"
+  page-footer:
+    left: "© 2024-2026 Safouane Chergui"
+    right:
       - icon: github
         href: https://github.com/chsafouane
+        aria-label: GitHub
       - icon: linkedin
         href: https://www.linkedin.com/in/safouane-chergui/
+        aria-label: LinkedIn
       - icon: cup-straw
         href: https://buymeacoffee.com/chsafouane
+        aria-label: "Buy me a coffee"
       - icon: rss
-        href: sitemap.xml
+        href: index.xml
+        aria-label: "RSS feed"
+
 format:
   html:
+    lang: en
+    # theme.scss must come before brand: it reads the brand variables.
     theme:
-      - cosmo
-      - brand
-    css: styles.css
-    mermaid:
-      theme: default
+      light: [_theme/theme.scss, brand]
+      dark: [_theme/theme.scss, brand]
+    respect-user-color-scheme: true
+    syntax-highlighting: a11y
+    html-math-method:
+      method: katex
+      url: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/"
+    template-partials:
+      - _theme/partials/title-block.html
+      - _theme/partials/title-metadata.html
+    filters:
+      - _theme/reading-time.lua
+    include-in-header: _theme/head.html
+    callout-appearance: simple
+    fig-align: center
+    code-copy: hover
+    code-overflow: scroll
 
 execute:
   freeze: auto

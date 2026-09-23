@@ -1,0 +1,14 @@
+$if(date)$
+<div class="post-meta">
+$if(by-author)$
+<span class="post-meta-author">$for(by-author)$$it.name.literal$$sep$, $endfor$</span>
+$endif$
+<span><time class="date">$date$</time></span>
+$if(date-modified)$
+<span>Updated <time class="date-modified">$date-modified$</time></span>
+$endif$
+$if(reading-time)$
+<span class="post-meta-reading-time">$reading-time$</span>
+$endif$
+</div>
+$endif$

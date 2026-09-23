@@ -1,0 +1,28 @@
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+$if(categories)$
+  $if(quarto-template-params.title-block-categories)$
+<div class="quarto-categories">
+  $for(categories)$
+  <div class="quarto-category">$categories$</div>
+  $endfor$
+</div>
+  $endif$
+$endif$
+$if(title)$
+<h1 class="title">$title$</h1>
+$endif$
+$if(subtitle)$
+<p class="subtitle lead">$subtitle$</p>
+$endif$
+$if(hide-description)$
+$elseif(description)$
+<div class="description">
+$description$
+</div>
+$endif$
+</div>
+
+$title-metadata.html()$
+
+</header>

@@ -1,0 +1,64 @@
+# Design tokens for the whole site: every raw color and font lives here.
+# _theme/theme.scss only derives values from these, so light and dark modes
+# stay in sync. The palette is also meant to be reused by figures.
+meta:
+  name: "Safouane Chergui"
+  link: https://chsafouane.github.io
+
+color:
+  palette:
+    paper: "#FBFAF7"         # light page background
+    ink: "#1C1B19"           # light text
+    ink-soft: "#5E5A53"      # light muted text (captions, metadata)
+    night: "#16151B"         # dark page background
+    moon: "#E7E4DE"          # dark text
+    moon-soft: "#A29D94"     # dark muted text
+    indigo: "#6761C5"        # accent (Jay Alammar's "bias purple")
+    indigo-light: "#A8A3F0"  # accent on dark backgrounds
+    plate: "#FFFFFF"         # card behind figures, in both modes
+    green: "#2F855A"
+    amber: "#B7791F"
+    red: "#C0392B"
+    orange: "#DD6B20"
+  foreground:
+    light: ink
+    dark: moon
+  background:
+    light: paper
+    dark: night
+  primary:
+    light: indigo
+    dark: indigo-light
+  secondary:
+    light: ink-soft
+    dark: moon-soft
+
+typography:
+  fonts:
+    - family: Newsreader
+      source: bunny
+      weight: [400, 500, 600]
+      style: [normal, italic]
+    - family: Inter
+      source: bunny
+      weight: [400, 500, 600, 700]
+      style: normal
+    - family: JetBrains Mono
+      source: bunny
+      weight: [400, 500]
+      style: normal
+  # Font stacks are quoted on purpose: brand writes them into SCSS verbatim.
+  base:
+    family: '"Newsreader", "Iowan Old Style", Charter, Georgia, serif'
+    size: 1.1875rem
+    line-height: 1.7
+  headings:
+    family: '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif'
+    weight: 600
+    line-height: 1.25
+  monospace:
+    family: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace'
+    size: 0.82em
+  link:
+    color: primary
+    decoration: underline
