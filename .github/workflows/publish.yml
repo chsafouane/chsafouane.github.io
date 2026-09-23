@@ -29,7 +29,7 @@ jobs:
 
       # Figures are drawn by posts/*/figures.py; fail if the committed SVGs
       # and manifests are not what the code produces.
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0 (no moving major tag)
 
       - name: Check figures are up to date
         run: |
