@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "uv-chain",
+  "width": 640,
+  "height": 330,
+  "alt": "The two steps that link uv's files: resolve turns the ranges in pyproject.toml (pandas>=3.0.5) into exact pins in uv.lock (pandas 3.0.5 with hashes and markers), and install turns uv.lock into packages in .venv (pandas and numpy in site-packages).",
+  "kind": "figure",
+  "png": "uv-chain.png"
+}
