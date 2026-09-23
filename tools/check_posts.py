@@ -15,7 +15,9 @@ Each post lives in posts/<slug>/index.ipynb (or index.qmd). The checks:
     otherwise renders them as run-on text);
   - code fences use a language pandoc can highlight (checked when `quarto`
     is on PATH);
-  - local images referenced by the post exist.
+  - local images referenced by the post exist;
+  - every {{< fig NAME >}} / {{< stepper NAME >}} has a figkit manifest of the
+    right kind in assets/figures, and the files it lists exist.
 Exits with status 1 when any check fails.
 """
 import json
@@ -34,6 +36,7 @@ FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*\{?\s*\.?([A-Za-z0-9_+-]*)")
 LIST_ITEM = re.compile(r"^([-*+]|\d+[.)])\s+\S")
 ANY_LIST_ITEM = re.compile(r"^\s*([-*+]|\d+[.)])\s+\S")
 IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
+SHORTCODE = re.compile(r"\{\{<\s*(fig|stepper)\s+(?:name=)?\"?([A-Za-z0-9_-]+)")
 # Fence "languages" that are Quarto cell types or plain text, not pandoc lexers.
 NON_LEXER_FENCES = {"", "dot", "mermaid", "ojs", "text", "plaintext", "raw", "=html"}
 
@@ -126,6 +129,33 @@ def check_post(post_dir, languages):
     for ref in referenced:
         if not re.match(r"^[a-z]+://", ref) and not (post_dir / ref).exists():
             errors.append(f"{source}: image not found: {ref}")
+    for chunk in chunks:
+        for kind, name in SHORTCODE.findall(chunk):
+            errors += check_figure(post_dir, source, kind, name)
+    return errors
+
+
+def figure_files(manifest):
+    """Files the {{< fig >}} / {{< stepper >}} shortcode will load."""
+    name = manifest["name"]
+    stems = [f"{name}-{step}" for step in range(1, len(manifest.get("steps", [])) + 1)] or [name]
+    if manifest.get("format") == "png":
+        return [f"{stem}.png" for stem in stems]
+    return [f"{stem}-{mode}.svg" for stem in stems for mode in ("light", "dark")]
+
+
+def check_figure(post_dir, source, kind, name):
+    path = post_dir / "assets" / "figures" / f"{name}.json"
+    if not path.exists():
+        return [f"{source}: {{{{< {kind} {name} >}}}} has no manifest {path.relative_to(post_dir)} (run uv run figkit build)"]
+    manifest = json.loads(path.read_text())
+    expected = "figure" if kind == "fig" else "stepper"
+    errors = []
+    if manifest.get("kind") != expected:
+        errors.append(f"{source}: {name} is a {manifest.get('kind')}, use the {'stepper' if kind == 'fig' else 'fig'} shortcode")
+    for file in figure_files(manifest):
+        if not (post_dir / "assets" / "figures" / file).exists():
+            errors.append(f"{source}: figure {name} is missing assets/figures/{file}")
     return errors
 
 

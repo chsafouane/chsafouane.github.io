@@ -27,6 +27,21 @@ jobs:
       - name: Check post conventions
         run: python3 tools/check_posts.py
 
+      # Figures are drawn by posts/*/figures.py; fail if the committed SVGs
+      # and manifests are not what the code produces.
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Check figures are up to date
+        run: |
+          uv sync --locked --all-extras
+          uv run figkit build --no-raster
+          changes="$(git status --porcelain -- 'posts/*/assets/figures')"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            echo "::error::Figures are out of date: run 'uv run figkit build' and commit the result."
+            exit 1
+          fi
+
       # Notebooks are rendered from their stored outputs, so no Python or
       # Jupyter is needed here.
       - name: Render site
