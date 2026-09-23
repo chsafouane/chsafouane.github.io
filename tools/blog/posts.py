@@ -10,7 +10,7 @@ import yaml
 REPO = Path(__file__).resolve().parents[2]
 POSTS = REPO / "posts"
 SITE_URL = "https://chsafouane.github.io"
-FRONT_MATTER = re.compile(r"\A(\s*---\n)(.*?)(\n---\s*)", re.S)
+FRONT_MATTER = re.compile(r"\A(\s*---\n)(.*?)(\n---\s*)", re.DOTALL)
 
 
 def dump_notebook(nb):

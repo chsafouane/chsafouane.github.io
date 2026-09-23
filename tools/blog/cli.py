@@ -1,7 +1,6 @@
 """Command line: `uv run blog <command>`. See README.md at the repository root."""
 
 import argparse
-import json
 import sys
 
 from .posts import REPO, SITE_URL
@@ -26,8 +25,9 @@ def main(argv=None):
     publish.add_argument("--keep-date", action="store_true", help="keep the date in the front matter")
     publish.add_argument("--allow-branch", action="store_true", help="allow publishing from a branch other than master")
 
-    cross = sub.add_parser("crosspost", help="write Medium and Substack versions of rendered posts into _site/crosspost")
-    cross.add_argument("slugs", nargs="*", help="posts to process (default: all published posts)")
+    cross = sub.add_parser("crosspost", help="render posts and write their Medium and Substack pages into _site/crosspost")
+    cross.add_argument("slugs", nargs="*", help="published posts to process (default: all of them)")
+    cross.add_argument("--no-render", action="store_true", help="use the posts already rendered in _site")
 
     args = parser.parse_args(argv)
     if args.command == "new":
@@ -47,15 +47,16 @@ def main(argv=None):
     elif args.command == "crosspost":
         from .crosspost import SITE, build
 
-        if not (SITE / "index.html").exists():
-            raise SystemExit("render the site first: quarto render")
-        written = build(args.slugs)
-        for slug in written:
-            meta = json.loads((SITE / "crosspost" / slug / "meta.json").read_text())
-            print(f"{slug}\n  Medium import URL: {meta['medium_import_url']}\n  Substack Markdown: _site/crosspost/{slug}/post.md")
+        written = build(args.slugs, render=not args.no_render)
+        for post in written:
+            page = SITE / "crosspost" / post.slug / "substack.html"
+            print(post.slug)
+            print(f"  Medium:   Import a story, with the URL {SITE_URL}/crosspost/{post.slug}/")
+            print(f"  Substack: open {page.as_uri()} and use its Copy buttons")
         if not written:
-            print("nothing written: are the posts published and rendered in _site?")
-        print(f"(URLs are live after the next deploy of {SITE_URL})")
+            print("nothing written: no published post is rendered in _site")
+        else:
+            print("Both work once the post is deployed: Medium and Substack copy the images from the live post.")
     return 0
 
 

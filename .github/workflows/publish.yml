@@ -47,9 +47,9 @@ jobs:
       - name: Render site
         run: quarto render
 
-      # Medium- and Substack-ready versions of every post, in _site/crosspost
-      - name: Build cross-post versions
-        run: uv run blog crosspost
+      # Medium import page and Substack copy page of every post, in _site/crosspost
+      - name: Build cross-post pages
+        run: uv run blog crosspost --no-render
 
       - uses: actions/upload-pages-artifact@v5
         with:

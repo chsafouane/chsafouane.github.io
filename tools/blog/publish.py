@@ -25,7 +25,7 @@ def publish(slug, push=True, keep_date=False, allow_branch=False):
     if branch != "master" and not allow_branch:
         raise SystemExit(f"you are on '{branch}': publish from master (or pass --allow-branch)")
     was_draft = bool(meta.get("draft"))
-    fields = {} if keep_date else {"date": datetime.date.today().isoformat()}
+    fields = {} if keep_date else {"date": datetime.datetime.now().astimezone().date().isoformat()}
     post.update_meta(set_fields=fields, drop_fields=("draft",))
     print(f"publishing {slug}: draft flag removed" + ("" if keep_date else f", date set to {fields['date']}"))
 

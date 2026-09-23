@@ -24,7 +24,7 @@ def _rebuild(sources):
             for item in _load(source):
                 save(item, source.parent / "assets" / "figures", raster=False)
             print(f"[figures] rebuilt {source.parent.name}", flush=True)
-        except Exception:  # keep watching after a mistake in figures.py
+        except Exception:  # noqa: BLE001 - keep watching after any mistake in figures.py
             print(f"[figures] error in {source.relative_to(REPO)}:", flush=True)
             traceback.print_exc()
 

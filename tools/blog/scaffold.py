@@ -45,7 +45,7 @@ def new_post(title, slug=None, fmt="ipynb"):
     if folder.exists():
         raise SystemExit(f"posts/{slug}/ already exists")
     (folder / "assets" / "figures").mkdir(parents=True)
-    front = FRONT_MATTER.format(title=json.dumps(title, ensure_ascii=False), date=datetime.date.today().isoformat())
+    front = FRONT_MATTER.format(title=json.dumps(title, ensure_ascii=False), date=datetime.datetime.now().astimezone().date().isoformat())
     intro = INTRO.format(slug=slug)
     if fmt == "qmd":
         (folder / "index.qmd").write_text(f"{front}\n\n{intro}\n")

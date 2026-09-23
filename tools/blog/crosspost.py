@@ -1,35 +1,46 @@
-"""`blog crosspost`: Medium- and Substack-ready versions of rendered posts.
+"""`blog crosspost`: Medium and Substack versions of published posts.
 
-For every published post rendered in _site, write:
-  _site/crosspost/<slug>/index.html  a plain page for Medium's "Import a story"
-                                     (Medium sets the canonical link and date)
-  _site/crosspost/<slug>/post.md     Markdown for a Substack draft (substack-mcp)
-  _site/crosspost/<slug>/meta.json   title, subtitle and URLs for both
+For each post, render it and write:
+  _site/crosspost/<slug>/index.html     a plain page for Medium's "Import a story"
+                                        (Medium sets the canonical link and date)
+  _site/crosspost/<slug>/substack.html  the same post with Copy buttons for the
+                                        title, subtitle and body, to paste into
+                                        Substack's editor
 
 Both platforms get what they can display: figures as PNG (steppers as one
 image per step, with a link to the interactive version), code as plain code
-blocks, callouts as quotes, and math as LaTeX in code (neither renders math).
-The pages carry noindex and a canonical link to the post, so they never
-compete with it in search. CI runs this after `quarto render`.
+blocks, callouts as quotes, tables as lists, and math as LaTeX in code
+(neither renders math). Images point to the live post, which Medium and
+Substack copy them from, so cross-post a post once it is published and
+deployed. The pages carry noindex and a canonical link to the post, so they
+never compete with it in search. CI builds them for every post after
+`quarto render`.
 """
 
-import json
 import re
 import shutil
 import subprocess
 from html import escape
-from pathlib import Path
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 
-from .posts import REPO, SITE_URL, all_posts
+from .posts import REPO, all_posts, find
 
 SITE = REPO / "_site"
-KEEP_ATTRS = {"a": {"href"}, "img": {"src", "alt"}, "code": {"class"}, "th": {"colspan", "rowspan"}, "td": {"colspan", "rowspan"}}
+KEEP_ATTRS = {"a": {"href"}, "img": {"src", "alt"}, "code": {"class"}}
 CALLOUT_TITLES = {"note": "Note", "tip": "Tip", "warning": "Warning", "important": "Important", "caution": "Caution"}
 
-PAGE = """<!doctype html>
+STYLE = """\
+:root { color-scheme: light; }
+body { max-width: 680px; margin: 3rem auto; padding: 0 1rem; font: 18px/1.65 Georgia, serif; color: #1c1b19; background: #fff; }
+a { color: #4b45a8; }
+img { max-width: 100%; } figure { margin: 2rem 0; } figcaption { font-size: 0.85em; color: #5e5a53; }
+code { font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; }
+pre { background: #f4f3f0; padding: 0.8rem; overflow-x: auto; font-size: 0.8em; } pre code { font-size: 1em; }
+blockquote { border-left: 3px solid #6761c5; margin-left: 0; padding-left: 1rem; }"""
+
+MEDIUM_PAGE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -39,16 +50,73 @@ PAGE = """<!doctype html>
 <meta name="robots" content="noindex">
 <link rel="canonical" href="{url}">
 <style>
-body {{ max-width: 680px; margin: 3rem auto; padding: 0 1rem; font: 18px/1.65 Georgia, serif; color: #1c1b19; }}
-img {{ max-width: 100%; }} figure {{ margin: 2rem 0; }} figcaption {{ font-size: 0.85em; color: #5e5a53; }}
-pre {{ background: #f4f3f0; padding: 0.8rem; overflow-x: auto; font-size: 0.8em; }}
-blockquote {{ border-left: 3px solid #6761c5; margin-left: 0; padding-left: 1rem; }}
+{style}
 </style>
 </head>
 <body>
 <article>
+<h1>{title}</h1>
+<p><em>{description}</em></p>
 {body}
 </article>
+</body>
+</html>
+"""
+
+SUBSTACK_PAGE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title} (for Substack)</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="{url}">
+<style>
+{style}
+.copy-bar {{ font: 15px/1.5 system-ui, sans-serif; background: #f4f3f0; border: 1px solid #e3e1dc; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 2.5rem; }}
+.copy-bar p {{ margin: 0 0 0.6rem; }}
+.copy-bar .note {{ margin: 0.8rem 0 0; color: #5e5a53; font-size: 0.9em; }}
+.copy-row {{ display: flex; gap: 0.8rem; align-items: baseline; padding: 0.45rem 0; border-top: 1px solid #e3e1dc; }}
+.copy-row .label {{ flex: 0 0 4.5rem; color: #5e5a53; }}
+.copy-row .value {{ flex: 1; min-width: 0; }}
+.copy-bar button {{ font: inherit; font-size: 0.9em; padding: 0.2rem 0.8rem; border: 1px solid #6761c5; border-radius: 6px; background: #fff; color: #4b45a8; cursor: pointer; }}
+.copy-bar button:hover, .copy-bar button:focus-visible {{ background: #6761c5; color: #fff; }}
+@media (max-width: 480px) {{ .copy-row {{ flex-wrap: wrap; gap: 0.2rem 0.8rem; }} .copy-row .label {{ flex-basis: 100%; }} }}
+</style>
+</head>
+<body>
+<div class="copy-bar">
+<p>On Substack, start a new post, then copy each part here and paste it into the matching field.</p>
+<div class="copy-row"><span class="label">Title</span><span class="value" id="title">{title}</span><button type="button" data-copy="title">Copy</button></div>
+<div class="copy-row"><span class="label">Subtitle</span><span class="value" id="subtitle">{description}</span><button type="button" data-copy="subtitle">Copy</button></div>
+<div class="copy-row"><span class="label">Body</span><span class="value">everything below this box</span><button type="button" data-copy="body" data-rich>Copy</button></div>
+<p class="note">Substack copies the images from the live post. Math is shown as LaTeX code; Substack's LaTeX block can turn it into equations.</p>
+</div>
+<article id="body">
+{body}
+</article>
+<script>
+for (const button of document.querySelectorAll("button[data-copy]")) {{
+  button.addEventListener("click", async () => {{
+    const source = document.getElementById(button.dataset.copy);
+    try {{
+      const parts = {{ "text/plain": new Blob([source.innerText.trim()], {{ type: "text/plain" }}) }};
+      if (button.hasAttribute("data-rich")) parts["text/html"] = new Blob([source.innerHTML], {{ type: "text/html" }});
+      await navigator.clipboard.write([new ClipboardItem(parts)]);
+    }} catch {{
+      // Browsers without the async clipboard API: copy a selection instead.
+      const range = document.createRange();
+      range.selectNodeContents(source);
+      getSelection().removeAllRanges();
+      getSelection().addRange(range);
+      document.execCommand("copy");
+      getSelection().removeAllRanges();
+    }}
+    button.textContent = "Copied";
+    setTimeout(() => (button.textContent = "Copy"), 1500);
+  }});
+}}
+</script>
 </body>
 </html>
 """
@@ -98,6 +166,32 @@ def _figkit(soup, div, post_url):
     return blocks
 
 
+def _table(table):
+    """Neither platform has tables: one list item per row, led by its first cell.
+
+    A row "M | build time | max neighbors" under the header "Parameter | When |
+    What it controls" becomes "**M** - When: build time; What it controls: max neighbors".
+    """
+    blocks = []
+    caption = table.find("caption")
+    if caption and caption.get_text(strip=True):
+        blocks.append(BeautifulSoup(f"<p><em>{caption.decode_contents().strip()}</em></p>", "html.parser"))
+    rows = [cells for tr in table.find_all("tr") if (cells := tr.find_all(["th", "td"]))]
+    header = []
+    if rows and (table.find("thead") or all(cell.name == "th" for cell in rows[0])):
+        header = [cell.get_text(" ", strip=True).rstrip(":.…") for cell in rows.pop(0)]
+    items = []
+    for cells in rows:
+        details = []
+        for column, cell in enumerate(cells[1:], start=1):
+            label = header[column] if column < len(header) else ""
+            details.append((f"{label}: " if label else "") + cell.decode_contents().strip())
+        lead = f"<strong>{cells[0].decode_contents().strip()}</strong>"
+        items.append(f"<li>{lead}{' - ' + '; '.join(details) if details else ''}</li>")
+    blocks.append(BeautifulSoup(f"<ul>{''.join(items)}</ul>", "html.parser"))
+    return blocks
+
+
 def _replace(tag, new_nodes):
     for node in new_nodes:
         tag.insert_before(node)
@@ -131,6 +225,9 @@ def transform(html, post_url):
         link.unwrap()
     for img in main.find_all("img"):
         img["src"] = urljoin(post_url, img["src"])
+
+    for table in main.find_all("table"):
+        _replace(table, _table(table))
 
     # Code: plain code blocks with a language class (no highlighting spans).
     for block in main.select("div.sourceCode"):
@@ -200,49 +297,54 @@ def transform(html, post_url):
     return main.decode_contents().strip()
 
 
-def _markdown(body_html):
-    """Substack Markdown: figures as images whose alt text is the caption."""
-    soup = BeautifulSoup(body_html, "html.parser")
-    for figure in soup.find_all("figure"):
-        img = figure.find("img")
-        caption = figure.find("figcaption")
-        paragraph = soup.new_tag("p")
-        paragraph.append(soup.new_tag("img", src=img["src"], alt=caption.get_text(" ", strip=True) if caption else ""))
-        figure.replace_with(paragraph)
+def _render(posts=None):
+    """Render the given posts, or the whole site."""
     quarto = shutil.which("quarto")
     if quarto is None:
-        raise SystemExit("quarto is needed to convert HTML to Markdown (quarto pandoc)")
-    result = subprocess.run(
-        [quarto, "pandoc", "-f", "html", "-t", "gfm-raw_html", "--wrap=none"],
-        input=str(soup), capture_output=True, text=True, check=True,
-    )
-    return result.stdout.strip() + "\n"
+        raise SystemExit("quarto is not installed (or not on PATH)")
+    commands = [["render", str(post.source.relative_to(REPO))] for post in posts] if posts else [["render"]]
+    for args in commands:
+        print(f"quarto {' '.join(args)}")
+        result = subprocess.run([quarto, *args], cwd=REPO, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            print(result.stdout[-3000:], result.stderr[-3000:])
+            raise SystemExit("quarto render failed")
 
 
-def build(slugs=None, site=SITE):
+def _write(post, rendered, site):
+    meta = post.meta()
+    body = transform(rendered.read_text(), post.url)
+    body = f'<p><em>Originally published at <a href="{post.url}">{post.url}</a>.</em></p>\n{body}'
+    title = escape(str(meta.get("title", "")))
+    description = escape(str(meta.get("description", "")))
+    out = site / "crosspost" / post.slug
+    out.mkdir(parents=True, exist_ok=True)
+    fields = {"title": title, "description": description, "url": post.url, "style": STYLE, "body": body}
+    (out / "index.html").write_text(MEDIUM_PAGE.format(**fields))
+    (out / "substack.html").write_text(SUBSTACK_PAGE.format(**fields))
+
+
+def build(slugs=None, render=True, site=SITE):
+    """Write the cross-post pages of the given posts (default: every published post)."""
+    if slugs:
+        posts = [find(slug) for slug in slugs]
+        drafts = [post.slug for post in posts if post.meta().get("draft")]
+        if drafts:
+            raise SystemExit(
+                "".join(f"{slug} is still a draft: publish it first with uv run blog publish {slug}\n" for slug in drafts)
+                + "(Medium and Substack copy the images from the live post.)"
+            )
+    else:
+        posts = [post for post in all_posts() if not post.meta().get("draft")]
+    if render:
+        _render(posts if slugs else None)
     written = []
-    for post in all_posts():
-        if slugs and post.slug not in slugs:
-            continue
-        meta = post.meta()
+    for post in posts:
         rendered = site / "posts" / post.slug / "index.html"
-        if meta.get("draft") or not rendered.exists():
+        if not rendered.exists():
+            if slugs:
+                raise SystemExit(f"{rendered.relative_to(REPO)} is missing: run without --no-render")
             continue
-        body = transform(rendered.read_text(), post.url)
-        title, description = str(meta.get("title", "")), str(meta.get("description", ""))
-        origin = f'<p><em>Originally published at <a href="{post.url}">{post.url}</a>.</em></p>'
-        out = site / "crosspost" / post.slug
-        out.mkdir(parents=True, exist_ok=True)
-        page_body = f"<h1>{escape(title)}</h1>\n<p><em>{escape(description)}</em></p>\n{origin}\n{body}"
-        (out / "index.html").write_text(PAGE.format(title=escape(title), description=escape(description, quote=True), url=post.url, body=page_body))
-        (out / "post.md").write_text(_markdown(f"{origin}\n{body}"))
-        (out / "meta.json").write_text(json.dumps({
-            "slug": post.slug,
-            "title": title,
-            "subtitle": description,
-            "post_url": post.url,
-            "medium_import_url": f"{SITE_URL}/crosspost/{post.slug}/",
-            "substack_markdown_url": f"{SITE_URL}/crosspost/{post.slug}/post.md",
-        }, indent=2, ensure_ascii=False) + "\n")
-        written.append(post.slug)
+        _write(post, rendered, site)
+        written.append(post)
     return written
