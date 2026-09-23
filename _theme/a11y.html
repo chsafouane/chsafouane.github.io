@@ -1,0 +1,30 @@
+<script>
+// Accessibility fixes for markup that Quarto generates:
+// - give the navbar and the table of contents distinct landmark labels;
+// - drop the invalid role="menu" from the mobile menu button;
+// - make horizontally scrollable code, math and tables reachable by keyboard.
+(() => {
+  document.querySelector("#quarto-header nav.navbar")?.setAttribute("aria-label", "Main");
+  document.querySelector("nav#TOC")?.setAttribute("aria-label", "Table of contents");
+  document.querySelector(".navbar-toggler[role='menu']")?.removeAttribute("role");
+
+  const scrollables = "main pre, main .katex-display, main table";
+  const update = () => {
+    for (const el of document.querySelectorAll(scrollables)) {
+      if (el.scrollWidth > el.clientWidth + 1) {
+        el.setAttribute("tabindex", "0");
+      } else if (el.getAttribute("tabindex") === "0") {
+        el.removeAttribute("tabindex");
+      }
+    }
+  };
+  let frame = 0;
+  const schedule = () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(update);
+  };
+  window.addEventListener("load", update);
+  window.addEventListener("resize", schedule);
+  document.fonts?.ready.then(update);
+})();
+</script>

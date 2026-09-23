@@ -62,6 +62,7 @@ format:
     filters:
       - _theme/reading-time.lua
     include-in-header: _theme/head.html
+    include-after-body: _theme/a11y.html
     callout-appearance: simple
     fig-align: center
     code-copy: hover

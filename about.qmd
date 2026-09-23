@@ -6,6 +6,7 @@ image: profile.jpg
 image-alt: "Portrait of Safouane Chergui"
 toc: false
 about:
+  id: about
   template: jolla
   image-shape: round
   image-width: 10rem
@@ -22,4 +23,6 @@ about:
 
 ---
 
+::: {#about}
 This blog serves for archiving my notes.
+:::
