@@ -50,7 +50,9 @@ format:
       light: [_theme/theme.scss, brand]
       dark: [_theme/theme.scss, brand]
     respect-user-color-scheme: true
-    syntax-highlighting: a11y
+    syntax-highlighting:
+      light: _theme/syntax-light.theme
+      dark: _theme/syntax-dark.theme
     html-math-method:
       method: katex
       url: "https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/"
