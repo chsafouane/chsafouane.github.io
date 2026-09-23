@@ -3,6 +3,7 @@ project:
   output-dir: _site
   resources:
     - apple-touch-icon.png
+    - assets/fonts/*
 
 website:
   title: "Safouane Chergui"

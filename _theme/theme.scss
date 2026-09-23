@@ -106,6 +106,37 @@ $tooltip-color: $paper !default;
 /*-- scss:rules --*/
 
 // ---------------------------------------------------------------------------
+// 0. Fonts: self-hosted latin subsets (assets/fonts, SIL Open Font License).
+//    The families are chosen in _brand.yml; head.html preloads the two faces
+//    used above the fold.
+// ---------------------------------------------------------------------------
+
+$font-faces: (
+  ("Newsreader", "newsreader", 400, normal),
+  ("Newsreader", "newsreader", 500, normal),
+  ("Newsreader", "newsreader", 600, normal),
+  ("Newsreader", "newsreader", 400, italic),
+  ("Newsreader", "newsreader", 500, italic),
+  ("Newsreader", "newsreader", 600, italic),
+  ("Inter", "inter", 400, normal),
+  ("Inter", "inter", 500, normal),
+  ("Inter", "inter", 600, normal),
+  ("Inter", "inter", 700, normal),
+  ("JetBrains Mono", "jetbrains-mono", 400, normal),
+  ("JetBrains Mono", "jetbrains-mono", 500, normal)
+);
+
+@each $family, $file, $weight, $style in $font-faces {
+  @font-face {
+    font-family: $family;
+    src: url("/assets/fonts/#{$file}-latin-#{$weight}-#{$style}.woff2") format("woff2");
+    font-weight: $weight;
+    font-style: $style;
+    font-display: swap;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 1. Base and rhythm
 // ---------------------------------------------------------------------------
 

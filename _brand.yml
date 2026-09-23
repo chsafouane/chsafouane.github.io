@@ -34,19 +34,8 @@ color:
     dark: moon-soft
 
 typography:
-  fonts:
-    - family: Newsreader
-      source: bunny
-      weight: [400, 500, 600]
-      style: [normal, italic]
-    - family: Inter
-      source: bunny
-      weight: [400, 500, 600, 700]
-      style: normal
-    - family: JetBrains Mono
-      source: bunny
-      weight: [400, 500]
-      style: normal
+  # The font files are self-hosted in assets/fonts and declared with
+  # @font-face in _theme/theme.scss (brand's font imports block rendering).
   # Font stacks are quoted on purpose: brand writes them into SCSS verbatim.
   base:
     family: '"Newsreader", "Iowan Old Style", Charter, Georgia, serif'
