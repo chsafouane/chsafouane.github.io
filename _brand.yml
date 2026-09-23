@@ -20,6 +20,9 @@ color:
     amber: "#B7791F"
     red: "#C0392B"
     orange: "#DD6B20"
+    blue: "#2F6FB5"          # figure hue
+    pink: "#C2417F"          # figure hue
+    teal: "#1F8A84"          # figure hue
   foreground:
     light: ink
     dark: moon

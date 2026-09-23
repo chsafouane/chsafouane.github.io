@@ -3,3 +3,6 @@
 .DS_Store
 .vscode/
 **/*.quarto_ipynb
+
+/.venv/
+__pycache__/
