@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "nlp-pipeline",
+  "width": 700,
+  "height": 150,
+  "alt": "How text reaches an NLP model: the text 'Hello there' goes into the tokenizer, which outputs the numerical ids (tokens) 15496 and 612; the NLP model turns them into a prediction.",
+  "kind": "figure",
+  "png": "nlp-pipeline.png"
+}
