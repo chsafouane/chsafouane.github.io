@@ -1,6 +1,6 @@
 ---
 title: "Safouane Chergui"
-description: "AI Engineer. I love evals and system design."
+description: "AI Engineer. I write about ML, LLM systems, evals, and Python tooling."
 image: profile.jpg
 image-alt: "Portrait of Safouane Chergui"
 toc: false
