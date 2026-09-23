@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "post-filtering",
+  "width": 640,
+  "height": 300,
+  "alt": "Why post-filtering fails.",
+  "kind": "stepper",
+  "steps": [
+    {
+      "caption": "HNSW returns the 5 products closest to the query."
+    },
+    {
+      "caption": "The filter keeps Apple and Google only, so 4 of the 5 results are thrown away."
+    },
+    {
+      "caption": "Only 1 result is returned. Closer Apple and Google earbuds ranked beyond K were never retrieved."
+    }
+  ],
+  "png": "post-filtering.png",
+  "gif": "post-filtering.gif"
+}

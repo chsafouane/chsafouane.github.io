@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "pre-filtering",
+  "width": 640,
+  "height": 232,
+  "alt": "Why pre-filtering fails.",
+  "kind": "stepper",
+  "steps": [
+    {
+      "caption": "In the HNSW graph, the only path from Apple Earbuds to Google Earbuds goes through Sony Earbuds."
+    },
+    {
+      "caption": "Pre-filtering keeps Apple and Google only, so Sony Earbuds and its edges disappear."
+    },
+    {
+      "caption": "The search starts from Apple Earbuds and can no longer reach Google Earbuds."
+    }
+  ],
+  "png": "pre-filtering.png",
+  "gif": "pre-filtering.gif"
+}

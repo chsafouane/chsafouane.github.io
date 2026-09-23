@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "merged-graph",
+  "width": 640,
+  "height": 430,
+  "alt": "One merged graph. Thin similarity edges link neighbors across brands (A-F, F-C, B-H, H-D, E-I, I-G, and the direct Apple-Google edges A-C and B-G); thick brand edges link each brand's points (A, B, E for Apple; C, D, G for Google; F, H, I for Sony).",
+  "kind": "figure",
+  "png": "merged-graph.png"
+}

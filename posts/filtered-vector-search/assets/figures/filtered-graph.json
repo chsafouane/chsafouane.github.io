@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "filtered-graph",
+  "width": 640,
+  "height": 430,
+  "alt": "The merged graph after filtering on Apple and Google. The Sony points F, H and I are removed with their edges. Brand edges keep Apple (A, B, E) and Google (C, D, G) connected internally, and the direct similarity edges A-C and B-G still connect Apple to Google.",
+  "kind": "figure",
+  "png": "filtered-graph.png"
+}

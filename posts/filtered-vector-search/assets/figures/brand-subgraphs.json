@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "brand-subgraphs",
+  "width": 640,
+  "height": 250,
+  "alt": "Three small graphs, one per brand: Apple links A, B and E; Google links C, D and G; Sony links F, H and I.",
+  "kind": "figure",
+  "png": "brand-subgraphs.png"
+}
