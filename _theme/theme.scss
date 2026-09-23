@@ -396,13 +396,24 @@ main pre {
   line-height: 1.6;
 }
 
+// No ligatures in code: `>=` and `==` must read exactly as typed.
+code,
+pre,
+kbd,
+samp {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
 main.content :is(p, li, td, th, dd, figcaption, .callout-body, h2, h3, h4) code:not(.sourceCode) {
   background: $code-bg;
   color: $code-color;
   padding: 0.12em 0.36em;
   border-radius: 0.3rem;
   font-size: 0.84em;
-  white-space: break-spaces;
+  white-space: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 // Unlabelled fences (usually command output or ASCII diagrams) and notebook
@@ -424,15 +435,20 @@ main.content .cell-output pre {
   }
 }
 
-main.content div.sourceCode:has(+ pre:not(.sourceCode)),
-main.content div.sourceCode:has(+ .cell-output) {
+// Code blocks are wrapped in .code-copy-outer-scaffold (code-copy button).
+main.content .code-copy-outer-scaffold:has(+ pre:not(.sourceCode)) > div.sourceCode,
+main.content .code-copy-outer-scaffold:has(+ .cell-output) > div.sourceCode {
   margin-bottom: 0;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-main.content div.sourceCode + pre:not(.sourceCode),
-main.content div.sourceCode + .cell-output pre {
+main.content .code-copy-outer-scaffold + .cell-output {
+  margin-top: 0;
+}
+
+main.content .code-copy-outer-scaffold + pre:not(.sourceCode),
+main.content .code-copy-outer-scaffold + .cell-output pre {
   margin-top: 0;
   border-top: 0;
   border-top-left-radius: 0;
