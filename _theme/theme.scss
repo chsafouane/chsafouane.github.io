@@ -1025,3 +1025,173 @@ div.quarto-about-jolla {
     padding: 0 0.45rem;
   }
 }
+
+// ---------------------------------------------------------------------------
+// 17. Figures made with tools/figkit ({{< fig >}} and {{< stepper >}})
+//     Each figure ships a light and a dark SVG; Quarto hides the other one.
+// ---------------------------------------------------------------------------
+
+main.content .figkit {
+  max-width: var(--figkit-width);
+  margin: 2.2rem auto;
+}
+
+// figkit figures are drawn for each mode, so they never sit on the white
+// plate used for raster images.
+main.content .figkit img.figkit-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  filter: none;
+}
+
+// Quarto wraps each image in a lightbox link; hide the link of the variant
+// that does not match the color scheme, so it leaves the tab order too.
+body.quarto-light a:has(> img.dark-content),
+body.quarto-dark a:has(> img.light-content) {
+  display: none !important;
+}
+
+// Imported (Keynote) figures are light-only: keep them on the plate.
+main.content .figkit img.figkit-raster {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  background: $plate-bg;
+  padding: $plate-pad;
+  border: 1px solid $rule;
+  border-radius: $radius-lg;
+  filter: $plate-filter;
+  box-sizing: border-box;
+}
+
+.figkit-caption {
+  font-family: $font-ui;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: $muted;
+  text-align: center;
+  margin-top: 0.7rem;
+  text-wrap: balance;
+
+  p {
+    margin: 0;
+  }
+}
+
+// In the lightbox each variant keeps the page color it was drawn for.
+.glightbox-container .gslide-image img[src$="-light.svg"] {
+  background: $brand-paper;
+}
+
+.glightbox-container .gslide-image img[src$="-dark.svg"] {
+  background: $brand-night;
+}
+
+.figkit-stepper .figkit-frames {
+  display: grid;
+}
+
+.figkit-stepper:not(.is-enhanced) .figkit-frame + .figkit-frame {
+  margin-top: 1.75rem;
+}
+
+.figkit-stepper.is-enhanced .figkit-frame {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.figkit-stepper.is-enhanced .figkit-frame.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figkit-stepper.is-enhanced .figkit-frame,
+  .figkit-stepper.is-enhanced .figkit-frame.is-active {
+    transition: none;
+  }
+}
+
+.figkit-step-caption {
+  font-family: $font-ui;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: $muted;
+  text-align: center;
+  margin: 0.75rem auto 0;
+  max-width: 34rem;
+  text-wrap: balance;
+}
+
+.figkit-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-right: 0.3rem;
+  border-radius: 50%;
+  background: $accent-soft;
+  color: $accent;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: 0.05em;
+}
+
+.figkit-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  font-family: $font-ui;
+
+  &[hidden] {
+    display: none;
+  }
+
+  button {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid $rule-strong;
+    border-radius: 999px;
+    background: transparent;
+    color: $ink;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      border-color: $accent;
+      color: $accent;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+}
+
+.figkit-counter {
+  min-width: 3rem;
+  font-size: 0.8rem;
+  color: $muted;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

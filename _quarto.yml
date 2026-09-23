@@ -4,6 +4,7 @@ project:
   resources:
     - apple-touch-icon.png
     - assets/fonts/*
+    - posts/*/assets/figures/*.svg
 
 website:
   title: "Safouane Chergui"
