@@ -5,6 +5,9 @@ project:
     - apple-touch-icon.png
     - assets/fonts/*
     - posts/*/assets/figures/*.svg
+    # PNG/GIF exports, fetched by Medium and Substack from the cross-post pages
+    - posts/*/assets/figures/*.png
+    - posts/*/assets/figures/*.gif
 
 website:
   title: "Safouane Chergui"

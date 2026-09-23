@@ -17,7 +17,9 @@ Each post lives in posts/<slug>/index.ipynb (or index.qmd). The checks:
     is on PATH);
   - local images referenced by the post exist;
   - every {{< fig NAME >}} / {{< stepper NAME >}} has a figkit manifest of the
-    right kind in assets/figures, and the files it lists exist.
+    right kind in assets/figures, and the files it lists exist;
+  - published posts (no `draft: true`) contain no TODO placeholders left by
+    `blog new`. Drafts may still have TODOs and a missing preview image.
 Exits with status 1 when any check fails.
 """
 import json
@@ -119,10 +121,14 @@ def check_post(post_dir, languages):
     if front is None:
         return errors + [f"{source}: missing YAML front matter at the top"]
     fields = front_matter_fields(front)
+    draft = re.search(r"^draft\s*:\s*true\s*$", front, re.M) is not None
     errors += [f"{source}: front matter is missing '{f}'" for f in REQUIRED_FIELDS if f not in fields]
+    if not draft:
+        errors += [f"{source}: replace the TODO placeholder: {line.strip()}" for line in front.splitlines() if "TODO" in line]
+        errors += [f"{source}: replace the TODO placeholder in the body" for chunk in chunks if "TODO" in chunk][:1]
     errors += [f"{source}: remove '{f}' from front matter (set in posts/_metadata.yml)" for f in FORBIDDEN_FIELDS if f in fields]
     image = front_matter_value(front, "image")
-    referenced = [image] if image else []
+    referenced = [image] if image and not draft else []
     for index, chunk in enumerate(chunks):
         check_markdown(chunk, languages, errors, f"{source} (cell {index})" if source.suffix == ".ipynb" else str(source))
         referenced += IMAGE.findall(chunk)
