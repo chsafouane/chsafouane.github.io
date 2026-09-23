@@ -1,0 +1,23 @@
+<%
+/* Home page intro: round photo, name, one-line bio, icon links.
+   Quarto's EJS is reversed: the equals tag outputs raw HTML, the dash tag escapes.
+   Never write EJS tags inside comments. */
+%>
+<div class="quarto-about-hero">
+  <% if (about.image) { %>
+  <img src="<%- about.image %>" class="about-image hero-photo" alt="<%- about['image-alt'] || '' %>" width="108" height="108" />
+  <% } %>
+  <div class="hero-text">
+    <%= about.title %>
+    <% if (about.links) { %>
+    <nav class="about-links" aria-label="Elsewhere">
+      <% for (const link of about.links) { %>
+      <a href="<%- link.href %>" class="about-link" rel="me noopener"<% if (link['aria-label']) { %> aria-label="<%- link['aria-label'] %>" title="<%- link['aria-label'] %>"<% } %>>
+        <% if (link.icon) { %><i class="bi <%- link.icon %>" aria-hidden="true"></i><% } %>
+        <% if (link.text) { %><span class="about-link-text"><%= link.text %></span><% } %>
+      </a>
+      <% } %>
+    </nav>
+    <% } %>
+  </div>
+</div>

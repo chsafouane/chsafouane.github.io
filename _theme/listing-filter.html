@@ -1,0 +1,53 @@
+<script>
+// Home page: show which tag currently filters the post list, offer a way to
+// clear it, and re-apply the filter on browser back/forward.
+(() => {
+  const bar = document.querySelector(".post-filter");
+  if (!bar) return;
+  const nameEl = bar.querySelector(".post-filter-name");
+
+  const currentCategory = () => {
+    const match = /(?:^#|&)category=([^&]*)/.exec(window.location.hash);
+    return match ? decodeURIComponent(match[1]) : "";
+  };
+
+  const filterLists = (category) => {
+    for (const list of Object.values(window["quarto-listings"] || {})) {
+      if (!category) {
+        list.filter();
+        continue;
+      }
+      list.filter((item) => {
+        const encoded = item.values().categories;
+        return encoded ? decodeURIComponent(atob(encoded)).split(",").includes(category) : false;
+      });
+    }
+  };
+
+  const sync = (refilter) => {
+    const category = currentCategory();
+    bar.hidden = !category;
+    nameEl.textContent = category;
+    for (const tag of document.querySelectorAll(".post-tag")) {
+      tag.classList.toggle("active", tag.dataset.category === category);
+    }
+    if (refilter) filterLists(category);
+  };
+
+  bar.querySelector(".post-filter-clear").addEventListener("click", (event) => {
+    event.preventDefault();
+    window.quartoListingCategory("");
+    sync(false);
+  });
+
+  const original = window.quartoListingCategory;
+  if (original) {
+    window.quartoListingCategory = (encoded) => {
+      original(encoded);
+      sync(false);
+    };
+  }
+  window.addEventListener("popstate", () => sync(true));
+  window.addEventListener("load", () => sync(false));
+})();
+</script>

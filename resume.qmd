@@ -1,11 +1,10 @@
 ---
 title: "Resume"
-page-layout: full
-title-block-banner: true
+subtitle: "Safouane Chergui · Lead Data Scientist · Paris, France"
+description: "Resume of Safouane Chergui, lead data scientist working on LLM systems, search and recommendation."
+toc: false
+hide-description: true
 ---
-
-# Safouane Chergui
-**Lead Data Scientist** | Paris, France
 
 [chsafouane@gmail.com](mailto:chsafouane@gmail.com) | [LinkedIn](https://www.linkedin.com/in/safouane-chergui/) | [GitHub](https://github.com/chsafouane)
 
@@ -13,9 +12,9 @@ title-block-banner: true
 
 ## Technical Expertise
 
-**ML/AI Domains:** NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision
-**Cloud & Infrastructure:** GCP (Vertex AI, BigQuery), AWS, Docker, Kubernetes, MLflow, Airflow
-**Specialized:** LLM Evaluation, Production ML Monitoring, Model Drift Detection, Agentic Systems
+- **ML/AI Domains:** NLP/LLMs, RAG Systems, Search & Recommendation Engines, Computer Vision
+- **Cloud & Infrastructure:** GCP (Vertex AI, BigQuery), AWS, Docker, Kubernetes, MLflow, Airflow
+- **Specialized:** LLM Evaluation, Production ML Monitoring, Model Drift Detection, Agentic Systems
 
 ---
 

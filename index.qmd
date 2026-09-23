@@ -1,15 +1,49 @@
 ---
-title: "Weekends Eureka"
+title: "Safouane Chergui"
+description: "Lead data scientist in Paris. I write about LLM systems, evals, search and Python tooling."
+image: profile.jpg
+image-alt: "Portrait of Safouane Chergui"
+toc: false
+about:
+  id: hero
+  template: _theme/hero.ejs.html
+  links:
+    - icon: github
+      href: https://github.com/chsafouane
+      aria-label: GitHub
+    - icon: linkedin
+      href: https://www.linkedin.com/in/safouane-chergui/
+      aria-label: LinkedIn
+    - icon: cup-straw
+      href: https://buymeacoffee.com/chsafouane
+      aria-label: "Buy me a coffee"
+    - icon: rss
+      href: index.xml
+      aria-label: "RSS feed"
 listing:
+  id: posts
   contents: posts
+  type: custom
+  template: _theme/post-list.ejs
   sort: "date desc"
-  type: default
-  categories: true
+  date-format: "MMM D, YYYY"
+  categories: false
   sort-ui: false
   filter-ui: false
+  template-params:
+    thumbnails: false
   feed: true
-page-layout: full
-title-block-banner: true
+include-after-body: _theme/listing-filter.html
 ---
 
+::: {#hero}
+:::
 
+## Weekends Eureka {.posts-heading .unnumbered .unlisted}
+
+```{=html}
+<p class="post-filter" hidden>Posts tagged <strong class="post-filter-name"></strong> · <a href="#" class="post-filter-clear">show all</a></p>
+```
+
+::: {#posts}
+:::

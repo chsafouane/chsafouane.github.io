@@ -1,8 +1,14 @@
 ---
 title: "About"
-image: profile.png
+description: "About Safouane Chergui, lead data scientist in Paris."
+hide-description: true
+image: profile.jpg
+image-alt: "Portrait of Safouane Chergui"
+toc: false
 about:
   template: jolla
+  image-shape: round
+  image-width: 10rem
   links:
     - icon: linkedin
       text: LinkedIn
