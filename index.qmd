@@ -4,6 +4,7 @@ description: "Lead data scientist in Paris. I write about LLM systems, evals, se
 image: profile.jpg
 image-alt: "Portrait of Safouane Chergui"
 toc: false
+search: false
 about:
   id: hero
   template: _theme/hero.ejs.html

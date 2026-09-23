@@ -175,6 +175,17 @@ main.content {
   background: $accent-soft;
 }
 
+// Search matches, in the results panel and on the page after a search.
+mark,
+mark.search-match,
+.aa-DetachedOverlay li.aa-Item[aria-selected="false"] .search-item mark.search-match,
+#quarto-search-results li.aa-Item[aria-selected="false"] .search-item mark.search-match {
+  background: $accent-soft;
+  color: inherit;
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+}
+
 :focus-visible {
   outline: 2px solid $accent;
   outline-offset: 2px;
@@ -186,6 +197,9 @@ main.content {
 .sidebar,
 #quarto-search-results,
 .aa-Panel,
+.aa-Form,
+.aa-Input,
+.aa-DetachedCancelButton,
 figcaption,
 .figure-caption,
 .quarto-float-caption,
@@ -230,6 +244,20 @@ main.content table,
 
   .navbar-brand-container {
     max-width: none;
+  }
+}
+
+#quarto-header .navbar-toggler {
+  border: 0;
+  padding: 0.25rem;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
   }
 }
 
