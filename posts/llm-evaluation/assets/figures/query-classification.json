@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "query-classification",
+  "width": 640,
+  "height": 430,
+  "alt": "Two ways to classify production queries. Tried: define query classes plus an 'Other' bucket and classify with GPT-4, but most queries land in 'Other', which defeats the purpose. Considered: fine-tune a BERT classifier, but every new class found in 'Other' means retraining it, a maintenance nightmare.",
+  "kind": "figure",
+  "png": "query-classification.png"
+}

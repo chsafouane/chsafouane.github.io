@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "error-analysis-loop",
+  "width": 640,
+  "height": 330,
+  "alt": "The error analysis loop: collect real or synthetic queries, then 1. generate traces by running each query through the system, 2. open coding: note the first failure in each trace, 3. axial coding: cluster the failures into failure mode families, then iterate from the start.",
+  "kind": "figure",
+  "png": "error-analysis-loop.png"
+}
