@@ -1,0 +1,70 @@
+<script>
+// Page behavior for the field guide layout (styles in _theme/theme.scss):
+// - put the page's table of contents under its own entry in the sidebar, as
+//   the guide shows the sections of the chapter being read (without this
+//   script the table of contents stays below the list of posts);
+// - close the sidebar drawer on small screens after following a TOC link;
+// - clip long code blocks, with a button that shows all lines.
+// It runs before DOMContentLoaded, so quarto.js sets up scroll-spy on the
+// moved table of contents.
+(() => {
+  const sidebar = document.getElementById("quarto-sidebar");
+  const toc = sidebar?.querySelector("nav#TOC");
+  const current = sidebar?.querySelector(".sidebar-item:not(.sidebar-item-section) > .sidebar-item-container > a.sidebar-link.active");
+  if (toc && current) {
+    const item = current.closest("li.sidebar-item");
+    item.appendChild(toc);
+    item.classList.add("is-current");
+    current.setAttribute("aria-current", "page");
+  }
+
+  // One burger in the top bar opens the sidebar drawer on small screens, in
+  // place of Quarto's second bar (hidden in theme.scss). It presses Quarto's
+  // own toggle, so the drawer, its scrim and Escape keep Quarto's behavior.
+  const quartoToggle = document.querySelector(".quarto-btn-toggle");
+  const bar = document.querySelector("#quarto-header .navbar > .container-fluid");
+  if (sidebar && quartoToggle && bar) {
+    const burger = document.createElement("button");
+    burger.type = "button";
+    burger.className = "menu-btn";
+    burger.setAttribute("aria-label", "Open the list of posts");
+    burger.setAttribute("aria-controls", "quarto-sidebar");
+    burger.setAttribute("aria-expanded", "false");
+    burger.innerHTML = '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    burger.addEventListener("click", () => quartoToggle.click());
+    bar.prepend(burger);
+    new MutationObserver(() => {
+      burger.setAttribute("aria-expanded", String(sidebar.classList.contains("show")));
+    }).observe(sidebar, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  toc?.addEventListener("click", (event) => {
+    if (!event.target.closest("a") || window.innerWidth >= 992) return;
+    const glass = document.getElementById("quarto-sidebar-glass");
+    if (glass?.classList.contains("show")) glass.click();
+  });
+
+  const LONG_BLOCK_LINES = 24;
+  for (const block of document.querySelectorAll("main div.sourceCode")) {
+    if (block.closest(".cell-output")) continue;
+    const code = block.querySelector("pre > code");
+    if (!code) continue;
+    const lines = code.textContent.replace(/\n$/, "").split("\n").length;
+    if (lines <= LONG_BLOCK_LINES) continue;
+    block.classList.add("is-long");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "code-more";
+    button.setAttribute("aria-expanded", "false");
+    const label = () => (block.classList.contains("is-open") ? "Show less" : `Show all ${lines} lines`);
+    button.textContent = label();
+    button.addEventListener("click", () => {
+      const open = block.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", String(open));
+      button.textContent = label();
+      if (!open) block.scrollIntoView({ block: "nearest" });
+    });
+    block.appendChild(button);
+  }
+})();
+</script>

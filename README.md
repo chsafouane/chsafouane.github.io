@@ -18,16 +18,17 @@ uv run blog publish why-rope-works      # checks, removes the draft flag, commit
 
 1. **Start.**
    `blog new` creates `posts/<slug>/index.ipynb` (or `index.qmd` with `--qmd`) with front matter to fill in, marked `draft: true`, and a `figures.py` for the post's figures.
+   It also lists the post under the current year in the sidebar (`website.sidebar` in `_quarto.yml`), the site's left column; drafts stay out of it until they are published.
    Drafts can be committed and pushed: the live site does not render them, while the preview shows them.
 2. **Write and draw.**
    Write in the notebook as usual.
-   Draw figures in `posts/<slug>/figures.py` with figkit (see [tools/figkit/README.md](tools/figkit/README.md)) and show them in the post with `{{< fig name >}}` or `{{< stepper name >}}`.
+   Draw figures and interactive charts in `posts/<slug>/figures.py` with figkit (see [tools/figkit/README.md](tools/figkit/README.md)) and show them in the post with `{{< fig name >}}`, `{{< stepper name >}}` or `{{< chart name >}}`.
    `blog preview` rebuilds a post's figures every time its `figures.py` is saved.
    Hand-drawn Keynote figures come in with `uv run figkit import`.
 3. **Publish.**
    `blog publish <slug>` removes the draft flag, sets today's date, rebuilds the figures, runs `tools/check_posts.py` and a full render, then commits the post and pushes.
    If anything fails, the post goes back to draft and nothing is committed.
-   The checks refuse `TODO` placeholders, a missing description or preview image, raw HTML layout, h1 headings in the body, lists glued to a paragraph, and figures whose files are missing.
+   The checks refuse `TODO` placeholders, a missing description or preview image, raw HTML layout, h1 headings in the body, lists glued to a paragraph, figures or charts whose files are missing, and published posts missing from the sidebar.
    After the push, GitHub Actions checks the posts and figures again, renders the site and deploys it (about a minute).
 4. **Cross-post.**
    Once the post is live, `uv run blog crosspost <slug>` renders it and prints its Medium import URL and its Substack page (see [Cross-posting](#cross-posting)).
@@ -45,7 +46,7 @@ uv run blog publish why-rope-works      # checks, removes the draft flag, commit
   Start a new post on Substack, then use the page's Copy buttons for the title, the subtitle and the body, and paste each into the matching field.
   Substack has no canonical links, so publish on the blog first and on Substack a few days later; the body starts with an "Originally published at" link to the post.
 
-Both pages contain what the two platforms can display: figures as PNG, steppers as one image per step with a link back to the interactive version, code as plain code blocks, callouts as quotes, tables as lists, and math as LaTeX code.
+Both pages contain what the two platforms can display: figures as PNG, steppers as one image per step with a link back to the interactive version, charts as their data table with a link back to the chart, code as plain code blocks, callouts as quotes, tables as lists, and math as LaTeX code.
 Neither platform renders math; on Substack, the LaTeX block can turn the code back into equations.
 Images point to the live post, which Medium and Substack copy them from, so the command refuses drafts: cross-post once the post is published and deployed.
 The pages are marked `noindex` and point to the post as canonical, so they never compete with it in search.
@@ -58,9 +59,10 @@ The same pages work for posts published before this workflow: re-import them on 
 | Path | What it is |
 |---|---|
 | `posts/<slug>/` | a post: `index.ipynb` or `index.qmd`, `figures.py`, `assets/` |
-| `_brand.yml`, `_theme/` | colors and fonts, SCSS theme, templates, filters |
+| `_brand.yml`, `_theme/` | colors and fonts, SCSS theme (the Jev Field Guide look: left sidebar, cards, IBM Plex), templates, filters, `site.html` (sidebar table of contents, drawer button, long code blocks) |
 | `_extensions/figkit/` | the `fig` and `stepper` shortcodes |
-| `tools/figkit/` | the figure kit (`uv run figkit`) |
+| `_extensions/chartkit/` | the `chart` shortcode and the chart drawing code |
+| `tools/figkit/` | the figure and chart kit (`uv run figkit`) |
 | `tools/blog/` | this workflow (`uv run blog`) |
 | `tools/check_posts.py` | post conventions, also run in CI |
 | `.claude/skills/publish-post/` | the `/publish-post` command for Claude Code |

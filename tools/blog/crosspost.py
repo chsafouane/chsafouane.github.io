@@ -8,7 +8,8 @@ For each post, render it and write:
                                         Substack's editor
 
 Both platforms get what they can display: figures as PNG (steppers as one
-image per step, with a link to the interactive version), code as plain code
+image per step, with a link to the interactive version), charts as their
+data table with a link to the interactive chart, code as plain code
 blocks, callouts as quotes, tables as lists, and math as LaTeX in code
 (neither renders math). Images point to the live post, which Medium and
 Substack copy them from, so cross-post a post once it is published and
@@ -33,12 +34,12 @@ CALLOUT_TITLES = {"note": "Note", "tip": "Tip", "warning": "Warning", "important
 
 STYLE = """\
 :root { color-scheme: light; }
-body { max-width: 680px; margin: 3rem auto; padding: 0 1rem; font: 18px/1.65 Georgia, serif; color: #1c1b19; background: #fff; }
-a { color: #4b45a8; }
-img { max-width: 100%; } figure { margin: 2rem 0; } figcaption { font-size: 0.85em; color: #5e5a53; }
-code { font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; }
-pre { background: #f4f3f0; padding: 0.8rem; overflow-x: auto; font-size: 0.8em; } pre code { font-size: 1em; }
-blockquote { border-left: 3px solid #6761c5; margin-left: 0; padding-left: 1rem; }"""
+body { max-width: 760px; margin: 3rem auto; padding: 0 1rem; font: 17px/1.68 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; color: #1a1c20; background: #fff; }
+a { color: #1d5fb4; }
+img { max-width: 100%; } figure { margin: 2rem 0; } figcaption { font-size: 0.85em; color: #686d77; }
+code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 0.85em; }
+pre { background: #f4f4f0; padding: 0.8rem; overflow-x: auto; font-size: 0.8em; } pre code { font-size: 1em; }
+blockquote { border-left: 3px solid #2a78d6; margin-left: 0; padding-left: 1rem; }"""
 
 MEDIUM_PAGE = """<!doctype html>
 <html lang="en">
@@ -73,14 +74,14 @@ SUBSTACK_PAGE = """<!doctype html>
 <link rel="canonical" href="{url}">
 <style>
 {style}
-.copy-bar {{ font: 15px/1.5 system-ui, sans-serif; background: #f4f3f0; border: 1px solid #e3e1dc; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 2.5rem; }}
+.copy-bar {{ font: 15px/1.5 system-ui, sans-serif; background: #f0f0eb; border: 1px solid #e1e1da; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 2.5rem; }}
 .copy-bar p {{ margin: 0 0 0.6rem; }}
-.copy-bar .note {{ margin: 0.8rem 0 0; color: #5e5a53; font-size: 0.9em; }}
-.copy-row {{ display: flex; gap: 0.8rem; align-items: baseline; padding: 0.45rem 0; border-top: 1px solid #e3e1dc; }}
-.copy-row .label {{ flex: 0 0 4.5rem; color: #5e5a53; }}
+.copy-bar .note {{ margin: 0.8rem 0 0; color: #686d77; font-size: 0.9em; }}
+.copy-row {{ display: flex; gap: 0.8rem; align-items: baseline; padding: 0.45rem 0; border-top: 1px solid #e1e1da; }}
+.copy-row .label {{ flex: 0 0 4.5rem; color: #686d77; }}
 .copy-row .value {{ flex: 1; min-width: 0; }}
-.copy-bar button {{ font: inherit; font-size: 0.9em; padding: 0.2rem 0.8rem; border: 1px solid #6761c5; border-radius: 6px; background: #fff; color: #4b45a8; cursor: pointer; }}
-.copy-bar button:hover, .copy-bar button:focus-visible {{ background: #6761c5; color: #fff; }}
+.copy-bar button {{ font: inherit; font-size: 0.9em; padding: 0.2rem 0.8rem; border: 1px solid #c7c7bf; border-radius: 999px; background: #fff; color: #464b54; cursor: pointer; }}
+.copy-bar button:hover, .copy-bar button:focus-visible {{ background: #1a1c20; border-color: #1a1c20; color: #fff; }}
 @media (max-width: 480px) {{ .copy-row {{ flex-wrap: wrap; gap: 0.2rem 0.8rem; }} .copy-row .label {{ flex-basis: 100%; }} }}
 </style>
 </head>
@@ -166,6 +167,27 @@ def _figkit(soup, div, post_url):
     return blocks
 
 
+def _chart(soup, div, post_url):
+    """A chartkit chart: its title, subtitle, data table (as a list) and a link to the chart."""
+    blocks = []
+    title = div.select_one(".w-title")
+    if title:
+        blocks.append(BeautifulSoup(f"<p><strong>{title.decode_contents().strip()}</strong></p>", "html.parser"))
+    sub = div.select_one(".w-sub")
+    if sub:
+        blocks.append(BeautifulSoup(f"<p><em>{sub.decode_contents().strip()}</em></p>", "html.parser"))
+    table = div.select_one(".w-data table")
+    if table is not None:
+        blocks += _table(table)
+    chart_url = f"{post_url}#{div.get('id')}" if div.get("id") else post_url
+    blocks.append(BeautifulSoup(
+        f'<p><em>This chart is interactive in the <a href="{chart_url}">original post</a>.</em></p>', "html.parser"))
+    source = div.select_one(".w-src")
+    if source:
+        blocks.append(BeautifulSoup(f"<p><em>{source.decode_contents().strip()}</em></p>", "html.parser"))
+    return blocks
+
+
 def _table(table):
     """Neither platform has tables: one list item per row, led by its first cell.
 
@@ -211,6 +233,9 @@ def transform(html, post_url):
 
     for div in main.select("div.figkit"):
         _replace(div, _figkit(soup, div, post_url))
+
+    for div in main.select("div.chartkit"):
+        _replace(div, _chart(soup, div, post_url))
 
     # Quarto figures: keep one image and its caption.
     for div in main.select("div.quarto-figure, div.quarto-float"):

@@ -1,28 +1,85 @@
 # Design tokens for the whole site: every raw color and font lives here.
 # _theme/theme.scss only derives values from these, so light and dark modes
-# stay in sync. The palette is also meant to be reused by figures.
+# stay in sync. tools/figkit/palette.py reads the same palette for figures,
+# and tools/figkit/syntax.py writes the code highlighting themes from it.
+#
+# The look follows the Jev Field Guide: IBM Plex, a warm gray page, white
+# cards and one blue accent. A name ending in -dark is the dark-mode twin of
+# the name without it.
 meta:
   name: "Safouane Chergui"
   link: https://chsafouane.github.io
 
 color:
   palette:
-    paper: "#FBFAF7"         # light page background
-    ink: "#1C1B19"           # light text
-    ink-soft: "#5E5A53"      # light muted text (captions, metadata)
-    night: "#16151B"         # dark page background
-    moon: "#E7E4DE"          # dark text
-    moon-soft: "#A29D94"     # dark muted text
-    indigo: "#6761C5"        # accent (Jay Alammar's "bias purple")
-    indigo-light: "#A8A3F0"  # accent on dark backgrounds
-    plate: "#FFFFFF"         # card behind figures, in both modes
+    # Page and text
+    paper: "#F7F7F4"          # light page background
+    night: "#111215"          # dark page background
+    ink: "#1A1C20"            # light main text
+    moon: "#E9EAED"           # dark main text
+    ink-2: "#464B54"          # light secondary text (lead paragraphs, legends)
+    moon-2: "#BCC0C8"
+    ink-soft: "#686D77"       # light muted text (captions, metadata)
+    moon-soft: "#8E939D"
+
+    # Surfaces: cards, panels, code
+    surface: "#FFFFFF"        # cards (code, tables, figures, charts)
+    surface-dark: "#18191D"
+    surface-2: "#F0F0EB"      # quiet panels, table headers, inline code
+    surface-2-dark: "#202227"
+    surface-3: "#E6E6E0"
+    surface-3-dark: "#292C32"
+    code-bg: "#F4F4F0"        # code blocks
+    code-bg-dark: "#16171B"
+    rule: "#E1E1DA"           # borders
+    rule-dark: "#2B2E35"
+    rule-strong: "#C7C7BF"    # table header rules, box outlines
+    rule-strong-dark: "#3D4149"
+    plate: "#FFFFFF"          # behind raster images in dark mode
+
+    # Accent
+    link: "#1D5FB4"           # links; also the accent used as text (accent-ink)
+    link-dark: "#82B4F5"
+    accent: "#2A78D6"         # focus rings, active borders, range inputs
+    accent-dark: "#5B9DF0"
+    accent-soft: "#E6EFFB"    # active sidebar item, note callouts (dark: c1-dark at 16%)
+    accent-ink-dark: "#9CC4F7"
+    mark: "#FDECA6"           # search hits (dark: mark-dark at 32%)
+    mark-dark: "#F5C542"
+
+    # Chart series (chartkit) and the gray used for reference series
+    c1: "#2A78D6"
+    c1-dark: "#3987E5"
+    c2: "#EB6834"
+    c2-dark: "#D95926"
+    c3: "#1BAF7A"
+    c3-dark: "#199E70"
+    person: "#A9ADB4"
+    person-dark: "#5D626C"
+
+    # Figure hues (figkit) and callout colors: one saturated base per hue
+    blue: "#2A78D6"
+    orange: "#EB6834"
     green: "#2F855A"
+    teal: "#0D7682"
+    indigo: "#6761C5"
+    pink: "#C2417F"
     amber: "#B7791F"
     red: "#C0392B"
-    orange: "#DD6B20"
-    blue: "#2F6FB5"          # figure hue
-    pink: "#C2417F"          # figure hue
-    teal: "#1F8A84"          # figure hue
+
+    # Code highlighting (tools/figkit/syntax.py), 4.5:1 on code-bg
+    hl-kw: "#8A3FB0"
+    hl-kw-dark: "#CF9CF0"
+    hl-str: "#2B7638"
+    hl-str-dark: "#A3D49F"
+    hl-com: "#686D77"
+    hl-com-dark: "#8A919C"
+    hl-num: "#AD5200"
+    hl-num-dark: "#F2A36B"
+    hl-fn: "#1D5FB4"
+    hl-fn-dark: "#86B6FF"
+    hl-bi: "#0D7682"
+    hl-bi-dark: "#6FD3CF"
   foreground:
     light: ink
     dark: moon
@@ -30,8 +87,8 @@ color:
     light: paper
     dark: night
   primary:
-    light: indigo
-    dark: indigo-light
+    light: link
+    dark: link-dark
   secondary:
     light: ink-soft
     dark: moon-soft
@@ -41,16 +98,23 @@ typography:
   # @font-face in _theme/theme.scss (brand's font imports block rendering).
   # Font stacks are quoted on purpose: brand writes them into SCSS verbatim.
   base:
-    family: '"Newsreader", "Iowan Old Style", Charter, Georgia, serif'
-    size: 1.1875rem
-    line-height: 1.7
+    family: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+    size: 1rem
+    line-height: 1.68
   headings:
-    family: '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif'
+    family: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
     weight: 600
     line-height: 1.25
   monospace:
-    family: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace'
-    size: 0.82em
+    family: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
   link:
     color: primary
     decoration: underline
+
+defaults:
+  bootstrap:
+    defaults:
+      # Numbers, eyebrow labels and section numbers (no brand slot for it).
+      font-family-condensed: '"IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif'
+      # Unlabelled fences and ASCII diagrams: a mono face with box-drawing glyphs.
+      font-family-block: 'Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", ui-monospace, monospace'

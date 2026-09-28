@@ -1,8 +1,11 @@
 """Command line: `uv run figkit <command>`.
 
   build [slug ...]   render posts/<slug>/figures.py into posts/<slug>/assets/figures
+                     and its charts into posts/<slug>/assets/charts
                      (--no-raster skips PNG/GIF, as CI does to check SVGs are current)
   palette            print the figure palette with contrast ratios
+  syntax             write the code highlighting themes in _theme from _brand.yml
+                     (--check fails if they are out of date, as CI does)
   keynote            write the Keynote palette (figkit.clr) and component sheets
                      (--install also copies the palette to ~/Library/Colors)
   import PNG... --post SLUG --name NAME --alt TEXT [--caption TEXT ...]
@@ -13,6 +16,7 @@ import argparse
 import importlib.util
 import sys
 
+from .charts import Chart
 from .export import import_raster, save
 from .palette import HUES, contrast, palette
 from .paths import POSTS
@@ -37,7 +41,13 @@ def build(slugs, raster=True):
             raise SystemExit(f"no figures.py for: {', '.join(sorted(missing))}")
     for source in sources:
         out = source.parent / "assets" / "figures"
+        charts = source.parent / "assets" / "charts"
         for item in _load(source):
+            if isinstance(item, Chart):
+                charts.mkdir(parents=True, exist_ok=True)
+                (charts / f"{item.name}.json").write_text(item.json())
+                print(f"{source.parent.name}/{item.name}: chart")
+                continue
             files = save(item, out, raster=raster)
             print(f"{source.parent.name}/{item.name}: {len(files)} files")
 
@@ -46,10 +56,10 @@ def show_palette():
     for mode in ("light", "dark"):
         p = palette(mode)
         print(f"{mode}: page {p.page}  text {p.text}  edge {p.edge}  frame {p.frame_fill}/{p.frame_stroke}")
-        for name in HUES:
+        for name in ["neutral", "accent", *HUES]:
             h = p.hue(name)
             print(
-                f"  {name:7} fill {h.fill}  stroke {h.stroke} ({contrast(h.stroke, h.fill):.1f}:1 on fill)"
+                f"  {name:8} fill {h.fill}  stroke {h.stroke} ({contrast(h.stroke, h.fill):.1f}:1 on fill)"
                 f"  label {h.label} ({contrast(h.label, p.page):.1f}:1 on page)"
             )
 
@@ -61,6 +71,8 @@ def main(argv=None):
     b.add_argument("slugs", nargs="*")
     b.add_argument("--no-raster", action="store_true", help="skip PNG/GIF exports (used by CI)")
     sub.add_parser("palette", help="print the figure palette")
+    s = sub.add_parser("syntax", help="write the code highlighting themes from _brand.yml")
+    s.add_argument("--check", action="store_true", help="fail if the theme files are out of date")
     k = sub.add_parser("keynote", help="write the Keynote palette and component sheets")
     k.add_argument("--install", action="store_true", help="copy the palette to ~/Library/Colors")
     i = sub.add_parser("import", help="bring PNG exports (Keynote) into a post")
@@ -75,6 +87,10 @@ def main(argv=None):
         build(args.slugs, raster=not args.no_raster)
     elif args.command == "palette":
         show_palette()
+    elif args.command == "syntax":
+        from .syntax import build as build_syntax
+
+        build_syntax(check=args.check)
     elif args.command == "keynote":
         from .keynote import build as build_keynote
 

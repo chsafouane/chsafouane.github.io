@@ -1,13 +1,7 @@
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 $if(categories)$
-  $if(quarto-template-params.title-block-categories)$
-<div class="quarto-categories">
-  $for(categories)$
-  <div class="quarto-category">$categories$</div>
-  $endfor$
-</div>
-  $endif$
+<p class="eyebrow">$for(categories)$$categories$$sep$ · $endfor$</p>
 $endif$
 $if(title)$
 <h1 class="title">$title$</h1>
@@ -17,7 +11,7 @@ $if(subtitle)$
 $endif$
 $if(hide-description)$
 $elseif(description)$
-<div class="description">
+<div class="description lead">
 $description$
 </div>
 $endif$

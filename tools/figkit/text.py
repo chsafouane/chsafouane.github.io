@@ -10,7 +10,7 @@ and placed with <use>, which keeps the SVG files small.
 
 import re
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 from io import BytesIO
 from pathlib import Path
 
@@ -24,19 +24,17 @@ FONT_DIR = REPO / "assets" / "fonts"
 
 # (family, weight) -> file stem in assets/fonts
 FONT_FILES = {
-    ("sans", 400): "inter-latin-400-normal",
-    ("sans", 500): "inter-latin-500-normal",
-    ("sans", 600): "inter-latin-600-normal",
-    ("sans", 700): "inter-latin-700-normal",
-    ("mono", 400): "jetbrains-mono-latin-400-normal",
-    ("mono", 500): "jetbrains-mono-latin-500-normal",
-    ("serif", 400): "newsreader-latin-400-normal",
-    ("serif", 500): "newsreader-latin-500-normal",
+    ("sans", 400): "ibm-plex-sans-latin-400-normal",
+    ("sans", 500): "ibm-plex-sans-latin-500-normal",
+    ("sans", 600): "ibm-plex-sans-latin-600-normal",
+    ("cond", 600): "ibm-plex-sans-condensed-latin-600-normal",
+    ("mono", 400): "ibm-plex-mono-latin-400-normal",
+    ("mono", 500): "ibm-plex-mono-latin-500-normal",
 }
 
 
 # CSS family names, used when text stays editable (Keynote components).
-CSS_FAMILY = {"sans": "Inter", "mono": "JetBrains Mono", "serif": "Newsreader"}
+CSS_FAMILY = {"sans": "IBM Plex Sans", "cond": "IBM Plex Sans Condensed", "mono": "IBM Plex Mono"}
 
 
 def _escape(text):
@@ -53,7 +51,8 @@ class Face:
     """One font file, ready for shaping and outline extraction."""
 
     def __init__(self, key, path: Path):
-        self.key = f"{key[0]}{key[1]}"
+        self.family, self.weight = key
+        self.key = f"{self.family}{self.weight}"
         font = TTFont(path)  # WOFF2 is decompressed by fontTools (brotli)
         font.flavor = None
         buffer = BytesIO()
@@ -103,7 +102,7 @@ class Face:
         return glyphs, x
 
 
-@lru_cache(maxsize=None)
+@cache
 def face(family="sans", weight=500) -> Face:
     key = (family, weight)
     if key not in FONT_FILES:
@@ -153,7 +152,7 @@ class TextBlock:
         return f'<g fill="{fill}">{"".join(uses)}</g>'
 
     def _svg_text(self, x, top, fill):
-        family, weight = self.face.key.rstrip("0123456789"), self.face.key.lstrip("abcdefghijklmnopqrstuvwxyz")
+        family, weight = self.face.family, self.face.weight
         lines = []
         for index, (_glyphs, width, dx) in enumerate(self.lines):
             if not self.texts[index]:

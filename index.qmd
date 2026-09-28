@@ -31,8 +31,6 @@ listing:
   categories: false
   sort-ui: false
   filter-ui: false
-  template-params:
-    thumbnails: false
   feed: true
 include-after-body: _theme/listing-filter.html
 ---

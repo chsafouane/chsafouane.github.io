@@ -1,14 +1,19 @@
 <%
-/* Text-first post list for the home page.
+/* Home page post list: cards grouped by year, like the field guide's chapter map.
    Quarto's EJS is reversed: the equals tag outputs raw HTML, the dash tag escapes.
    class="list", metadataAttrs() and the listing-* classes keep Quarto's
-   category filtering working. Never write EJS tags inside comments. */
-const showThumbs = (templateParams || {}).thumbnails === true;
+   category filtering working. The year labels are items of the same list
+   without categories, so a tag filter hides them and "show all" brings them back.
+   Items arrive sorted by date, newest first. Never write EJS tags inside comments. */
+let year = null;
 %>
 ```{=html}
-<ul class="post-list list">
-<% for (const item of items) { const thumb = showThumbs && item.image; %>
-<li class="post-item<%= thumb ? ' has-thumb' : '' %>" <%= metadataAttrs(item) %>>
+<ul class="post-list post-grid list">
+<% for (const item of items) { const itemYear = item.date ? String(item.date).slice(-4) : ""; %>
+<% if (itemYear !== year) { year = itemYear; %>
+<li class="post-year-label" aria-hidden="true"><%- year %></li>
+<% } %>
+<li class="post-item" <%= metadataAttrs(item) %>>
 <a class="post-link" href="<%- item.path %>">
 <% if (item.date) { %><time class="post-date listing-date"><%= item.date %></time><% } %>
 <h3 class="post-title listing-title no-anchor"><%= item.title %></h3>
@@ -18,7 +23,6 @@ const showThumbs = (templateParams || {}).thumbnails === true;
 <% if (item['reading-time']) { %><span class="post-reading-time listing-reading-time"><%= item['reading-time'] %> read</span><% } %>
 <% for (const category of (item.categories || [])) { %><button type="button" class="post-tag listing-category" data-category="<%- category %>" onclick="window.quartoListingCategory('<%= utils.b64encode(category) %>'); return false;"><%- category %></button><% } %>
 </div>
-<% if (thumb) { %><img class="post-thumb" src="<%- item.image %>" alt="<%- item['image-alt'] || '' %>" loading="lazy"><% } %>
 </li>
 <% } %>
 </ul>

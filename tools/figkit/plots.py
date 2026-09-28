@@ -1,14 +1,15 @@
 """Matplotlib plots in the site style, saved exactly like figkit figures.
 
 A Plot calls your `draw(fig, p)` once per mode with matplotlib configured for
-that mode (palette colors, Inter, transparent background, text as paths), so
+that mode (palette colors, IBM Plex Sans, transparent background, text as
+paths), so
 plots get the same light/dark SVG, PNG and manifest as drawn figures and are
 shown with the same {{< fig >}} shortcode.
 
 Needs the optional dependencies: uv sync --extra plots
 """
 
-from functools import lru_cache
+from functools import cache
 from io import StringIO
 from pathlib import Path
 
@@ -17,18 +18,18 @@ from fontTools.ttLib import TTFont
 from .palette import palette
 from .text import FONT_DIR, FONT_FILES
 
-SERIES_HUES = ["indigo", "orange", "green", "pink", "blue", "teal", "amber", "red"]
+SERIES_HUES = ["blue", "orange", "green", "indigo", "pink", "teal", "amber", "red"]
 DPI = 96  # 1 inch = 96 CSS pixels, so figure sizes match drawn figures
 
 
-@lru_cache(maxsize=None)
+@cache
 def _register_fonts():
     """Matplotlib cannot read WOFF2: convert the site fonts to TTF once."""
     from matplotlib import font_manager
 
     cache = Path.home() / ".cache" / "figkit" / "fonts"
     cache.mkdir(parents=True, exist_ok=True)
-    for stem in FONT_FILES.values():
+    for stem in [*FONT_FILES.values(), "ibm-plex-sans-latin-400-italic"]:
         target = cache / f"{stem}.ttf"
         if not target.exists():
             font = TTFont(FONT_DIR / f"{stem}.woff2")
@@ -43,12 +44,12 @@ def rc(mode="light"):
 
     p = palette(mode)
     return {
-        "font.family": "Inter",
+        "font.family": "IBM Plex Sans",
         "font.size": 11,
-        "font.weight": 500,
+        "font.weight": 400,
         "mathtext.fontset": "custom",
-        "mathtext.rm": "Inter",
-        "mathtext.it": "Inter:italic",
+        "mathtext.rm": "IBM Plex Sans",
+        "mathtext.it": "IBM Plex Sans:italic",
         "text.color": p.text,
         "axes.labelcolor": p.muted,
         "axes.labelsize": 11,
@@ -56,21 +57,29 @@ def rc(mode="light"):
         "axes.titleweight": 600,
         "axes.titlecolor": p.text,
         "axes.titlelocation": "left",
-        "axes.edgecolor": p.edge,
+        # The field guide's chart style: horizontal gridlines only, a baseline,
+        # no left axis line and no tick marks.
+        "axes.edgecolor": p.neutral.stroke,
         "axes.linewidth": 1,
         "axes.spines.top": False,
         "axes.spines.right": False,
+        "axes.spines.left": False,
         "axes.grid": True,
+        "axes.grid.axis": "y",
         "axes.axisbelow": True,
         "axes.facecolor": "none",
         "axes.prop_cycle": cycler(color=[p.hue(h).stroke for h in SERIES_HUES]),
         "grid.color": p.frame_stroke,
-        "grid.linewidth": 0.8,
+        "grid.linewidth": 1,
+        "xtick.major.size": 0,
+        "ytick.major.size": 0,
+        "xtick.major.pad": 6,
+        "ytick.major.pad": 6,
         "xtick.color": p.muted,
         "ytick.color": p.muted,
         "xtick.labelcolor": p.muted,
         "ytick.labelcolor": p.muted,
-        "lines.linewidth": 2.2,
+        "lines.linewidth": 2,
         "lines.solid_capstyle": "round",
         "legend.frameon": False,
         "legend.labelcolor": p.text,

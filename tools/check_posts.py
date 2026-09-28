@@ -7,7 +7,8 @@ Each post lives in posts/<slug>/index.ipynb (or index.qmd). The checks:
   - the slug is lowercase ASCII with hyphens (no spaces or apostrophes, which
     break Quarto's sitemap and RSS feed);
   - front matter has title, date, description, categories and image, and does
-    not override the shared layout (format, toc, toc-location, toc-depth);
+    not override the shared layout (format, toc, toc-location, toc-depth,
+    toc-expand, toc-title, page-layout, sidebar);
   - the body uses Markdown instead of raw HTML layout (<img>, <br>, align=),
     has no leftover VS Code table-of-contents links and no h1 headings (the
     post title is the only h1);
@@ -18,6 +19,10 @@ Each post lives in posts/<slug>/index.ipynb (or index.qmd). The checks:
   - local images referenced by the post exist;
   - every {{< fig NAME >}} / {{< stepper NAME >}} has a figkit manifest of the
     right kind in assets/figures, and the files it lists exist;
+  - every {{< chart NAME >}} has a chart spec in assets/charts with a known
+    type (or a widget registered in the post's charts.js), a title and alt text;
+  - every published post is listed in the sidebar in _quarto.yml (the left
+    column of the site), since Quarto does not add posts there by itself;
   - published posts (no `draft: true`) contain no TODO placeholders left by
     `blog new`. Drafts may still have TODOs and a missing preview image.
 Exits with status 1 when any check fails.
@@ -31,14 +36,15 @@ from pathlib import Path
 
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 REQUIRED_FIELDS = ["title", "date", "description", "categories", "image"]
-FORBIDDEN_FIELDS = ["format", "toc", "toc-location", "toc-depth"]
+FORBIDDEN_FIELDS = ["format", "toc", "toc-location", "toc-depth", "toc-expand", "toc-title", "page-layout", "sidebar"]
 RAW_HTML = re.compile(r"<img\b|<br\s*/?>|\balign\s*=", re.IGNORECASE)
 VSCODE_TOC = re.compile(r"toc0_|vscode-jupyter-toc")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*\{?\s*\.?([A-Za-z0-9_+-]*)")
 LIST_ITEM = re.compile(r"^([-*+]|\d+[.)])\s+\S")
 ANY_LIST_ITEM = re.compile(r"^\s*([-*+]|\d+[.)])\s+\S")
 IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
-SHORTCODE = re.compile(r"\{\{<\s*(fig|stepper)\s+(?:name=)?\"?([A-Za-z0-9_-]+)")
+SHORTCODE = re.compile(r"\{\{<\s*(fig|stepper|chart)\s+(?:name=)?\"?([A-Za-z0-9_-]+)")
+CHART_TYPES = {"line", "bar", "dot", "panels"}
 # Fence "languages" that are Quarto cell types or plain text, not pandoc lexers.
 NON_LEXER_FENCES = {"", "dot", "mermaid", "ojs", "text", "plaintext", "raw", "=html"}
 
@@ -58,7 +64,7 @@ def read_post(path):
         chunks = ["".join(c["source"]) for c in cells if c["cell_type"] in ("markdown", "raw")]
     else:
         chunks = [path.read_text()]
-    match = re.match(r"^\s*---\n(.*?)\n---\s*(?:\n|$)", chunks[0], re.S) if chunks else None
+    match = re.match(r"^\s*---\n(.*?)\n---\s*(?:\n|$)", chunks[0], re.DOTALL) if chunks else None
     if not match:
         return None, chunks
     chunks[0] = chunks[0][match.end():]
@@ -66,11 +72,11 @@ def read_post(path):
 
 
 def front_matter_fields(text):
-    return {m.group(1) for m in re.finditer(r"^([A-Za-z][\w-]*)\s*:", text, re.M)}
+    return {m.group(1) for m in re.finditer(r"^([A-Za-z][\w-]*)\s*:", text, re.MULTILINE)}
 
 
 def front_matter_value(text, key):
-    m = re.search(rf"^{re.escape(key)}\s*:\s*(.+)$", text, re.M)
+    m = re.search(rf"^{re.escape(key)}\s*:\s*(.+)$", text, re.MULTILINE)
     return m.group(1).strip().strip("\"'") if m else None
 
 
@@ -121,7 +127,7 @@ def check_post(post_dir, languages):
     if front is None:
         return errors + [f"{source}: missing YAML front matter at the top"]
     fields = front_matter_fields(front)
-    draft = re.search(r"^draft\s*:\s*true\s*$", front, re.M) is not None
+    draft = re.search(r"^draft\s*:\s*true\s*$", front, re.MULTILINE) is not None
     errors += [f"{source}: front matter is missing '{f}'" for f in REQUIRED_FIELDS if f not in fields]
     if not draft:
         errors += [f"{source}: replace the TODO placeholder: {line.strip()}" for line in front.splitlines() if "TODO" in line]
@@ -137,7 +143,51 @@ def check_post(post_dir, languages):
             errors.append(f"{source}: image not found: {ref}")
     for chunk in chunks:
         for kind, name in SHORTCODE.findall(chunk):
-            errors += check_figure(post_dir, source, kind, name)
+            if kind == "chart":
+                errors += check_chart(post_dir, source, name)
+            else:
+                errors += check_figure(post_dir, source, kind, name)
+    return errors
+
+
+def check_chart(post_dir, source, name):
+    path = post_dir / "assets" / "charts" / f"{name}.json"
+    if not path.exists():
+        return [f"{source}: {{{{< chart {name} >}}}} has no spec {path.relative_to(post_dir)} (run uv run figkit build)"]
+    try:
+        spec = json.loads(path.read_text())
+    except json.JSONDecodeError as error:
+        return [f"{source}: chart {name}: {path.relative_to(post_dir)} is not valid JSON ({error})"]
+    errors = []
+    for field in ("title", "alt"):
+        if not str(spec.get(field) or "").strip():
+            errors.append(f"{source}: chart {name} has no {field}")
+    widget = spec.get("widget")
+    if widget:
+        script = post_dir / "charts.js"
+        if not script.exists() or not re.search(rf"register\(\s*[\"']{re.escape(widget)}[\"']", script.read_text()):
+            errors.append(f"{source}: chart {name} uses widget '{widget}', which {script.relative_to(post_dir.parent)} does not register")
+    elif spec.get("type") not in CHART_TYPES:
+        errors.append(f"{source}: chart {name} has type {spec.get('type')!r}, use one of {sorted(CHART_TYPES)}")
+    return errors
+
+
+def check_sidebar(post_dirs, config):
+    """Every published post has an entry in the sidebar of _quarto.yml."""
+    if not config.exists():
+        return [f"{config}: not found, cannot check the sidebar"]
+    text = config.read_text()
+    errors = []
+    for post_dir in post_dirs:
+        sources = [p for p in (post_dir / "index.ipynb", post_dir / "index.qmd") if p.exists()]
+        if len(sources) != 1:
+            continue
+        front, _ = read_post(sources[0])
+        if front is None or re.search(r"^draft\s*:\s*true\s*$", front, re.MULTILINE):
+            continue
+        entry = f"posts/{post_dir.name}/{sources[0].name}"
+        if not re.search(rf"^\s*-\s*(?:href:\s*)?{re.escape(entry)}\s*$", text, re.MULTILINE):
+            errors.append(f"{config}: add '- {entry}' to website.sidebar under its year (the site's left column)")
     return errors
 
 
@@ -174,6 +224,7 @@ def main():
     post_dirs = sorted(p for p in posts.iterdir() if p.is_dir() and not p.name.startswith((".", "_")))
     for post_dir in post_dirs:
         errors += check_post(post_dir, languages)
+    errors += check_sidebar(post_dirs, posts.resolve().parent / "_quarto.yml")
     for error in errors:
         print(error)
     print(f"checked {len(post_dirs)} posts: {'OK' if not errors else f'{len(errors)} problem(s)'}")

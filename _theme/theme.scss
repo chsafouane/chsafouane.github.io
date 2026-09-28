@@ -6,124 +6,182 @@
 // Keep hex literals out of this file; add raw values to _brand.yml instead.
 //
 // Both the light and the dark stylesheet are compiled from this file, and the
-// dark one is layered on top of the light one. Every mode-specific value must
-// therefore be a variable used by the same selectors in both compiles.
+// dark one is layered on top of the light one. So the design tokens are
+// written once as CSS custom properties on :root (section 0), and every
+// component rule below uses var(--...): the two compiles then differ only in
+// :root, and nothing from the light sheet can leak into dark mode. Charts
+// (_extensions/chartkit) read the same custom properties.
+//
+// The look follows the Jev Field Guide: a left sidebar, a 760px column, IBM
+// Plex, white cards on a warm gray page, one blue accent.
 
 $is-dark: tone($body-bg) == "dark";
 
-$ink: $body-color;
-$paper: $body-bg;
+@function m($light, $dark) {
+  @return if($is-dark, $dark, $light);
+}
+
+$bg: $body-bg;
+$text: $body-color;
 $muted: $body-secondary-color;
-$accent: $primary;
+$text-2: m($brand-ink-2, $brand-moon-2);
+$surface: m($brand-surface, $brand-surface-dark);
+$surface-2: m($brand-surface-2, $brand-surface-2-dark);
+$surface-3: m($brand-surface-3, $brand-surface-3-dark);
+$rule: m($brand-rule, $brand-rule-dark);
+$rule-strong: m($brand-rule-strong, $brand-rule-strong-dark);
+$code-bg-color: m($brand-code-bg, $brand-code-bg-dark);
+$link: $primary;
+$accent: m($brand-accent, $brand-accent-dark);
+$accent-soft: m($brand-accent-soft, rgba($brand-c1-dark, 0.16));
+$accent-ink: m($brand-link, $brand-accent-ink-dark);
+$mark: m($brand-mark, rgba($brand-mark-dark, 0.32));
+$c1: m($brand-c1, $brand-c1-dark);
+$c2: m($brand-c2, $brand-c2-dark);
+$c3: m($brand-c3, $brand-c3-dark);
+$person: m($brand-person, $brand-person-dark);
+$band: rgba($c1, if($is-dark, 0.12, 0.08));
+$shadow: 0 10px 30px rgba($brand-ink, if($is-dark, 0.45, 0.12));
+$green-ink: m(mix($brand-green, $brand-ink, 90%), mix($brand-green, $brand-moon, 55%));
+$orange-ink: m(mix($brand-orange, $brand-ink, 72%), mix($brand-orange, $brand-moon, 60%));
+$red-ink: m(mix($brand-red, $brand-ink, 90%), mix($brand-red, $brand-moon, 50%));
 
-$rule: mix($ink, $paper, 12%);
-$rule-strong: mix($ink, $paper, 24%);
-$surface: mix($ink, $paper, if($is-dark, 5%, 3%));
-$surface-2: mix($ink, $paper, if($is-dark, 10%, 6.5%));
-$accent-soft: mix($accent, $paper, if($is-dark, 20%, 12%));
-
-$font-ui: $headings-font-family;
-$font-prose: $font-family-base;
-
-// Figures sit on a white "plate" in both modes; dimmed a little at night.
+// Raster images keep a white "plate" in dark mode, dimmed a little.
 $plate-bg: $brand-plate;
-$plate-pad: 0.75rem;
 $plate-filter: if($is-dark, brightness(0.9) contrast(1.04), none);
 
-$radius: 0.5rem;
-$radius-lg: 0.75rem;
+$font-family-condensed: $font-family-sans-serif !default;
+$font-family-block: $font-family-monospace !default;
 
-// Layout: ~680px text column (Quarto adds 50px to the body width).
-$grid-body-width: 630px !default;
-$grid-margin-width: 260px !default;
-$grid-sidebar-width: 260px !default;
+// Layout: 276px sidebar, 760px text column, 236px margin column (section 2).
+$grid-sidebar-width: 276px !default;
+$grid-body-width: 760px !default;
+$grid-margin-width: 236px !default;
+$topbar-h: 56px;
 
-$border-radius: $radius !default;
-$border-radius-lg: $radius-lg !default;
+$border-radius: 8px !default;
+$border-radius-lg: 12px !default;
 $border-color: $rule !default;
 $table-border-color: $rule !default;
 $hr-color: $rule !default;
 $hr-opacity: 1 !default;
 
-$headings-color: $ink !default;
-$h1-font-size: 2.25rem !default;
-$h2-font-size: 1.55rem !default;
-$h3-font-size: 1.25rem !default;
-$h4-font-size: 1.075rem !default;
-$h5-font-size: 1rem !default;
-$h6-font-size: 1rem !default;
-$paragraph-margin-bottom: 1.15em !default;
+$headings-color: $text !default;
+$h1-font-size: 2.4rem !default;
+$h2-font-size: 1.5rem !default;
+$h3-font-size: 1.14rem !default;
+$h4-font-size: 1rem !default;
+$h5-font-size: 0.9rem !default;
+$h6-font-size: 0.9rem !default;
+$paragraph-margin-bottom: 1em !default;
 
-$navbar-bg: $paper !default;
-$navbar-fg: $muted !default;
-$navbar-hl: $ink !default;
-$navbar-brand: $ink !default;
-$navbar-brand-hl: $accent !default;
+$navbar-bg: $bg !default;
+$navbar-fg: $text-2 !default;
+$navbar-hl: $text !default;
+$navbar-brand: $text !default;
+$navbar-brand-hl: $text !default;
 
-$footer-bg: $paper !default;
+$sidebar-bg: $bg !default;
+$sidebar-fg: $text-2 !default;
+$sidebar-hl: $text !default;
+$sidebar-border: false !default;
+
+$footer-bg: $bg !default;
 $footer-fg: $muted !default;
 $footer-font-size: 0.85rem !default;
 
-$toc-color: $accent !default;
-$toc-font-size: 0.82rem !default;
+$toc-color: $accent-ink !default;
+$toc-font-size: 0.83rem !default;
 $toc-active-border: $accent !default;
 $toc-inactive-border: $rule !default;
 
-$code-block-bg: $surface !default;
-$code-block-bg-padding: 0.9rem !default;
+$code-block-bg: $code-bg-color !default;
+$code-block-bg-padding: 0 !default;
 $code-bg: $surface-2 !default;
-$code-color: $ink !default;
-$btn-code-copy-color: $muted !default;
-$btn-code-copy-color-active: $accent !default;
+$code-color: $text !default;
+$btn-code-copy-color: $text-2 !default;
+$btn-code-copy-color-active: $c3 !default;
 
-$callout-border-width: 3px !default;
-$callout-margin-top: 1.75rem !default;
-$callout-margin-bottom: 1.75rem !default;
+$callout-border-width: 0 !default;
+$callout-margin-top: 1.6em !default;
+$callout-margin-bottom: 1.6em !default;
 $callout-color-note: $accent !default;
 $callout-color-tip: $brand-green !default;
 $callout-color-warning: $brand-amber !default;
 $callout-color-important: $brand-red !default;
 $callout-color-caution: $brand-orange !default;
 
-$mermaid-font-family: $font-ui !default;
-$mermaid-bg-color: $paper !default;
-$mermaid-fg-color: $ink !default;
+$mermaid-font-family: $font-family-sans-serif !default;
+$mermaid-bg-color: $surface !default;
+$mermaid-fg-color: $text !default;
 $mermaid-node-bg-color: $accent-soft !default;
-$mermaid-node-fg-color: $ink !default;
+$mermaid-node-fg-color: $text !default;
 $mermaid-edge-color: $muted !default;
-$mermaid-label-fg-color: $ink !default;
-$mermaid-label-bg-color: $paper !default;
+$mermaid-label-fg-color: $text !default;
+$mermaid-label-bg-color: $surface !default;
 
 // Terminal (ANSI) colors in notebook outputs, mixed toward the text color
-// so they pass WCAG AA on the page in both modes.
-$ansi-red: if($is-dark, mix($brand-red, $ink, 45%), $brand-red);
-$ansi-green: mix($brand-green, $ink, if($is-dark, 45%, 80%));
-$ansi-yellow: mix($brand-amber, $ink, if($is-dark, 55%, 65%));
+// so they pass WCAG AA on the code background in both modes.
+$ansi-red: if($is-dark, mix($brand-red, $text, 45%), $brand-red);
+$ansi-green: mix($brand-green, $text, if($is-dark, 45%, 80%));
+$ansi-yellow: mix($brand-amber, $text, if($is-dark, 55%, 65%));
 
-$tooltip-bg: $ink !default;
-$tooltip-color: $paper !default;
+$tooltip-bg: $text !default;
+$tooltip-color: $bg !default;
 
 /*-- scss:rules --*/
 
 // ---------------------------------------------------------------------------
-// 0. Fonts: self-hosted latin subsets (assets/fonts, SIL Open Font License).
-//    The families are chosen in _brand.yml; head.html preloads the two faces
-//    used above the fold.
+// 0. Tokens and fonts
 // ---------------------------------------------------------------------------
 
+:root {
+  color-scheme: #{if($is-dark, dark, light)};
+  --bg: #{$bg};
+  --surface: #{$surface};
+  --surface-2: #{$surface-2};
+  --surface-3: #{$surface-3};
+  --text: #{$text};
+  --text-2: #{$text-2};
+  --muted: #{$muted};
+  --border: #{$rule};
+  --border-strong: #{$rule-strong};
+  --link: #{$link};
+  --accent: #{$accent};
+  --accent-soft: #{$accent-soft};
+  --accent-ink: #{$accent-ink};
+  --mark: #{$mark};
+  --code-bg: #{$code-bg-color};
+  --shadow: #{$shadow};
+  --c1: #{$c1};
+  --c2: #{$c2};
+  --c3: #{$c3};
+  --person: #{$person};
+  --band: #{$band};
+  --green-ink: #{$green-ink};
+  --orange-ink: #{$orange-ink};
+  --red-ink: #{$red-ink};
+  --plate: #{$plate-bg};
+  --plate-filter: #{$plate-filter};
+  --font-sans: #{inspect($font-family-sans-serif)};
+  --font-cond: #{inspect($font-family-condensed)};
+  --font-mono: #{inspect($font-family-monospace)};
+  --font-block: #{inspect($font-family-block)};
+  --topbar-h: #{$topbar-h};
+}
+
+// Self-hosted latin subsets (assets/fonts, SIL Open Font License). The
+// families are chosen in _brand.yml; head.html preloads the two faces used
+// above the fold.
 $font-faces: (
-  ("Newsreader", "newsreader", 400, normal),
-  ("Newsreader", "newsreader", 500, normal),
-  ("Newsreader", "newsreader", 600, normal),
-  ("Newsreader", "newsreader", 400, italic),
-  ("Newsreader", "newsreader", 500, italic),
-  ("Newsreader", "newsreader", 600, italic),
-  ("Inter", "inter", 400, normal),
-  ("Inter", "inter", 500, normal),
-  ("Inter", "inter", 600, normal),
-  ("Inter", "inter", 700, normal),
-  ("JetBrains Mono", "jetbrains-mono", 400, normal),
-  ("JetBrains Mono", "jetbrains-mono", 500, normal)
+  ("IBM Plex Sans", "ibm-plex-sans", 400, normal),
+  ("IBM Plex Sans", "ibm-plex-sans", 400, italic),
+  ("IBM Plex Sans", "ibm-plex-sans", 500, normal),
+  ("IBM Plex Sans", "ibm-plex-sans", 600, normal),
+  ("IBM Plex Sans Condensed", "ibm-plex-sans-condensed", 600, normal),
+  ("IBM Plex Mono", "ibm-plex-mono", 400, normal),
+  ("IBM Plex Mono", "ibm-plex-mono", 400, italic),
+  ("IBM Plex Mono", "ibm-plex-mono", 500, normal)
 );
 
 @each $family, $file, $weight, $style in $font-faces {
@@ -140,325 +198,81 @@ $font-faces: (
 // 1. Base and rhythm
 // ---------------------------------------------------------------------------
 
+html {
+  scroll-padding-top: calc(var(--topbar-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-kerning: normal;
-  font-optical-sizing: auto;
 }
 
-@include media-breakpoint-down(md) {
+@media (max-width: 560px) {
   body {
-    font-size: 1.0625rem;
-    line-height: 1.65;
+    font-size: 0.96875rem; // 15.5px
   }
 }
 
 main.content {
-  li + li {
-    margin-top: 0.3em;
+  p {
+    margin: 0 0 1em;
   }
 
-  hr {
-    width: 40%;
-    margin: 2.75rem auto;
+  ul,
+  ol {
+    padding-left: 1.4em;
+    margin: 0 0 1.1em;
+  }
+
+  li {
+    margin: 0.35em 0;
+  }
+
+  li > p {
+    margin-bottom: 0.5em;
+  }
+
+  li::marker {
+    color: var(--muted);
   }
 
   strong,
   b {
     font-weight: 600;
   }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    opacity: 1;
+    margin: 2em 0;
+  }
 }
 
 ::selection {
-  background: $accent-soft;
+  background: var(--accent-soft);
 }
 
 // Search matches, in the results panel and on the page after a search.
 mark,
 mark.search-match,
-.aa-DetachedOverlay li.aa-Item[aria-selected="false"] .search-item mark.search-match,
-#quarto-search-results li.aa-Item[aria-selected="false"] .search-item mark.search-match {
-  background: $accent-soft;
+.aa-Panel li.aa-Item .search-item mark.search-match,
+#quarto-search-results li.aa-Item .search-item mark.search-match {
+  background: var(--mark);
   color: inherit;
-  padding: 0 0.1em;
-  border-radius: 0.2em;
+  padding: 0 1px;
+  border-radius: 3px;
 }
 
 :focus-visible {
-  outline: 2px solid $accent;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
-}
-
-// Interface text uses the sans face; prose stays serif.
-.navbar,
-.nav-footer,
-.sidebar,
-#quarto-search-results,
-.aa-Panel,
-.aa-Form,
-.aa-Input,
-.aa-DetachedCancelButton,
-figcaption,
-.figure-caption,
-.quarto-float-caption,
-.post-meta,
-.quarto-categories,
-.callout-header,
-main.content table,
-.code-with-filename-file,
-.tippy-box,
-.quarto-listing,
-.about-links,
-.posts-heading,
-.post-filter,
-.quarto-title-meta,
-#quarto-appendix,
-.btn {
-  font-family: $font-ui;
-}
-
-// ---------------------------------------------------------------------------
-// 2. Navbar
-// ---------------------------------------------------------------------------
-
-#quarto-header {
-  background: $paper;
-  border-bottom: 1px solid $rule;
-}
-
-#quarto-header .navbar {
-  box-shadow: none;
-  padding-block: 0.55rem;
-
-  .navbar-title {
-    font-weight: 600;
-    font-size: 1.02rem;
-    letter-spacing: -0.01em;
-  }
-
-  .navbar-nav .nav-link {
-    font-size: 0.92rem;
-  }
-
-  .navbar-brand-container {
-    max-width: none;
-  }
-}
-
-#quarto-header .navbar-toggler {
-  border: 0;
-  padding: 0.25rem;
-
-  &:focus {
-    box-shadow: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $accent;
-    outline-offset: 2px;
-  }
-}
-
-.quarto-color-scheme-toggle .bi::before,
-.quarto-color-scheme-toggle:not(.alternate) .bi::before {
-  // keep the toggle icon crisp and muted like other nav icons
-  opacity: 0.85;
-}
-
-// ---------------------------------------------------------------------------
-// 3. Headings
-// ---------------------------------------------------------------------------
-
-main.content {
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: $font-ui;
-    letter-spacing: -0.012em;
-    opacity: 1;
-    scroll-margin-top: 5rem;
-  }
-
-  h2 {
-    border-bottom: 0;
-    padding-bottom: 0;
-    margin: 2.9rem 0 0.8rem;
-    font-weight: 600;
-  }
-
-  h3 {
-    margin: 2.2rem 0 0.6rem;
-  }
-
-  h4 {
-    margin: 1.8rem 0 0.5rem;
-  }
-
-  h5,
-  h6 {
-    margin: 1.4rem 0 0.4rem;
-    color: $muted;
-  }
-
-  .anchorjs-link {
-    color: $muted !important;
-    text-decoration: none;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 4. Links in prose
-// ---------------------------------------------------------------------------
-
-main.content :is(p, li, td, dd, figcaption, .callout-body, blockquote, .footnotes) a:not(.footnote-ref):not(.footnote-back):not(.anchorjs-link):not(.lightbox):not(.post-link) {
-  color: $accent;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-  text-decoration-color: rgba($accent, 0.4);
-  transition: text-decoration-color 0.15s ease;
-
-  &:hover {
-    text-decoration-color: currentColor;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 5. Title block (no banner)
-// ---------------------------------------------------------------------------
-
-#title-block-header.quarto-title-block.default {
-  margin: 3rem 0 2.5rem;
-
-  .quarto-title h1.title {
-    font-size: clamp(2.05rem, 1.4rem + 2.2vw, 2.85rem);
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-    font-weight: 700;
-    margin: 0 0 0.6rem;
-    text-wrap: balance;
-  }
-
-  .quarto-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin: 0 0 1rem;
-    padding: 0;
-  }
-
-  .quarto-category {
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    opacity: 1;
-    color: $muted;
-    background: transparent;
-    border: 1px solid $rule-strong;
-    border-radius: 999px;
-    padding: 0.2rem 0.65rem;
-    margin: 0;
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    &:hover {
-      color: $accent;
-      border-color: $accent;
-    }
-  }
-
-  .description,
-  .description > p {
-    font-family: $font-prose;
-    font-style: italic;
-    font-size: 1.28rem;
-    line-height: 1.45;
-    color: $muted;
-    margin: 0.25rem 0 0;
-    text-wrap: pretty;
-  }
-
-  .subtitle {
-    font-family: $font-prose;
-    font-style: italic;
-    color: $muted;
-  }
-}
-
-.post-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  row-gap: 0.2rem;
-  margin-top: 1.2rem;
-  font-size: 0.85rem;
-  color: $muted;
-
-  > span + span::before {
-    content: "·";
-    margin: 0 0.55rem;
-    color: $rule-strong;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 6. Table of contents (right margin)
-// ---------------------------------------------------------------------------
-
-#quarto-margin-sidebar nav[role="doc-toc"],
-.sidebar nav[role="doc-toc"] {
-  > h2,
-  #toc-title {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    color: $muted;
-    margin-bottom: 0.6rem;
-  }
-
-  ul > li > a {
-    color: $muted;
-    line-height: 1.35;
-    padding-block: 0.22rem;
-
-    &:hover {
-      color: $ink;
-    }
-
-    &.active {
-      color: $accent;
-    }
-  }
-}
-
-.quarto-sidebar-toggle,
-.quarto-sidebar-toggle-title {
-  background: $paper;
-  border-color: $rule;
-  color: $muted;
-}
-
-// ---------------------------------------------------------------------------
-// 7. Code
-// ---------------------------------------------------------------------------
-
-div.sourceCode {
-  border: 1px solid $rule;
-  border-radius: $radius-lg;
-  margin: 1.5rem 0;
-}
-
-main pre {
-  line-height: 1.6;
+  border-radius: 4px;
 }
 
 // No ligatures in code: `>=` and `==` must read exactly as typed.
@@ -470,40 +284,940 @@ samp {
   font-feature-settings: "liga" 0, "calt" 0;
 }
 
-main.content :is(p, li, td, th, dd, figcaption, .callout-body, h2, h3, h4) code:not(.sourceCode) {
-  background: $code-bg;
-  color: $code-color;
+// ---------------------------------------------------------------------------
+// 2. Page layout: top bar, sidebar | text column | margin column
+// ---------------------------------------------------------------------------
+
+// Quarto's docked grid splits the sidebar into fractions of its width; this
+// grid is the field guide's instead: a fixed sidebar, the text column
+// centered in the space left, and a fixed margin column for margin notes.
+// The named lines are the ones Quarto's column classes use.
+// Below 992px the sidebar is a drawer: one centered column with 16px gutters.
+@include media-breakpoint-down(lg) {
+  body #quarto-content.page-columns {
+    grid-template-columns:
+      [screen-start screen-start-inset page-start page-start-inset body-start-outset body-start] minmax(16px, 1fr)
+      [body-content-start] minmax(0, #{$grid-body-width})
+      [body-content-end] minmax(16px, 1fr)
+      [body-end body-end-outset page-end-inset page-end screen-end-inset screen-end];
+  }
+
+  body #quarto-content.page-columns #quarto-margin-sidebar {
+    display: none;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  body #quarto-content.page-columns {
+    max-width: 1480px;
+    margin-inline: auto;
+    grid-template-columns:
+      [screen-start screen-start-inset page-start page-start-inset] 264px
+      [body-start-outset] minmax(40px, 1fr)
+      [body-start body-content-start] minmax(0, #{$grid-body-width})
+      [body-content-end body-end] minmax(40px, 1fr)
+      [body-end-outset page-end-inset page-end screen-end-inset screen-end];
+  }
+
+  body #quarto-content.page-columns #quarto-sidebar {
+    grid-column: screen-start / body-start-outset;
+  }
+
+  body #quarto-content.page-columns #quarto-margin-sidebar {
+    display: none;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  body #quarto-content.page-columns {
+    grid-template-columns:
+      [screen-start screen-start-inset page-start page-start-inset] #{$grid-sidebar-width}
+      [body-start-outset] minmax(48px, 1fr)
+      [body-start body-content-start] minmax(0, #{$grid-body-width})
+      [body-content-end body-end] minmax(48px, 1fr)
+      [body-end-outset] #{$grid-margin-width}
+      [page-end-inset page-end screen-end-inset screen-end];
+  }
+
+  body #quarto-content.page-columns #quarto-margin-sidebar {
+    display: block;
+    grid-column: body-end-outset / page-end;
+  }
+}
+
+#quarto-content main#quarto-document-content.content {
+  margin-top: 0;
+  padding-top: 24px;
+  padding-bottom: 32px;
+}
+
+@include media-breakpoint-down(lg) {
+  #quarto-content main#quarto-document-content.content {
+    padding-top: 20px;
+  }
+}
+
+// Top bar -------------------------------------------------------------------
+
+#quarto-header {
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+#quarto-header .navbar {
+  min-height: var(--topbar-h);
+  padding-block: 0;
+  background: transparent;
+  box-shadow: none;
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+  }
+
+  // The field guide's brand mark: an inverted square with the initial.
+  .navbar-brand::before {
+    content: "S";
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--text);
+    color: var(--bg);
+    font: 600 15px/1 var(--font-cond);
+  }
+
+  .navbar-title {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.005em;
+    color: var(--text);
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 0.92rem;
+    color: var(--text-2);
+
+    &:hover,
+    &.active {
+      color: var(--text);
+    }
+  }
+
+  .navbar-brand-container {
+    max-width: none;
+  }
+}
+
+#quarto-header .navbar-toggler {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  padding: 0.3rem 0.45rem;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.quarto-color-scheme-toggle .bi::before,
+.quarto-color-scheme-toggle:not(.alternate) .bi::before {
+  opacity: 0.85;
+}
+
+#quarto-header .navbar > .container-fluid {
+  padding-inline: 16px;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+// Search box at the right end of the top bar (Quarto's textbox search,
+// Algolia autocomplete), as in the guide.
+#quarto-search {
+  order: 10;
+  flex: 0 1 440px;
+  min-width: 0;
+  margin-left: 0;
+}
+
+#quarto-header .navbar #navbarCollapse {
+  order: 8;
+  flex-grow: 1;
+}
+
+#quarto-header .navbar .quarto-navbar-tools {
+  order: 9;
+}
+
+#quarto-search .aa-Autocomplete,
+#quarto-search.type-textbox .aa-Autocomplete {
+  width: 100% !important;
+  max-width: none;
+}
+
+#quarto-search .aa-Form {
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  position: relative;
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .aa-Input {
+    font-size: 0.92rem;
+    color: var(--text);
+
+    &::placeholder {
+      color: var(--muted);
+    }
+  }
+
+  .aa-SubmitIcon,
+  .aa-ClearIcon {
+    color: var(--muted);
+    fill: currentColor;
+  }
+}
+
+// The "/" key hint, as in the guide.
+#quarto-search .aa-Form::after {
+  content: "/";
+  position: absolute;
+  right: 9px;
+  top: 8px;
+  font: 500 0.72rem/1 var(--font-mono);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 6px;
+  background: var(--surface-2);
+  pointer-events: none;
+}
+
+#quarto-search .aa-Form:focus-within::after,
+#quarto-search .aa-Form:has(.aa-ClearButton:not([hidden]))::after {
+  display: none;
+}
+
+.aa-Panel,
+.aa-DetachedOverlay .aa-Panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+
+  .search-result-header {
+    background: var(--surface-2);
+    color: var(--muted);
+  }
+}
+
+// Results: the guide's quiet list, the selected one on a gray background
+// (Quarto's default fills it with the primary color; its selectors need
+// !important to be overridden).
+.aa-Panel .aa-Item,
+.aa-Panel .aa-Item .search-item,
+.aa-Panel .aa-Item .search-item :is(.search-result-title-container, .search-result-text-container, .search-result-section, .search-result-title) {
+  background: transparent !important;
+  color: var(--text) !important;
+}
+
+.aa-Panel .aa-Item .search-item .search-result-text {
+  background: transparent !important;
+  color: var(--text-2) !important;
+}
+
+.aa-Panel .aa-Item[aria-selected="true"] .search-item,
+.aa-Panel .aa-Item[aria-selected="true"] .search-item :is(.search-result-title-container, .search-result-text-container, .search-result-section, .search-result-text) {
+  background: var(--surface-2) !important;
+}
+
+.aa-Panel .aa-Item .search-item mark.search-match {
+  background: var(--mark) !important;
+  color: inherit !important;
+}
+
+@include media-breakpoint-down(md) {
+  #quarto-search .aa-Form::after {
+    display: none;
+  }
+}
+
+// Sidebar ---------------------------------------------------------------------
+//
+// Markup (Quarto): nav#quarto-sidebar > .sidebar-menu-container > ul >
+// li.sidebar-item [.sidebar-item-section] > .sidebar-item-container > a.sidebar-link.
+// Year sections are labels, not collapsible groups. _theme/site.js moves the
+// page's nav#TOC under its own sidebar entry.
+
+#quarto-sidebar.sidebar-navigation {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  padding: 22px 14px 48px 18px;
+  overscroll-behavior: contain;
+  font-size: 0.92rem;
+
+  .sidebar-menu-container {
+    padding: 0;
+  }
+
+  .sidebar-menu-container > ul {
+    margin: 0;
+  }
+
+  .sidebar-item {
+    margin: 0;
+  }
+
+  .sidebar-item-container {
+    display: block;
+  }
+
+  // Section labels: "2026", "2025", "About".
+  .sidebar-item-section > .sidebar-item-container > .sidebar-link {
+    display: block;
+    margin: 18px 10px 6px;
+    padding: 0;
+    background: none;
+    pointer-events: none;
+    font: 600 0.7rem/1.4 var(--font-sans);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .sidebar-item-toggle {
+    display: none;
+  }
+
+  // Section contents are never collapsed.
+  ul.sidebar-section {
+    display: block;
+    height: auto;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sidebar-link:not(.sidebar-item-section .sidebar-link):not(.text-start),
+  ul.sidebar-section .sidebar-link {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--text-2);
+    font-size: 0.92rem;
+    line-height: 1.35;
+    font-weight: 400;
+    text-decoration: none;
+    transition: background-color 0.12s ease;
+
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    &.active {
+      background: var(--accent-soft);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .menu-text {
+      display: inline;
+    }
+  }
+
+  .sidebar-menu-container > ul > li:first-child .sidebar-link {
+    margin-bottom: 2px;
+  }
+}
+
+// The page's table of contents, under its sidebar entry (or, without
+// JavaScript, below the list). Only the h2 entries show; the h3 entries of
+// the section being read open as you scroll (toc-expand: 1).
+#quarto-sidebar nav#TOC[role="doc-toc"] {
+  margin: 4px 0 10px 16px;
+  padding: 0;
+
+  #toc-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 10px;
+    border-left: 1px solid var(--border);
+  }
+
+  ul ul {
+    padding-left: 12px;
+    border-left: 0;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  a.nav-link {
+    display: block;
+    border: 0;
+    margin: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.83rem;
+    line-height: 1.35;
+    color: var(--muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    &.active {
+      color: var(--accent-ink);
+      font-weight: 500;
+      border: 0;
+    }
+  }
+
+  ul ul a.nav-link {
+    font-size: 0.8rem;
+  }
+}
+
+// Previous / next cards ----------------------------------------------------------
+
+nav.page-navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 64px 0 40px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-sans);
+
+  .nav-page {
+    display: flex;
+    min-width: 0;
+  }
+
+  .nav-page-previous {
+    grid-column: 1;
+  }
+
+  .nav-page-next {
+    grid-column: 2;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .pagination-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s ease;
+
+    &:hover {
+      border-color: var(--accent);
+    }
+
+    .bi {
+      display: none;
+    }
+
+    .nav-page-text {
+      font-weight: 600;
+      line-height: 1.35;
+    }
+  }
+
+  .nav-page-previous .pagination-link::before,
+  .nav-page-next .pagination-link::before {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+
+  .nav-page-previous .pagination-link::before {
+    content: "← Previous";
+  }
+
+  .nav-page-next .pagination-link::before {
+    content: "Next →";
+  }
+}
+
+@media (max-width: 560px) {
+  nav.page-navigation {
+    grid-template-columns: 1fr;
+
+    .nav-page-next {
+      grid-column: 1;
+    }
+  }
+}
+
+// Small screens: the sidebar becomes a drawer ------------------------------------
+
+// Quarto hides the page title on small screens because its second bar
+// repeats it; that bar is replaced by the burger button in the top bar.
+#title-block-header h1.title.d-none {
+  display: block !important;
+}
+
+// The burger that opens the sidebar drawer (added by _theme/site.html; it
+// presses Quarto's own sidebar toggle).
+#quarto-header .menu-btn {
+  display: none;
+}
+
+@include media-breakpoint-down(lg) {
+  nav.quarto-secondary-nav {
+    display: none !important;
+  }
+
+  #quarto-header .menu-btn {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  #quarto-header .navbar-toggler,
+  #quarto-header #navbarCollapse {
+    display: none !important;
+  }
+
+  #quarto-header .navbar .navbar-brand-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0 auto 0 0 !important;
+  }
+
+  #quarto-header .navbar .navbar-brand::before {
+    flex: none;
+  }
+
+  #quarto-search {
+    flex: none;
+  }
+
+  // Quarto hides a left table of contents and keeps links on one line in
+  // its mobile sidebar; in the drawer both stay as on wide screens.
+  #quarto-sidebar.sidebar-navigation nav#TOC[role="doc-toc"] {
+    display: block !important;
+  }
+
+  #quarto-sidebar.sidebar-navigation :is(.sidebar-link, .menu-text, nav#TOC a.nav-link) {
+    white-space: normal;
+  }
+
+  #quarto-header .navbar .navbar-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #quarto-sidebar.sidebar-navigation {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(320px, 86vw);
+    max-height: none !important;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding-top: 22px;
+  }
+
+  #quarto-sidebar-glass.show {
+    background: rgba(0, 0, 0, 0.35);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 3. Title block: eyebrow, title, lead, meta line
+// ---------------------------------------------------------------------------
+
+#title-block-header.quarto-title-block.default {
+  margin: 0 0 8px;
+
+  .eyebrow {
+    margin: 0 0 8px;
+    font: 600 0.8rem/1.3 var(--font-cond);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  .quarto-title h1.title {
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    font-weight: 600;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  .lead,
+  .description,
+  .description > p,
+  .subtitle {
+    font-size: 1.1rem;
+    line-height: 1.62;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--text-2);
+    margin: 0 0 18px;
+    text-wrap: pretty;
+  }
+
+  .description > p {
+    margin: 0;
+  }
+}
+
+.ch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 0.86rem;
+  color: var(--muted);
+  padding-bottom: 22px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+
+  .meta-time::before {
+    content: "◷";
+    margin-right: 6px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Headings
+// ---------------------------------------------------------------------------
+
+main.content {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    color: var(--text);
+    opacity: 1;
+    position: relative;
+    scroll-margin-top: calc(var(--topbar-h) + 16px);
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin: 2.6em 0 0.7em;
+  }
+
+  h3 {
+    font-size: 1.14rem;
+    line-height: 1.35;
+    margin: 2em 0 0.5em;
+  }
+
+  h4 {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin: 1.8em 0 0.4em;
+  }
+
+  h5,
+  h6 {
+    font-size: 0.9rem;
+    margin: 1.5em 0 0.4em;
+    color: var(--muted);
+  }
+
+  #title-block-header + section > h2,
+  #title-block-header + h2 {
+    margin-top: 1.4em;
+  }
+
+  h2 code,
+  h3 code {
+    font-size: 0.9em;
+  }
+
+  // Hover "#" anchor.
+  .anchorjs-link {
+    color: var(--muted) !important;
+    text-decoration: none;
+    font-weight: 400;
+    opacity: 0;
+    margin-left: 0.4em;
+    padding-left: 0 !important;
+  }
+
+  :is(h2, h3, h4):hover .anchorjs-link,
+  .anchorjs-link:focus {
+    opacity: 1;
+  }
+}
+
+// Section numbers written by the author ("1.", "2.1", "Q1:"), wrapped by
+// _theme/headings.lua, and numbers from number-sections: true.
+// A space follows the number in the text, so the margin adds the rest of
+// the guide's gap.
+.h-num,
+.header-section-number {
+  font: 600 0.95em/1 var(--font-cond);
+  color: var(--muted);
+  margin-right: 0.25em;
+}
+
+#quarto-sidebar nav#TOC .h-num,
+#quarto-sidebar nav#TOC .header-section-number {
+  margin-right: 0.1em;
+}
+
+// ---------------------------------------------------------------------------
+// 5. Links in prose and inline code
+// ---------------------------------------------------------------------------
+
+main.content :is(p, li, td, dd, figcaption, .callout-body, blockquote, .footnotes, .w-note, .w-src) a:not(.footnote-ref):not(.footnote-back):not(.anchorjs-link):not(.lightbox):not(.post-link) {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+  transition: text-decoration-color 0.15s ease;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+main.content :is(p, li, td, th, dd, figcaption, .callout-body, h2, h3, h4, .w-note) code:not(.sourceCode) {
+  font: 0.87em/1 var(--font-mono);
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
   padding: 0.12em 0.36em;
-  border-radius: 0.3rem;
-  font-size: 0.84em;
   white-space: normal;
+  overflow-wrap: anywhere;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
-// Unlabelled fences (usually command output or ASCII diagrams) and notebook
-// stdout: a quiet dashed box, attached to a command block right above it.
-main.content pre:not(.sourceCode),
-main.content .cell-output pre {
-  background: transparent;
-  border: 1px dashed $rule-strong;
-  border-radius: $radius-lg;
-  padding: 0.8rem 1rem;
-  font-size: 0.78em;
-  color: $muted;
-  margin: 1.5rem 0;
+// ---------------------------------------------------------------------------
+// 6. Code blocks: a card with a language header and a Copy button
+// ---------------------------------------------------------------------------
+//
+// Markup: .code-copy-outer-scaffold > div.sourceCode[data-lang] > pre > code,
+// plus button.code-copy-button. data-lang comes from _theme/blocks.lua.
 
-  code {
-    color: inherit;
-    background: none;
-    padding: 0;
+main.content .code-copy-outer-scaffold,
+main.content div.sourceCode {
+  position: relative;
+}
+
+main.content div.sourceCode {
+  margin: 1.3em 0 1.5em;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+main.content .code-copy-outer-scaffold > div.sourceCode {
+  margin: 0;
+}
+
+main.content .code-copy-outer-scaffold {
+  margin: 1.3em 0 1.5em;
+}
+
+main.content div.sourceCode[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  height: 33px;
+  padding: 0 6px 0 14px;
+  border-bottom: 1px solid var(--border);
+  font: 600 0.68rem/33px var(--font-sans);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+main.content div.sourceCode pre.sourceCode,
+main.content div.sourceCode > pre {
+  margin: 0;
+  padding: 14px 16px 16px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font: 400 0.83rem/1.62 var(--font-mono);
+  tab-size: 4;
+  overflow-x: auto;
+}
+
+main.content div.sourceCode pre code {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: pre;
+}
+
+// Copy button: a text button in the header strip.
+main.content .code-copy-outer-scaffold .code-copy-button {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  height: 27px;
+  padding: 0 10px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-2);
+  opacity: 1;
+  z-index: 2;
+
+  > .bi {
+    display: none;
+  }
+
+  &::after {
+    content: "Copy";
+    font: 500 0.76rem/1 var(--font-sans);
+  }
+
+  &:hover {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  &.code-copy-button-checked {
+    color: var(--c3);
+
+    &::after {
+      content: "Copied";
+    }
   }
 }
 
-// Code blocks are wrapped in .code-copy-outer-scaffold (code-copy button).
-main.content .code-copy-outer-scaffold:has(+ pre:not(.sourceCode)) > div.sourceCode,
-main.content .code-copy-outer-scaffold:has(+ .cell-output) > div.sourceCode {
+// Blocks without a language have no header strip: keep the button clear of
+// the first line.
+main.content .code-copy-outer-scaffold:has(> div.sourceCode:not([data-lang])) .code-copy-button {
+  top: 8px;
+  right: 8px;
+}
+
+main.content .code-copy-outer-scaffold:has(> div.sourceCode:not([data-lang])) pre {
+  padding-right: 80px;
+}
+
+// Long blocks are clipped with a fade and a "Show all N lines" button
+// (_theme/site.js adds .is-long and the button).
+main.content div.sourceCode.is-long:not(.is-open) pre {
+  max-height: 30em;
+  overflow-y: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent);
+  mask-image: linear-gradient(to bottom, black 75%, transparent);
+}
+
+main.content .code-more {
+  display: block;
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--link);
+  font: 400 0.84rem/1.4 var(--font-sans);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+// Unlabelled fences (command output, ASCII diagrams) and notebook output:
+// the guide's plain text block, attached to a code cell right above it.
+main.content pre:not(.sourceCode),
+main.content .cell-output pre {
+  margin: 1.2em 0 1.5em;
+  padding: 14px 16px;
+  overflow-x: auto;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font: 400 0.8rem/1.55 var(--font-block);
+  color: var(--text-2);
+
+  code {
+    font: inherit;
+    color: inherit;
+    background: none;
+    padding: 0;
+    border: 0;
+  }
+}
+
+main.content div.sourceCode pre:not(.sourceCode) {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+main.content .cell:has(.cell-output) > .code-copy-outer-scaffold,
+main.content .cell:has(.cell-output) > .code-copy-outer-scaffold > div.sourceCode {
   margin-bottom: 0;
+}
+
+main.content .cell:has(.cell-output) > .code-copy-outer-scaffold > div.sourceCode {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -512,12 +1226,12 @@ main.content .code-copy-outer-scaffold + .cell-output {
   margin-top: 0;
 }
 
-main.content .code-copy-outer-scaffold + pre:not(.sourceCode),
 main.content .code-copy-outer-scaffold + .cell-output pre {
   margin-top: 0;
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  background: var(--surface);
 }
 
 // Long printed lines wrap; tracebacks keep their layout and scroll instead.
@@ -530,14 +1244,14 @@ main.content .cell-output-error pre {
   border-color: rgba($brand-red, 0.5);
 }
 
-// ANSI colors: Quarto's defaults fail contrast on this page, and ANSI black
+// ANSI colors: Quarto's defaults fail contrast here, and ANSI black
 // disappears in dark mode. 256-color codes arrive as inline styles and fall
 // back to the output text color.
 .ansi-black-fg,
 .ansi-bright-black-fg,
 .ansi-white-fg,
 .ansi-bright-white-fg {
-  color: $ink !important;
+  color: var(--text) !important;
 }
 
 .ansi-red-fg,
@@ -561,24 +1275,33 @@ main.content .cell-output-error pre {
 .ansi-bright-cyan-fg,
 .ansi-magenta-fg,
 .ansi-bright-magenta-fg {
-  color: $accent !important;
+  color: var(--accent-ink) !important;
 }
 
 .cell-output pre span[style*="color"] {
   color: inherit !important;
 }
 
+// Code blocks with a file name: the name replaces the language label.
 .code-with-filename .code-with-filename-file {
-  background: $surface-2;
-  border: 1px solid $rule;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
   border-bottom: 0;
-  border-radius: $radius-lg $radius-lg 0 0;
-  padding: 0.35rem 0.95rem;
-  font-size: 0.75rem;
-  color: $muted;
+  border-radius: 12px 12px 0 0;
+  padding: 0 14px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--muted);
 
   pre {
     color: inherit;
+    font: 500 0.76rem/1 var(--font-mono);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
   }
 }
 
@@ -586,88 +1309,168 @@ main.content .cell-output-error pre {
   margin-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-}
 
-.code-copy-button {
-  border-radius: $radius;
+  &[data-lang]::before {
+    display: none;
+  }
 }
 
 // ---------------------------------------------------------------------------
-// 8. Callouts (callout-appearance: simple)
+// 7. Callouts (callout-appearance: simple): tinted panels, no side bar
 // ---------------------------------------------------------------------------
 
 main div.callout.callout-style-simple {
-  border-width: 0 0 0 $callout-border-width;
-  border-radius: 0 $radius $radius 0;
-  padding: 0.95rem 1.15rem;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 1.6em 0;
+  background: var(--surface-2);
 
-  .callout-body {
-    font-size: 0.97em;
+  > .callout-header {
+    font: 600 0.72rem/1.3 var(--font-cond);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 1;
+    margin-bottom: 6px;
   }
 
-  .callout-body > :last-child {
+  .callout-icon-container {
+    display: none;
+  }
+
+  .callout-body-container,
+  .callout-body {
+    font-size: 0.95em;
+  }
+
+  .callout-body > :last-child,
+  .callout-body-container > :last-child {
     margin-bottom: 0;
   }
 
+  .callout-body > :first-child,
+  .callout-body-container > :first-child {
+    margin-top: 0;
+  }
+
+  // An untitled simple callout: no header, a small margin fix.
+  &:not(.callout-titled) .callout-body {
+    padding-top: 0;
+  }
+}
+
+main div.callout-note.callout-style-simple {
+  background: var(--accent-soft);
+
   > .callout-header {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    opacity: 1;
+    color: var(--accent-ink);
   }
 }
 
-@each $name, $color in ("note": $callout-color-note, "tip": $callout-color-tip, "warning": $callout-color-warning, "important": $callout-color-important, "caution": $callout-color-caution) {
-  main div.callout-#{$name}.callout-style-simple {
-    background: mix($color, $paper, if($is-dark, 11%, 6%));
-    border-left-color: $color;
+main div.callout-tip.callout-style-simple > .callout-header {
+  color: var(--green-ink);
+}
+
+main div.callout-warning.callout-style-simple,
+main div.callout-caution.callout-style-simple {
+  background: color-mix(in srgb, var(--c2) 9%, var(--surface));
+
+  > .callout-header {
+    color: var(--orange-ink);
+  }
+}
+
+main div.callout-important.callout-style-simple {
+  background: color-mix(in srgb, #{$brand-red} 8%, var(--surface));
+
+  > .callout-header {
+    color: var(--red-ink);
   }
 }
 
 // ---------------------------------------------------------------------------
-// 9. Tables
+// 8. Tables: a bordered card that scrolls sideways when needed
 // ---------------------------------------------------------------------------
+//
+// _theme/blocks.lua wraps Markdown tables in .table-wrap; tables printed by
+// notebooks sit in .cell-output-display.
+
+main.content .table-wrap,
+main.content .cell-output-display:has(> table),
+main.content .cell-output-display:has(> div > table) {
+  overflow-x: auto;
+  margin: 1.2em 0 1.5em;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
 
 main.content table.table,
 main.content table:not(.table) {
   --bs-table-bg: transparent;
-  --bs-table-color: #{$ink};
-  font-size: 0.88rem;
-  font-variant-numeric: tabular-nums;
-  margin: 1.75rem 0;
+  --bs-table-color: var(--text);
+  --bs-table-hover-bg: transparent;
+  width: 100%;
+  margin: 0;
   border-collapse: collapse;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
 
-  > thead > tr > th {
-    border-bottom: 1.5px solid $rule-strong;
+  > :not(caption) > * > * {
+    padding: 9px 12px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  > thead > tr > th,
+  > thead > tr > td {
     font-weight: 600;
-    color: $ink;
+    color: var(--text);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-strong);
     vertical-align: bottom;
   }
 
-  > :not(caption) > * > * {
-    padding: 0.55rem 0.7rem;
-    border-bottom-color: $rule;
+  > tbody > tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  > tbody > tr:hover > * {
+    background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  }
+
+  code {
+    font-size: 0.84em;
   }
 }
 
-@include media-breakpoint-down(md) {
-  main.content table.table {
-    display: block;
-    overflow-x: auto;
-  }
+// A table outside a wrapper (a caption float, raw HTML) still gets the card.
+main.content .quarto-float table,
+main.content > table,
+main.content section > table {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  background: var(--surface);
+  margin: 1.2em 0 1.5em;
 }
 
 // ---------------------------------------------------------------------------
-// 10. Blockquotes
+// 9. Blockquotes
 // ---------------------------------------------------------------------------
 
 main.content blockquote,
 main.content .blockquote {
-  border-left: 2px solid $accent;
-  padding: 0.15rem 0 0.15rem 1.15rem;
-  margin: 1.75rem 0;
-  color: $muted;
-  font-style: italic;
+  border-left: 2px solid var(--border-strong);
+  padding: 2px 0 2px 16px;
+  margin: 1.6em 0;
+  color: var(--text-2);
   font-size: 1em;
 
   p:last-child {
@@ -676,24 +1479,25 @@ main.content .blockquote {
 }
 
 // ---------------------------------------------------------------------------
-// 11. Figures and captions
+// 10. Figures and images: white cards
 // ---------------------------------------------------------------------------
 
 main.content .quarto-figure,
 main.content .cell-output-display {
-  margin: 2.1rem 0;
+  margin: 1.6em 0;
 }
 
-// Every raster image, Graphviz SVG and matplotlib output sits on a plate, so
-// transparent PNGs stay readable in dark mode. Photos opt out with `.photo`.
+// Raster images, Graphviz SVG and notebook plots sit in a bordered card. In
+// dark mode the card turns into a white plate, so transparent PNGs drawn for
+// a light page stay readable. Photos opt out with `.photo`.
 main.content :is(.figure-img, p > img, p > a.lightbox > img, .cell-output-display img),
 main.content :is(.cell-output-display, .quarto-figure) > svg,
 main.content :is(.cell-output-display, .quarto-figure) div > svg {
-  background: $plate-bg;
-  padding: $plate-pad;
-  border: 1px solid $rule;
-  border-radius: $radius-lg;
-  filter: $plate-filter;
+  background: var(--plate);
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  filter: var(--plate-filter);
   box-sizing: border-box;
 }
 
@@ -701,6 +1505,7 @@ main.content :is(img.photo, .photo img) {
   background: none;
   padding: 0;
   border: 0;
+  border-radius: 12px;
   filter: none;
 }
 
@@ -723,38 +1528,43 @@ figcaption,
 .figure-caption,
 .quarto-float-caption,
 main.content .quarto-figure figcaption {
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: $muted;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-2);
   text-align: center;
-  margin-top: 0.7rem;
+  margin-top: 10px;
   text-wrap: balance;
 }
 
 // Lightbox: keep transparent PNGs readable on the dark overlay.
 .glightbox-container .gslide-image img {
-  background: $plate-bg;
+  background: var(--plate);
   padding: 1rem;
-  border-radius: $radius-lg;
+  border-radius: 12px;
 }
 
 // ---------------------------------------------------------------------------
-// 12. Math
+// 11. Math: display equations in a centered card
 // ---------------------------------------------------------------------------
 
 .katex {
-  font-size: 1.06em;
+  font-size: 1.04em;
 }
 
-.katex-display {
+main.content .katex-display {
+  margin: 1.3em 0 1.5em;
+  padding: 14px 16px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.4rem 0;
-  margin: 1.5rem 0;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
 }
 
 // ---------------------------------------------------------------------------
-// 13. Footnotes, margin notes, appendix, popups
+// 12. Footnotes, margin notes, appendix, popups
 // ---------------------------------------------------------------------------
 
 .column-margin,
@@ -762,70 +1572,67 @@ aside:not(.footnotes):not(.sidebar),
 .margin-caption {
   font-size: 0.82rem;
   line-height: 1.5;
-  color: $muted;
+  color: var(--muted);
 }
 
 a.footnote-ref {
-  font-family: $font-ui;
   font-weight: 600;
   text-decoration: none;
-  color: $accent;
+  color: var(--link);
 }
 
 #quarto-appendix.default {
-  border-top: 1px solid $rule;
+  border-top: 1px solid var(--border);
   background: transparent;
 
   .quarto-appendix-heading {
     border-bottom: 0;
-    font-size: 0.8rem;
+    font: 600 0.7rem/1.4 var(--font-sans);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: $muted;
+    letter-spacing: 0.09em;
+    color: var(--muted);
   }
 }
 
 .tippy-box[data-theme~="quarto"] {
-  background: $paper;
-  color: $ink;
-  border: 1px solid $rule;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, if($is-dark, 0.45, 0.1));
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
   font-size: 0.85rem;
 }
 
 // ---------------------------------------------------------------------------
-// 14. Home page: intro and post list
+// 13. Home page: intro and post cards
 // ---------------------------------------------------------------------------
 
 .quarto-about-hero {
   display: flex;
-  align-items: center;
-  gap: 1.6rem;
-  margin: 3.25rem 0 3.25rem;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin: 0 0 8px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
 
   .hero-photo {
-    width: 6.75rem;
-    height: 6.75rem;
+    width: 5.5rem;
+    height: 5.5rem;
     border-radius: 50%;
     object-fit: cover;
     flex: none;
-    border: 1px solid $rule;
+    border: 1px solid var(--border);
   }
 
   #title-block-header.quarto-title-block.default {
     margin: 0;
 
     .quarto-title h1.title {
-      font-size: 1.95rem;
-      letter-spacing: -0.02em;
-      margin: 0 0 0.3rem;
+      margin-bottom: 8px;
     }
 
     .description,
     .description > p {
-      font-style: normal;
-      font-size: 1.1rem;
-      line-height: 1.5;
       margin: 0;
     }
   }
@@ -833,191 +1640,200 @@ a.footnote-ref {
   .about-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    margin-top: 0.8rem;
-  }
-
-  .about-link {
-    color: $muted;
-    text-decoration: none;
-    font-size: 1.1rem;
-
-    &:hover {
-      color: $accent;
-    }
+    gap: 6px;
+    margin-top: 14px;
   }
 
   @include media-breakpoint-down(sm) {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1.1rem;
-    margin-top: 2rem;
+    gap: 1rem;
+  }
+}
+
+// Pill buttons: hero links, about links, tags (the guide's .w-btn).
+.about-link,
+.post-tag,
+.w-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font: 400 0.8rem/1.3 var(--font-sans);
+  color: var(--text-2);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  &.active,
+  &[aria-pressed="true"] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
   }
 }
 
 main.content h2.posts-heading {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font: 600 0.7rem/1.4 var(--font-sans);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: $muted;
-  border-bottom: 1px solid $rule;
-  padding-bottom: 0.6rem;
-  margin: 0;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin: 28px 0 10px;
 }
 
 .post-filter {
-  font-size: 0.85rem;
-  color: $muted;
-  margin: 0.8rem 0 0;
-
-  a {
-    color: $accent;
-  }
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin: 0 0 14px;
 }
 
-ul.post-list {
+// Posts are cards grouped by year (_theme/post-list.ejs), like the guide's
+// chapter map. The year labels are full-width items of the same grid.
+main.content ul.post-list.post-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-main.content .post-item {
-  display: grid;
-  grid-template-columns: 1fr;
-  padding: 1.5rem 0;
-  margin: 0;
-  border-bottom: 1px solid $rule;
+main.content .post-grid > li.post-year-label {
+  grid-column: 1 / -1;
+  margin: 14px 0 -2px;
+  font: 600 0.7rem/1.4 var(--font-sans);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
 
-  &.has-thumb {
-    grid-template-columns: 1fr 7.5rem;
-    column-gap: 1.5rem;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+main.content .post-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 13px 14px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.content .post-item:hover {
+    transform: none;
   }
 }
 
 .post-link {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   color: inherit;
   text-decoration: none;
-
-  &:hover .post-title {
-    color: $accent;
-  }
+  flex: 1 1 auto;
 }
 
 .post-date {
   display: block;
-  font-family: $font-ui;
-  font-size: 0.78rem;
-  color: $muted;
+  font: 600 0.8rem/1.3 var(--font-cond);
+  letter-spacing: 0.02em;
+  color: var(--accent-ink);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
 }
 
 main.content .post-title {
-  font-family: $font-ui;
-  font-size: 1.28rem;
+  font-size: 1rem;
   line-height: 1.3;
-  margin: 0.25rem 0 0.4rem;
+  margin: 0;
   font-weight: 600;
-  letter-spacing: -0.015em;
-  color: $ink;
-  transition: color 0.15s ease;
+  letter-spacing: 0;
+  color: var(--text);
 }
 
 .post-desc {
-  margin: 0;
-  color: $muted;
-  font-family: $font-prose;
-  font-size: 1.05rem;
-  line-height: 1.55;
+  margin: 0 !important;
+  color: var(--text-2);
+  font-size: 0.83rem;
+  line-height: 1.45;
 }
 
 .post-meta-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.5rem;
-  margin-top: 0.75rem;
-  font-family: $font-ui;
-  font-size: 0.75rem;
-  color: $muted;
-}
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 0.74rem;
+  color: var(--muted);
 
-.post-reading-time {
-  margin-right: 0.35rem;
-}
-
-.post-tag {
-  background: none;
-  border: 1px solid $rule-strong;
-  border-radius: 999px;
-  padding: 0.05rem 0.6rem;
-  font: inherit;
-  color: $muted;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
-
-  &:hover,
-  &.active {
-    border-color: $accent;
-    color: $accent;
+  .post-tag {
+    padding: 1px 9px;
+    font-size: 0.72rem;
   }
 }
 
-.post-thumb {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  width: 7.5rem;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: $radius;
-  border: 1px solid $rule;
-  background: $plate-bg;
-  filter: $plate-filter;
+.post-reading-time {
+  margin-right: 6px;
 
-  @include media-breakpoint-down(md) {
-    display: none;
+  &::before {
+    content: "◷";
+    margin-right: 5px;
   }
 }
 
 // ---------------------------------------------------------------------------
-// 15. About page (jolla template)
+// 14. About page (jolla template)
 // ---------------------------------------------------------------------------
 
 div.quarto-about-jolla {
   .about-image {
-    border: 1px solid $rule;
+    border: 1px solid var(--border);
   }
 
-  .about-link {
-    font-family: $font-ui;
-    font-size: 0.85rem;
-    border: 1px solid $rule-strong;
-    border-radius: 999px;
-    color: $muted;
-    text-decoration: none;
+  .about-links {
+    gap: 6px;
+  }
 
-    &:hover {
-      color: $accent;
-      border-color: $accent;
-    }
+  .about-links .about-link {
+    margin: 0;
+    border-radius: 999px;
+    padding: 5px 12px;
   }
 }
 
 // ---------------------------------------------------------------------------
-// 16. Footer
+// 15. Footer
 // ---------------------------------------------------------------------------
 
 .nav-footer {
-  border-top: 1px solid $rule;
+  border-top: 1px solid var(--border);
   padding-block: 1.6rem;
+  font-size: 0.85rem;
+  color: var(--muted);
 
   a {
-    color: $muted;
+    color: var(--muted);
     text-decoration: none;
 
     &:hover {
-      color: $accent;
+      color: var(--accent-ink);
     }
   }
 
@@ -1027,17 +1843,29 @@ div.quarto-about-jolla {
 }
 
 // ---------------------------------------------------------------------------
-// 17. Figures made with tools/figkit ({{< fig >}} and {{< stepper >}})
-//     Each figure ships a light and a dark SVG; Quarto hides the other one.
+// 16. Figures made with tools/figkit ({{< fig >}} and {{< stepper >}})
+//     Each figure ships a light and a dark SVG drawn for the card color;
+//     Quarto hides the other one.
 // ---------------------------------------------------------------------------
 
 main.content .figkit {
-  max-width: var(--figkit-width);
-  margin: 2.2rem auto;
+  max-width: calc(var(--figkit-width) + 34px);
+  margin: 1.6em auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
 }
 
-// figkit figures are drawn for each mode, so they never sit on the white
-// plate used for raster images.
+// Figures wider than the column bleed into the margins on wide screens.
+@media (min-width: 1100px) {
+  main.content .figkit.figkit-wide {
+    margin-left: -36px;
+    margin-right: -36px;
+    max-width: none;
+  }
+}
+
 main.content .figkit img.figkit-img {
   display: block;
   width: 100%;
@@ -1063,35 +1891,33 @@ main.content .figkit img.figkit-raster {
   width: 100%;
   height: auto;
   margin: 0 auto;
-  background: $plate-bg;
-  padding: $plate-pad;
-  border: 1px solid $rule;
-  border-radius: $radius-lg;
-  filter: $plate-filter;
-  box-sizing: border-box;
+  background: var(--plate);
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  filter: var(--plate-filter);
 }
 
 .figkit-caption {
-  font-family: $font-ui;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: $muted;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-2);
   text-align: center;
-  margin-top: 0.7rem;
+  margin-top: 10px;
   text-wrap: balance;
 
   p {
-    margin: 0;
+    margin: 0 !important;
   }
 }
 
-// In the lightbox each variant keeps the page color it was drawn for.
+// In the lightbox each variant keeps the card color it was drawn for.
 .glightbox-container .gslide-image img[src$="-light.svg"] {
-  background: $brand-paper;
+  background: $brand-surface;
 }
 
 .glightbox-container .gslide-image img[src$="-dark.svg"] {
-  background: $brand-night;
+  background: $brand-surface-dark;
 }
 
 .figkit-stepper .figkit-frames {
@@ -1123,12 +1949,11 @@ main.content .figkit img.figkit-raster {
 }
 
 .figkit-step-caption {
-  font-family: $font-ui;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: $muted;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-2);
   text-align: center;
-  margin: 0.75rem auto 0;
+  margin: 10px auto 0;
   max-width: 34rem;
   text-wrap: balance;
 }
@@ -1136,14 +1961,13 @@ main.content .figkit img.figkit-raster {
 .figkit-step-number {
   display: inline-grid;
   place-items: center;
-  width: 1.3rem;
-  height: 1.3rem;
-  margin-right: 0.3rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-right: 0.35rem;
   border-radius: 50%;
-  background: $accent-soft;
-  color: $accent;
-  font-size: 0.7rem;
-  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font: 600 0.74rem/1 var(--font-cond);
   vertical-align: 0.05em;
 }
 
@@ -1151,9 +1975,8 @@ main.content .figkit img.figkit-raster {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
-  font-family: $font-ui;
+  gap: 6px;
+  margin-top: 12px;
 
   &[hidden] {
     display: none;
@@ -1162,19 +1985,19 @@ main.content .figkit img.figkit-raster {
   button {
     display: inline-grid;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
+    width: 32px;
+    height: 30px;
     padding: 0;
-    border: 1px solid $rule-strong;
+    border: 1px solid var(--border-strong);
     border-radius: 999px;
-    background: transparent;
-    color: $ink;
+    background: var(--surface);
+    color: var(--text-2);
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
 
     &:hover:not(:disabled) {
-      border-color: $accent;
-      color: $accent;
+      border-color: var(--accent);
+      color: var(--text);
     }
 
     &:disabled {
@@ -1190,8 +2013,14 @@ main.content .figkit img.figkit-raster {
 
 .figkit-counter {
   min-width: 3rem;
-  font-size: 0.8rem;
-  color: $muted;
+  font: 500 0.8rem/1 var(--font-mono);
+  color: var(--text-2);
   text-align: center;
   font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

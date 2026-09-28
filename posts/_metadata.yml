@@ -10,8 +10,9 @@ date-format: "MMM D, YYYY"
 
 toc: true
 toc-depth: 3
-toc-location: right
-toc-title: "Contents"
+toc-location: left
+toc-expand: 1
+toc-title: "On this page"
 
 reference-location: margin
 lightbox: auto

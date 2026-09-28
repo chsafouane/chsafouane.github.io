@@ -8,6 +8,8 @@ project:
     # PNG/GIF exports, fetched by Medium and Substack from the cross-post pages
     - posts/*/assets/figures/*.png
     - posts/*/assets/figures/*.gif
+    # Custom chart widgets (Chartkit.register) of a post
+    - posts/*/charts.js
 
 website:
   title: "Safouane Chergui"
@@ -21,16 +23,47 @@ website:
   twitter-card:
     card-style: summary_large_image
   back-to-top-navigation: true
+  # Previous / next cards at the bottom of every page, in sidebar order.
+  page-navigation: true
   search:
     location: navbar
-    type: overlay
+    type: textbox
+    keyboard-shortcut: ["/"]
   navbar:
+    pinned: true
     right:
-      - about.qmd
-      - resume.qmd
       - icon: rss
         href: index.xml
         aria-label: "RSS feed"
+  bread-crumbs: false
+  # The left column of every page, like the chapter list of a field guide:
+  # posts grouped by year, newest first. The post being read expands to show
+  # its own table of contents (moved there by _theme/site.js).
+  # `blog new` adds new posts here; tools/check_posts.py checks none is missing.
+  sidebar:
+    style: docked
+    collapse-level: 2
+    contents:
+      - text: "Start here"
+        href: index.qmd
+      - section: "2026"
+        contents:
+          - posts/uv-lessons/index.ipynb
+          - posts/llm-evals-1-spec-before-prompt/index.ipynb
+          - posts/filtered-vector-search/index.ipynb
+          - posts/why-swiglu-works/index.ipynb
+      - section: "2025"
+        contents:
+          - posts/llm-evaluation/index.ipynb
+          - posts/pdf-parsing-is-hard/index.ipynb
+          - posts/pixi-intro/index.ipynb
+      - section: "2024"
+        contents:
+          - posts/bpe-tokenization/index.ipynb
+      - section: "About"
+        contents:
+          - about.qmd
+          - resume.qmd
   page-footer:
     left: "© 2024-2026 Safouane Chergui"
     right:
@@ -46,6 +79,9 @@ website:
       - icon: rss
         href: index.xml
         aria-label: "RSS feed"
+
+language:
+  search-text-placeholder: "Search the blog"
 
 format:
   html:
@@ -66,11 +102,15 @@ format:
       - _theme/partials/title-metadata.html
     filters:
       - _theme/reading-time.lua
+      - _theme/headings.lua
+      - _theme/blocks.lua
     include-in-header: _theme/head.html
-    include-after-body: _theme/a11y.html
+    include-after-body:
+      - _theme/site.html
+      - _theme/a11y.html
     callout-appearance: simple
     fig-align: center
-    code-copy: hover
+    code-copy: true
     code-overflow: scroll
 
 execute:

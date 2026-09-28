@@ -10,7 +10,8 @@ Style rules (see README.md):
   - pastel fills with a darker stroke of the same hue, dark text on fills;
   - rounded boxes (radius 10), strokes of 1.75px, solid arrowheads;
   - small uppercase gray titles on group frames;
-  - Inter for labels, JetBrains Mono for code, tokens and file names.
+  - IBM Plex Sans for labels, Plex Sans Condensed for numbers, Plex Mono for
+    code, tokens and file names (the site's fonts).
 """
 
 import math
@@ -190,7 +191,7 @@ class Card(Node):
             r = 11
             cx, cy = self.left + 2, self.top + 2
             out += f'<circle cx="{num(cx)}" cy="{num(cy)}" r="{r}" fill="{hue.solid}"/>'
-            mark = layout(self.badge, 11.5, "sans", 700)
+            mark = layout(self.badge, 12, "cond", 600)
             out += mark.svg(cx, cy - mark.height / 2, hue.on_solid, defs)
         return out
 
