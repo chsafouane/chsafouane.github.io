@@ -44,7 +44,7 @@ website:
     style: docked
     collapse-level: 2
     contents:
-      - text: "Start here"
+      - text: "Home"
         href: index.qmd
       - section: "2026"
         contents:
