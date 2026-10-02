@@ -60,7 +60,8 @@ def preview(slug=None, browser=True):
     watcher.start()
     print("[figures] watching figures.py files; press Ctrl-C to stop", flush=True)
     try:
-        options = [] if browser else ["--no-browser"]
+        # The "preview" profile (_quarto-preview.yml) shows drafts from the first render on.
+        options = ["--profile", "preview"] + ([] if browser else ["--no-browser"])
         subprocess.run([quarto, "preview", *target, *options], cwd=REPO, check=False)
     except KeyboardInterrupt:
         pass

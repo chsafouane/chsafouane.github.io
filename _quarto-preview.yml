@@ -1,0 +1,8 @@
+# The "preview" profile, used only by `uv run blog preview` (tools/blog/preview.py).
+#
+# quarto preview renders the page once before its preview server starts, and that
+# first render follows the site's draft-mode, which hides drafts ("gone": an empty
+# page). Only re-renders after a save show them. This profile makes drafts visible
+# for the whole preview session; `quarto render`, `blog publish` and CI never use it.
+website:
+  draft-mode: visible

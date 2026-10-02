@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "added-option",
+  "width": 640,
+  "height": 300,
+  "alt": "Diagram: the same states, such as \"The refund bounced. The customer isn't sure which account they gave us.\", are sent to three versions of the payout question. Bars show the average probability of each option over all the states, and provider gets 0.00 in all three. With the 4 options: customer 0.56, unknown 0.39, bank 0.04. With weather added: customer 0.53, unknown 0.41, bank 0.05, weather 0.00. With details added: customer 0.31, details 0.23, unknown 0.44, bank 0.01.",
+  "kind": "figure",
+  "png": "added-option.png"
+}

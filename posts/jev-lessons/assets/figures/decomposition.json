@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "decomposition",
+  "width": 640,
+  "height": 330,
+  "alt": "Diagram of the phishing study's two setups. One email goes either to one broad question, \"Is this email phishing?\", which got 62.6% of 2,000 emails right, or to five small yes/no questions: does it ask for a password or payment, does the sender not match, does it promise a reward, does it push you to act now, does it push a link or attachment. A logistic regression trained on 1,000 labeled emails combines the five answers, and that setup got 95.0% right.",
+  "kind": "figure",
+  "png": "decomposition.png"
+}

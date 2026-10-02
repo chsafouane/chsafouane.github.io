@@ -48,6 +48,7 @@ website:
         href: index.qmd
       - section: "2026"
         contents:
+          - posts/jev-lessons/index.ipynb
           - posts/uv-lessons/index.ipynb
           - posts/llm-evals-1-spec-before-prompt/index.ipynb
           - posts/filtered-vector-search/index.ipynb

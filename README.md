@@ -60,6 +60,7 @@ The same pages work for posts published before this workflow: re-import them on 
 |---|---|
 | `posts/<slug>/` | a post: `index.ipynb` or `index.qmd`, `figures.py`, `assets/` |
 | `_brand.yml`, `_theme/` | colors and fonts, SCSS theme (the Jev Field Guide look: left sidebar, cards, IBM Plex), templates, filters, `site.html` (sidebar table of contents, drawer button, long code blocks) |
+| `_quarto-preview.yml` | the profile `blog preview` uses, so drafts show from the first render (plain `quarto preview` empties them until the first save) |
 | `_extensions/figkit/` | the `fig` and `stepper` shortcodes |
 | `_extensions/chartkit/` | the `chart` shortcode and the chart drawing code |
 | `tools/figkit/` | the figure and chart kit (`uv run figkit`) |

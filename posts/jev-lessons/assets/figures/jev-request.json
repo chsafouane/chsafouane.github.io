@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "jev-request",
+  "width": 640,
+  "height": 330,
+  "alt": "A Jev request: one state, a support ticket about a failing Stripe integration, is read once and shared by three questions, a Choice, a Score and a Noul. Each question sees the state and its own text only, never the other questions, and returns its own typed answer: technical at 0.79, a frustration score of 1.01, and 1.00 for urgency.",
+  "kind": "figure",
+  "png": "jev-request.png"
+}

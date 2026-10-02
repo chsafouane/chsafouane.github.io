@@ -67,9 +67,12 @@
   function frame(box, o) {
     box.querySelectorAll(":scope > svg").forEach((s) => s.remove());
     const W = Math.max(220, Math.round(box.clientWidth));
-    const H = o.height;
+    // extraBottom: room for a second line of x labels, added below the plot so it keeps its height.
+    const extra = o.extraBottom || 0;
+    const H = o.height + extra;
     const m = Object.assign({ t: 26, r: 16, b: 44, l: 46 }, o.m || {});
     if (!o.xTitle) m.b = Math.min(m.b, 30);
+    m.b += extra;
     const svg = S("svg", { class: "chart", width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.label || "" });
     box.insertBefore(svg, box.firstChild);
     const X = o.x.log ? logs(o.x.d[0], o.x.d[1], m.l, W - m.r) : lin(o.x.d[0], o.x.d[1], m.l, W - m.r);
@@ -283,18 +286,36 @@
     });
   }
 
+  // A category label centered at x; when wider than maxWidth, it wraps onto two lines split near its
+  // middle. Returns true when it wrapped.
+  function categoryLabel(parent, x, y, s, maxWidth) {
+    const t = txt(parent, x, y, s, { anchor: "middle", cls: "t-strong" });
+    const words = String(s).split(" ");
+    if (words.length < 2 || t.getComputedTextLength() <= maxWidth) return false;
+    const imbalance = (k) => Math.abs(words.slice(0, k).join(" ").length - words.slice(k).join(" ").length);
+    let cut = 1;
+    for (let k = 2; k < words.length; k++) if (imbalance(k) < imbalance(cut)) cut = k;
+    t.textContent = "";
+    S("tspan", { x, dy: 0 }, t).textContent = words.slice(0, cut).join(" ");
+    S("tspan", { x, dy: "1.25em" }, t).textContent = words.slice(cut).join(" ");
+    return true;
+  }
+
   // ---------- bar ----------
   function barChart(box, spec) {
     const cats = spec.categories || [];
     const series = spec.series || [];
     const yf = formatter((spec.y || {}).format);
-    observe(box, () => {
+    // Drawn once with one-line labels; if a label had to wrap, drawn again with room for two lines.
+    observe(box, () => { if (drawBars(0)) drawBars(16); });
+    function drawBars(extraBottom) {
+      let wrapped = false;
       const m = Object.assign({ t: 22, r: 12, b: 44, l: 46 }, spec.margin || {});
       const o = axisOptions(spec);
       o.x = { d: [0, cats.length] };
       o.xTicks = [];
       o.xTitle = (spec.x || {}).title;
-      const f = frame(box, Object.assign(o, { height: spec.height || 250, m }));
+      const f = frame(box, Object.assign(o, { height: spec.height || 250, m, extraBottom }));
       const [y0, y1] = spec.y.domain;
       if (y0 < 0 && y1 > 0) S("line", { class: "base", x1: f.m.l, x2: f.W - f.m.r, y1: f.Y(0), y2: f.Y(0) }, f.g);
       drawRefs(f, spec);
@@ -304,7 +325,7 @@
       const hp = [];
       cats.forEach((cat, i) => {
         const cx = f.X(i + 0.5);
-        txt(f.g, cx, f.H - f.m.b + 18, cat, { anchor: "middle", cls: "t-strong" });
+        wrapped = categoryLabel(f.g, cx, f.H - f.m.b + 18, cat, gw - 8) || wrapped;
         series.forEach((s, j) => {
           const v = s.values[i];
           if (v === null || v === undefined) return;
@@ -321,7 +342,8 @@
         });
       });
       nearestHover(f, hp, 60);
-    });
+      return wrapped;
+    }
   }
 
   // ---------- dot ----------
