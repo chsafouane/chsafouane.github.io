@@ -10,6 +10,8 @@ project:
     - posts/*/assets/figures/*.gif
     # Chart snapshots (uv run blog chart-images), shown by the Medium and Substack versions
     - posts/*/assets/charts/*.png
+    # Temporary: which markup Medium's importer keeps (remove after the test)
+    - medium-import-test.html
     # Custom chart widgets (Chartkit.register) of a post
     - posts/*/charts.js
 
