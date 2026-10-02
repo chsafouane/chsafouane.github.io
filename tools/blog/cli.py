@@ -29,6 +29,10 @@ def main(argv=None):
     cross.add_argument("slugs", nargs="*", help="published posts to process (default: all of them)")
     cross.add_argument("--no-render", action="store_true", help="use the posts already rendered in _site")
 
+    images = sub.add_parser("chart-images", help="PNG snapshots of a post's charts, for its Medium and Substack versions")
+    images.add_argument("slugs", nargs="+", help="posts whose charts to snapshot")
+    images.add_argument("--no-render", action="store_true", help="use the posts already rendered in _site")
+
     args = parser.parse_args(argv)
     if args.command == "new":
         from .scaffold import new_post
@@ -44,6 +48,11 @@ def main(argv=None):
         from .publish import publish
 
         publish(args.slug, push=not args.no_push, keep_date=args.keep_date, allow_branch=args.allow_branch)
+    elif args.command == "chart-images":
+        from .chart_images import snapshot
+
+        for path in snapshot(args.slugs, render_first=not args.no_render):
+            print(f"wrote {path.relative_to(REPO)}")
     elif args.command == "crosspost":
         from .crosspost import SITE, build
 

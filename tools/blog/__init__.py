@@ -4,6 +4,7 @@
   uv run blog preview [SLUG]    live preview, figures rebuilt on save
   uv run blog publish SLUG      check, un-draft, commit and push (CI deploys)
   uv run blog crosspost [SLUG]  Medium import page and Substack copy page of a post
+  uv run --with playwright blog chart-images SLUG   PNG snapshots of a post's charts
 
 See README.md at the repository root.
 """

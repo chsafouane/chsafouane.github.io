@@ -8,8 +8,9 @@ For each post, render it and write:
                                         Substack's editor
 
 Both platforms get what they can display: figures as PNG (steppers as one
-image per step, with a link to the interactive version), charts as their
-data table with a link to the interactive chart, code as plain code
+image per step, with a link to the interactive version), charts as the PNG
+snapshot `blog chart-images` made of them (or as their data table when there
+is none) with a link to the interactive chart, code as plain code
 blocks, callouts as quotes, tables as lists, and math as LaTeX in code
 (neither renders math). Images point to the live post, which Medium and
 Substack copy them from, so cross-post a post once it is published and
@@ -18,10 +19,12 @@ never compete with it in search. CI builds them for every post after
 `quarto render`.
 """
 
+import json
 import re
 import shutil
 import subprocess
 from html import escape
+from pathlib import Path
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
@@ -167,8 +170,20 @@ def _figkit(soup, div, post_url):
     return blocks
 
 
-def _chart(soup, div, post_url):
-    """A chartkit chart: its title, subtitle, data table (as a list) and a link to the chart."""
+def _chart(soup, div, post_url, post_dir=None):
+    """A chartkit chart: its PNG snapshot if `blog chart-images` made one, otherwise its title, subtitle and
+    data table (as a list); then a link to the interactive chart."""
+    chart_url = f"{post_url}#{div.get('id')}" if div.get("id") else post_url
+    note = BeautifulSoup(
+        f'<p><em>This chart is interactive in the <a href="{chart_url}">original post</a>.</em></p>', "html.parser")
+    name = (div.get("id") or "").removeprefix("chart-")
+    if post_dir is not None and name and (Path(post_dir) / "assets" / "charts" / f"{name}.png").exists():
+        spec = div.select_one(".w-chart")
+        try:
+            alt = json.loads(spec["data-spec"]).get("alt", "") if spec is not None else ""
+        except (KeyError, ValueError):
+            alt = ""
+        return [_figure(soup, urljoin(post_url, f"assets/charts/{name}.png"), alt), note]
     blocks = []
     title = div.select_one(".w-title")
     if title:
@@ -179,9 +194,7 @@ def _chart(soup, div, post_url):
     table = div.select_one(".w-data table")
     if table is not None:
         blocks += _table(table)
-    chart_url = f"{post_url}#{div.get('id')}" if div.get("id") else post_url
-    blocks.append(BeautifulSoup(
-        f'<p><em>This chart is interactive in the <a href="{chart_url}">original post</a>.</em></p>', "html.parser"))
+    blocks.append(note)
     source = div.select_one(".w-src")
     if source:
         blocks.append(BeautifulSoup(f"<p><em>{source.decode_contents().strip()}</em></p>", "html.parser"))
@@ -220,7 +233,7 @@ def _replace(tag, new_nodes):
     tag.decompose()
 
 
-def transform(html, post_url):
+def transform(html, post_url, post_dir=None):
     """The article body of a rendered post, simplified for Medium and Substack."""
     soup = BeautifulSoup(html, "html.parser")
     main = soup.select_one("main#quarto-document-content")
@@ -235,7 +248,7 @@ def transform(html, post_url):
         _replace(div, _figkit(soup, div, post_url))
 
     for div in main.select("div.chartkit"):
-        _replace(div, _chart(soup, div, post_url))
+        _replace(div, _chart(soup, div, post_url, post_dir))
 
     # Quarto figures: keep one image and its caption.
     for div in main.select("div.quarto-figure, div.quarto-float"):
@@ -322,7 +335,7 @@ def transform(html, post_url):
     return main.decode_contents().strip()
 
 
-def _render(posts=None):
+def render(posts=None):
     """Render the given posts, or the whole site."""
     quarto = shutil.which("quarto")
     if quarto is None:
@@ -338,7 +351,7 @@ def _render(posts=None):
 
 def _write(post, rendered, site):
     meta = post.meta()
-    body = transform(rendered.read_text(), post.url)
+    body = transform(rendered.read_text(), post.url, post.dir)
     body = f'<p><em>Originally published at <a href="{post.url}">{post.url}</a>.</em></p>\n{body}'
     title = escape(str(meta.get("title", "")))
     description = escape(str(meta.get("description", "")))
@@ -362,7 +375,7 @@ def build(slugs=None, render=True, site=SITE):
     else:
         posts = [post for post in all_posts() if not post.meta().get("draft")]
     if render:
-        _render(posts if slugs else None)
+        render(posts if slugs else None)
     written = []
     for post in posts:
         rendered = site / "posts" / post.slug / "index.html"

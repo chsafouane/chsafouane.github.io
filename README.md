@@ -46,7 +46,16 @@ uv run blog publish why-rope-works      # checks, removes the draft flag, commit
   Start a new post on Substack, then use the page's Copy buttons for the title, the subtitle and the body, and paste each into the matching field.
   Substack has no canonical links, so publish on the blog first and on Substack a few days later; the body starts with an "Originally published at" link to the post.
 
-Both pages contain what the two platforms can display: figures as PNG, steppers as one image per step with a link back to the interactive version, charts as their data table with a link back to the chart, code as plain code blocks, callouts as quotes, tables as lists, and math as LaTeX code.
+Both pages contain what the two platforms can display: figures as PNG, steppers as one image per step with a link back to the interactive version, charts as an image with a link back to the interactive chart, code as plain code blocks, callouts as quotes, tables as lists, and math as LaTeX code.
+Charts are drawn in the browser, so their images are snapshots you take once a post's charts are final, and commit with the post:
+
+```bash
+uv run --with playwright blog chart-images <slug>   # writes posts/<slug>/assets/charts/<name>.png
+```
+
+It uses Brave or Chrome if installed (otherwise run `uv run --with playwright playwright install chromium` once).
+Each snapshot records the chart spec it was taken from, and `tools/check_posts.py` fails when the chart changed since, so re-run the command after editing a chart.
+A chart without a snapshot shows its data table instead.
 Neither platform renders math; on Substack, the LaTeX block can turn the code back into equations.
 Images point to the live post, which Medium and Substack copy them from, so the command refuses drafts: cross-post once the post is published and deployed.
 The pages are marked `noindex` and point to the post as canonical, so they never compete with it in search.

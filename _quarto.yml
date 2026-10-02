@@ -8,6 +8,8 @@ project:
     # PNG/GIF exports, fetched by Medium and Substack from the cross-post pages
     - posts/*/assets/figures/*.png
     - posts/*/assets/figures/*.gif
+    # Chart snapshots (uv run blog chart-images), shown by the Medium and Substack versions
+    - posts/*/assets/charts/*.png
     # Custom chart widgets (Chartkit.register) of a post
     - posts/*/charts.js
 

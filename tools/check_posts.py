@@ -20,13 +20,16 @@ Each post lives in posts/<slug>/index.ipynb (or index.qmd). The checks:
   - every {{< fig NAME >}} / {{< stepper NAME >}} has a figkit manifest of the
     right kind in assets/figures, and the files it lists exist;
   - every {{< chart NAME >}} has a chart spec in assets/charts with a known
-    type (or a widget registered in the post's charts.js), a title and alt text;
+    type (or a widget registered in the post's charts.js), a title and alt text,
+    and its PNG snapshot (assets/charts/NAME.png, made by `blog chart-images`
+    for the Medium and Substack versions), if it has one, matches that spec;
   - every published post is listed in the sidebar in _quarto.yml (the left
     column of the site), since Quarto does not add posts there by itself;
   - published posts (no `draft: true`) contain no TODO placeholders left by
     `blog new`. Drafts may still have TODOs and a missing preview image.
 Exits with status 1 when any check fails.
 """
+import hashlib
 import json
 import re
 import shutil
@@ -169,7 +172,27 @@ def check_chart(post_dir, source, name):
             errors.append(f"{source}: chart {name} uses widget '{widget}', which {script.relative_to(post_dir.parent)} does not register")
     elif spec.get("type") not in CHART_TYPES:
         errors.append(f"{source}: chart {name} has type {spec.get('type')!r}, use one of {sorted(CHART_TYPES)}")
+    snapshot = path.with_suffix(".png")
+    if snapshot.exists() and png_text(snapshot, "chart-spec-sha256") != hashlib.sha256(path.read_bytes()).hexdigest():
+        errors.append(f"{source}: chart {name}: {snapshot.relative_to(post_dir)} was made from an older spec "
+                      f"(run uv run --with playwright blog chart-images {post_dir.name})")
     return errors
+
+
+def png_text(path, key):
+    """The value of a tEXt chunk in a PNG file, or None (standard library only, like the rest of this file)."""
+    data = path.read_bytes()
+    pos = 8  # after the PNG signature
+    while pos + 8 <= len(data):
+        length, kind = int.from_bytes(data[pos:pos + 4], "big"), data[pos + 4:pos + 8]
+        if kind == b"tEXt":
+            name, _, value = data[pos + 8:pos + 8 + length].partition(b"\0")
+            if name.decode("latin-1") == key:
+                return value.decode("latin-1")
+        if kind == b"IEND":
+            break
+        pos += 12 + length
+    return None
 
 
 def check_sidebar(post_dirs, config):
