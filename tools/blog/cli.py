@@ -54,13 +54,13 @@ def main(argv=None):
         for path in snapshot(args.slugs, render_first=not args.no_render):
             print(f"wrote {path.relative_to(REPO)}")
     elif args.command == "crosspost":
-        from .crosspost import SITE, build
+        from .crosspost import SITE, build, medium_name
 
         written = build(args.slugs, render=not args.no_render)
         for post in written:
             page = SITE / "crosspost" / post.slug / "substack.html"
             print(post.slug)
-            print(f"  Medium:   Import a story, with the URL {SITE_URL}/crosspost/{post.slug}/")
+            print(f"  Medium:   Import a story, with the URL {SITE_URL}/crosspost/{post.slug}/{medium_name(post)}")
             print(f"  Substack: open {page.as_uri()} and use its Copy buttons")
         if not written:
             print("nothing written: no published post is rendered in _site")

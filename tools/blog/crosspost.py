@@ -19,6 +19,7 @@ never compete with it in search. CI builds them for every post after
 `quarto render`.
 """
 
+import hashlib
 import json
 import re
 import shutil
@@ -376,6 +377,22 @@ def render(posts=None):
             raise SystemExit("quarto render failed")
 
 
+def medium_name(post):
+    """File name of the post's Medium page, which changes whenever the post or this tool changes.
+
+    Medium caches an import per URL, query string included, so re-importing the same URL returns the
+    first version. The name hashes the post's files and this module, the same on any machine, so a
+    local run and CI agree on the URL.
+    """
+    digest = hashlib.sha256(Path(__file__).read_bytes())
+    files = (p for p in post.dir.rglob("*") if p.is_file())
+    # Skip what git doesn't track (caches, hidden files such as .DS_Store), so CI computes the same name.
+    for path in sorted(p for p in files if "__pycache__" not in p.parts and not any(part.startswith(".") for part in p.relative_to(post.dir).parts)):
+        digest.update(path.relative_to(post.dir).as_posix().encode())
+        digest.update(path.read_bytes())
+    return f"medium-{digest.hexdigest()[:10]}.html"
+
+
 def _write(post, rendered, site):
     meta = post.meta()
     body = transform(rendered.read_text(), post.url, post.dir)
@@ -386,7 +403,9 @@ def _write(post, rendered, site):
     out.mkdir(parents=True, exist_ok=True)
     image = urljoin(post.url, str(meta["image"])) if meta.get("image") else ""
     fields = {"title": title, "description": description, "url": post.url, "style": STYLE, "image": escape(image)}
-    (out / "index.html").write_text(MEDIUM_PAGE.format(**fields, body=_medium_code(body)))
+    medium = MEDIUM_PAGE.format(**fields, body=_medium_code(body))
+    (out / "index.html").write_text(medium)
+    (out / medium_name(post)).write_text(medium)  # the URL to import: new for every version
     (out / "substack.html").write_text(SUBSTACK_PAGE.format(**fields, body=body))
 
 
