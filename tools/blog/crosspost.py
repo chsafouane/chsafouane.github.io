@@ -53,6 +53,10 @@ MEDIUM_PAGE = """<!doctype html>
 <meta name="description" content="{description}">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="{url}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{description}">
+<meta property="og:image" content="{image}">
 <style>
 {style}
 </style>
@@ -335,6 +339,29 @@ def transform(html, post_url, post_dir=None):
     return main.decode_contents().strip()
 
 
+def _medium_code(body_html):
+    """Code blocks in the shape Medium's "Import a story" keeps (tested on Medium, October 2026).
+
+    Its importer collapses the newlines of a <pre> and drops a <pre><code> written with <br>, so each block
+    becomes a bare <pre> with <br> between lines. It also collapses runs of spaces and splits a block at an
+    empty line, so leading spaces become tabs (one per four spaces, which Python accepts when copied back)
+    and an empty line holds a non-breaking space. Medium ignores the language class and guesses the language.
+    It still adds an empty code block after each block, which has to be deleted in Medium's editor.
+    """
+    soup = BeautifulSoup(body_html, "html.parser")
+    for pre in soup.find_all("pre"):
+        lines = pre.get_text().rstrip("\n").split("\n")
+        out = []
+        for line in lines:
+            if not line.strip():
+                out.append("&nbsp;")
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            out.append("\t" * round(indent / 4) + escape(line[indent:], quote=False))
+        pre.replace_with(BeautifulSoup(f"<pre>{'<br>'.join(out)}</pre>", "html.parser"))
+    return str(soup).replace("<br/>", "<br>")  # the exact form tested on Medium
+
+
 def render(posts=None):
     """Render the given posts, or the whole site."""
     quarto = shutil.which("quarto")
@@ -357,9 +384,10 @@ def _write(post, rendered, site):
     description = escape(str(meta.get("description", "")))
     out = site / "crosspost" / post.slug
     out.mkdir(parents=True, exist_ok=True)
-    fields = {"title": title, "description": description, "url": post.url, "style": STYLE, "body": body}
-    (out / "index.html").write_text(MEDIUM_PAGE.format(**fields))
-    (out / "substack.html").write_text(SUBSTACK_PAGE.format(**fields))
+    image = urljoin(post.url, str(meta["image"])) if meta.get("image") else ""
+    fields = {"title": title, "description": description, "url": post.url, "style": STYLE, "image": escape(image)}
+    (out / "index.html").write_text(MEDIUM_PAGE.format(**fields, body=_medium_code(body)))
+    (out / "substack.html").write_text(SUBSTACK_PAGE.format(**fields, body=body))
 
 
 def build(slugs=None, render=True, site=SITE):
