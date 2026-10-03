@@ -62,8 +62,11 @@ def main(argv=None):
             print(post.slug)
             print(f"  Medium:   Import a story, with the URL {SITE_URL}/crosspost/{post.slug}/{medium_name(post)}")
             print(f"  Substack: open {page.as_uri()} and use its Copy buttons")
+            if post.meta().get("crosspost") is not True:
+                print("  The Medium URL is online only for posts with `crosspost: true` in their front matter:")
+                print("  add it, push, import into Medium, then remove it and push again.")
         if not written:
-            print("nothing written: no published post is rendered in _site")
+            print("nothing written: no published post " + ("is rendered in _site" if args.slugs else "has crosspost: true"))
         else:
             print("Both work once the post is deployed: Medium and Substack copy the images from the live post.")
     return 0

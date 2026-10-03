@@ -1,8 +1,9 @@
 """`blog crosspost`: Medium and Substack versions of published posts.
 
 For each post, render it and write:
-  _site/crosspost/<slug>/index.html     a plain page for Medium's "Import a story"
-                                        (Medium sets the canonical link and date)
+  _site/crosspost/<slug>/medium-<version>.html  a plain page for Medium's "Import a story"
+                                        (Medium sets the canonical link and date; the name
+                                        changes with every version, see medium_name)
   _site/crosspost/<slug>/substack.html  the same post with Copy buttons for the
                                         title, subtitle and body, to paste into
                                         Substack's editor
@@ -15,8 +16,8 @@ blocks, callouts as quotes, tables as lists, and math as LaTeX in code
 (neither renders math). Images point to the live post, which Medium and
 Substack copy them from, so cross-post a post once it is published and
 deployed. The pages carry noindex and a canonical link to the post, so they
-never compete with it in search. CI builds them for every post after
-`quarto render`.
+never compete with it in search. CI builds them, after
+`quarto render`, for the posts with `crosspost: true` in their front matter.
 """
 
 import hashlib
@@ -403,14 +404,17 @@ def _write(post, rendered, site):
     out.mkdir(parents=True, exist_ok=True)
     image = urljoin(post.url, str(meta["image"])) if meta.get("image") else ""
     fields = {"title": title, "description": description, "url": post.url, "style": STYLE, "image": escape(image)}
-    medium = MEDIUM_PAGE.format(**fields, body=_medium_code(body))
-    (out / "index.html").write_text(medium)
-    (out / medium_name(post)).write_text(medium)  # the URL to import: new for every version
+    (out / medium_name(post)).write_text(MEDIUM_PAGE.format(**fields, body=_medium_code(body)))
     (out / "substack.html").write_text(SUBSTACK_PAGE.format(**fields, body=body))
 
 
 def build(slugs=None, render=True, site=SITE):
-    """Write the cross-post pages of the given posts (default: every published post)."""
+    """Write the cross-post pages of the given posts.
+
+    Without slugs (what CI runs), only published posts with `crosspost: true` in their front matter, so
+    a post's cross-post pages are online only while it is being cross-posted: Medium's importer needs a
+    public URL. With slugs (a local run), the given posts, flagged or not.
+    """
     if slugs:
         posts = [find(slug) for slug in slugs]
         drafts = [post.slug for post in posts if post.meta().get("draft")]
@@ -420,7 +424,7 @@ def build(slugs=None, render=True, site=SITE):
                 + "(Medium and Substack copy the images from the live post.)"
             )
     else:
-        posts = [post for post in all_posts() if not post.meta().get("draft")]
+        posts = [post for post in all_posts() if not post.meta().get("draft") and post.meta().get("crosspost") is True]
     if render:
         render(posts if slugs else None)
     written = []

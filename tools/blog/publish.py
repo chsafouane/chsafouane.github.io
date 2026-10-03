@@ -55,4 +55,5 @@ def publish(slug, push=True, keep_date=False, allow_branch=False):
         print(f"pushed: CI deploys {post.url} in about a minute")
     else:
         print("committed; push when ready (git push)")
-    print(f"then cross-post: uv run blog crosspost {slug}  (or /publish-post in Claude Code)")
+    print(f"then cross-post: add `crosspost: true` to the front matter, push, run uv run blog crosspost {slug}, "
+          "and remove the flag once it's on Medium and Substack (or /publish-post in Claude Code)")

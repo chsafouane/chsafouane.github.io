@@ -31,18 +31,23 @@ uv run blog publish why-rope-works      # checks, removes the draft flag, commit
    The checks refuse `TODO` placeholders, a missing description or preview image, raw HTML layout, h1 headings in the body, lists glued to a paragraph, figures or charts whose files are missing, and published posts missing from the sidebar.
    After the push, GitHub Actions checks the posts and figures again, renders the site and deploys it (about a minute).
 4. **Cross-post.**
-   Once the post is live, `uv run blog crosspost <slug>` renders it and prints its Medium import URL and its Substack page (see [Cross-posting](#cross-posting)).
-   In Claude Code, `/publish-post <slug>` does steps 3 and 4: it publishes, waits for the deploy and gives the same two links.
+   Once the post is live, add `crosspost: true` to its front matter and push: CI then puts its Medium and Substack pages online.
+   `uv run blog crosspost <slug>` prints the Medium import URL and the Substack page (see [Cross-posting](#cross-posting)).
+   Once the post is on both platforms, remove the flag and push again: the pages go offline, and only the post stays.
+   In Claude Code, `/publish-post <slug>` does steps 3 and 4.
 
 ## Cross-posting
 
-`uv run blog crosspost <slug>` renders the post and writes two pages to `_site/crosspost/<slug>/`:
+`uv run blog crosspost <slug>` renders the post and writes its pages to `_site/crosspost/<slug>/`.
+CI publishes them only for posts with `crosspost: true` in their front matter, because Medium's importer needs a public URL; remove the flag once the post is cross-posted.
 
-- `index.html`, for **Medium**.
-  Medium has no API for new accounts, so you use its importer: on Medium, choose Import a story and paste `https://chsafouane.github.io/crosspost/<slug>/`.
+- `medium-<version>.html`, for **Medium**.
+  Medium has no API for new accounts, so you use its importer: on Medium, choose Import a story and paste the URL the command prints.
+  Medium caches every import by URL, query string included, so the file name changes whenever the post or the cross-post tool changes.
+  In the draft, delete the empty code block Medium adds after each code block (a bug of its importer that no markup avoids); indentation comes through as tabs.
   Medium sets the original date and a canonical link to the imported page; check in the story's advanced settings that the canonical link is the post URL, then publish.
 - `substack.html`, for **Substack**.
-  Open it in a browser: the command prints its `file://` link, and it is also online at `https://chsafouane.github.io/crosspost/<slug>/substack.html`.
+  Open it in a browser: the command prints its `file://` link (while the post has the flag, it is also online at `https://chsafouane.github.io/crosspost/<slug>/substack.html`).
   Start a new post on Substack, then use the page's Copy buttons for the title, the subtitle and the body, and paste each into the matching field.
   Substack has no canonical links, so publish on the blog first and on Substack a few days later; the body starts with an "Originally published at" link to the post.
 
